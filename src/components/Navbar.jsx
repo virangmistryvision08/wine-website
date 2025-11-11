@@ -1,4 +1,8 @@
 import wine_logo from "/wine-website-logo.svg";
+import use_flag from "/navbar/usa-flag.jpg"
+import europe from "/navbar/europe.svg"
+import uk_flag from "/navbar/uk.svg"
+import china_flag from "/navbar/china.svg"
 import { useEffect, useState, useRef } from "react";
 
 function Navbar() {
@@ -32,7 +36,7 @@ function Navbar() {
   return (
     <>
       {/* Navbar */}
-      <nav className="!font-[Urbanist] relative z-50">
+      <nav className="!font-[Urbanist] relative z-40">
         {/* Top bar */}
         <div className="bg-[#EED291] py-2">
           <p className="font-semibold text-center">Free shipping at $99+</p>
@@ -41,16 +45,15 @@ function Navbar() {
         {/* Main navbar */}
         <div
           ref={navbarRef}
-          className={`w-full transition-all duration-500 ease-in-out fixed ${
-            isSticky
+          className={`w-full transition-all duration-500 ease-in-out fixed ${isSticky
               ? "top-0 left-0 bg-black shadow-lg translate-y-0"
               : "bg-transparent translate-y-[-10px]"
-          }`}
+            }`}
         >
           <div className="w-[96%] mx-auto flex justify-between items-center py-4">
             <div>
               <img
-                className={`${isSticky ? "h-24" : "h-20 xl:h-auto"}`}
+                className={`${isSticky ? "h-20" : "h-20 xl:h-auto"}`}
                 src={wine_logo}
                 alt="logo"
               />
@@ -58,21 +61,25 @@ function Navbar() {
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
               <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">
-                <li>Home</li>
-                <li>Shop</li>
-                <li>About Us</li>
-                <li>Blog</li>
+                {["Home", "Shop", "About Us", "Blog"].map((item) => (
+                  <li
+                    key={item}
+                    className="relative cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]"
+                  >
+                    {item}
+                  </li>
+                ))}
               </ul>
 
               {/* Icons */}
               <div className="flex items-center gap-3 xl:gap-5 text-2xl text-white">
-                <i className="fa-solid fa-magnifying-glass !hidden xl:!block"></i>
-                <i className="fa-regular fa-user"></i>
-                <i className="fa-solid fa-bag-shopping"></i>
+                <i className="fa-solid fa-magnifying-glass cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
+                <i className="fa-regular fa-user cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
+                <i className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
               </div>
 
               {/* Desktop Button */}
-              <button className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block">
+              <button className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
                 CONTACT US
               </button>
 
@@ -88,11 +95,10 @@ function Navbar() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-96 bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
-        <div className="flex justify-between items-center p-4">
+        <div className="flex justify-between items-center p-4 text-xl !font-[400] font-[Urbanist]">
           Menu
           <i
             className="fa-solid fa-xmark text-2xl cursor-pointer"
@@ -134,11 +140,26 @@ function Navbar() {
             >
               Currency
             </li>
-            <div>
-                <div>
-                    <img src="" alt="" />
-                    <p>USD</p>
-                </div>
+            <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
+              <div className="flex items-center gap-2">
+                <img className="h-7 w-7 rounded-full object-cover" src={use_flag} alt="use_flag" />
+                <p>USD</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <img className="h-7 w-7 rounded-full object-cover" src={europe} alt="europe" />
+                <p>EUR</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <img className="h-7 w-7 rounded-full object-cover" src={uk_flag} alt="uk_flag" />
+                <p>GBP</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <img className="h-7 w-7 rounded-full object-cover" src={china_flag} alt="china_flag" />
+                <p>CHF</p>
+              </div>
             </div>
           </div>
         </ul>

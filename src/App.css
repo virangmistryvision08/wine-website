@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Cormorant-Upright-bold';
+  src: url('./assets/fonts/CormorantUpright-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.cormorant-upright-bold {
+  font-family: "Cormorant-Upright", serif;
+  font-weight: 700;
+  font-style: normal;
+}

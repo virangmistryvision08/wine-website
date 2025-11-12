@@ -7,8 +7,28 @@
   font-style: normal;
 }
 
-.cormorant-upright-bold {
+.Cormorant-Upright-bold {
   font-family: "Cormorant-Upright", serif;
   font-weight: 700;
   font-style: normal;
+}
+
+/* Set Scrollbar Color on Products Section */
+
+.tabs-container::-webkit-scrollbar {
+  height: 6px; /* horizontal scrollbar height */
+}
+
+.tabs-container::-webkit-scrollbar-track {
+  background: #f1f1f1; /* light track color */
+  border-radius: 10px;
+}
+
+.tabs-container::-webkit-scrollbar-thumb {
+  background: #EED291; /* scrollbar thumb color */
+  border-radius: 10px;
+}
+
+.tabs-container::-webkit-scrollbar-thumb:hover {
+  background: #dcbf76; /* slightly darker on hover */
 }

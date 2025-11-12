@@ -1,0 +1,15 @@
+.swiper-pagination-bullet {
+    height: 13px;
+    width: 13px;
+  background-color: #a0a0a0 !important; /* inactive dots */
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #000000 !important; /* active yellow */
+}
+
+.swiper-pagination-bullets {
+    display: flex !important;
+    justify-content: center;
+    gap: 5px !important;
+}

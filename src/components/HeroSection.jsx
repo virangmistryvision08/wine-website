@@ -5,7 +5,7 @@ const HeroSection = () => {
   return (
     <>
       <div className="bg-black flex justify-center items-center">
-        <div className="text-center w-[90%] md:w-[60%] lg:w-[50%]">
+        <div className="text-center w-[90%] md:w-[60%] lg:w-[45%]">
           <img
             className="mx-auto w-52 xl:w-auto"
             src={hero_section_bg_bottle}

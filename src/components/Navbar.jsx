@@ -4,6 +4,7 @@ import europe from "/navbar/europe.svg"
 import uk_flag from "/navbar/uk.svg"
 import china_flag from "/navbar/china.svg"
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
@@ -51,13 +52,13 @@ function Navbar() {
             }`}
         >
           <div className="w-[96%] mx-auto flex justify-between items-center py-4">
-            <div>
+            <Link to="/">
               <img
                 className={`${isSticky ? "h-20" : "h-20 xl:h-auto"}`}
                 src={wine_logo}
                 alt="logo"
               />
-            </div>
+            </Link>
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
               <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">

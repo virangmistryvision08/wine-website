@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommonFirstSection from "./CommonFirstSection";
 import bg_image from "/products/product-details-bg.jpg";
 import productImage from "/products/product1.png";
@@ -15,10 +15,35 @@ import product2 from "/products/product2.png";
 import product3 from "/products/product2.png";
 import Product from "./Product";
 import Title from "./Title";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination } from "swiper/modules";
 
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [showModal, setShowModal] = useState(false);
+  const [showPagination, setShowPagination] = useState(true);
+
+  const handleSwiperInit = (swiper) => {
+    const slidesPerView = swiper.params.slidesPerView;
+    if (swiper.slides.length <= slidesPerView) {
+      setShowPagination(false);
+    } else {
+      setShowPagination(true);
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && showModal) {
+        setShowModal(false);
+        setActiveTab((prev) => prev);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [showModal]);
 
   const tabs = [
     {
@@ -145,7 +170,7 @@ const ProductDetails = () => {
   ];
 
   const openModal = (tab) => {
-    setActiveTab(tab);
+    setActiveTab(tab.id);
     setShowModal(true);
   };
 
@@ -312,12 +337,12 @@ const ProductDetails = () => {
                       <button className=" w-full 2xl:w-[80%] bg-[#EED291] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
                         BUY NOW
                       </button>
-                      <div className="bg-[#EED291] hover:bg-[#f3c968] transition duration-200 h-[40px] w-[40px] flex items-center justify-center rounded-full cursor-pointer">
+                      <div className="bg-[#EED291] hover:bg-[#f3c968] transition duration-200 h-[40px] w-[40px] flex items-center justify-center rounded-full cursor-pointer flex-shrink-0">
                         <i class="fa-regular fa-heart"></i>
                       </div>
                       <i class="fa-solid fa-share-nodes cursor-pointer"></i>
                     </div>
-                    <button className=" w-full 2xl:w-[80%] bg-[#fff] outline outline-[#f3c968] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
+                    <button className=" w-full 2xl:w-[80%] bg-white outline outline-[#f3c968] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
                       BUY IT NOW
                     </button>
                   </div>
@@ -340,26 +365,35 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Tabs */}
 
-          <div className="w-full mx-auto p-4 py-10">
+          {/* Tabs */}
+          <div className="w-full mx-auto p-4 py-10 font-[Urbanist]">
             {/* Desktop Tabs */}
             <div className="hidden md:block">
-              <div className="flex justify-center border-b border-gray-300">
+              <div className="flex justify-center gap-5 border-b border-gray-300">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer ${
-                      activeTab === tab.id
-                        ? "border-b-2 border-black text-black"
-                        : "text-gray-500 hover:text-black"
-                    }`}
+                    className="relative px-4 py-2 text-lg font-medium transition-colors duration-300 cursor-pointer group"
                   >
-                    {tab.label}
+                    <span
+                      className={`transition-colors duration-300 ${activeTab === tab.id ? "text-black" : "text-gray-500 group-hover:text-black"
+                        }`}
+                    >
+                      {tab.label}
+                    </span>
+
+                    {/* underline animation */}
+                    <span
+                      className={`absolute left-0 bottom-0 h-[2px] bg-black transition-all duration-500 ease-in-out
+          ${activeTab === tab.id ? "w-full left-0" : "w-0 right-0"}
+        `}
+                    ></span>
                   </button>
                 ))}
               </div>
+
 
               <div className="mt-6 text-gray-700 text-sm leading-relaxed">
                 {tabs.map(
@@ -390,8 +424,11 @@ const ProductDetails = () => {
               <div className="fixed inset-0 bg-white z-50 flex flex-col animate-slideUp">
                 {/* Header */}
                 <div className="flex justify-between font-[Cormorant-Upright-bold] items-center border-b bg-[#EED291] border-gray-300 p-4">
-                  <h2 className="text-lg font-semibold uppercase">
+                  {/* <h2 className="text-lg font-semibold uppercase">
                     {activeTab?.label || "Details"}
+                  </h2> */}
+                  <h2 className="text-lg font-semibold uppercase">
+                    {tabs.find((t) => t.id === activeTab)?.label || "Details"}
                   </h2>
                   <button
                     onClick={closeModal}
@@ -402,8 +439,11 @@ const ProductDetails = () => {
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 text-sm text-gray-700 leading-relaxed">
+                {/* <div className="flex-1 overflow-y-auto p-4 text-sm text-gray-700 leading-relaxed">
                   {activeTab?.content}
+                </div> */}
+                <div className="flex-1 overflow-y-auto p-4 text-sm text-gray-700 leading-relaxed">
+                  {tabs.find((t) => t.id === activeTab)?.content}
                 </div>
               </div>
             )}
@@ -411,13 +451,33 @@ const ProductDetails = () => {
         </div>
       </section>
 
-      <section className="w-full bg-[#F8F8F8] py-10">
+      <section className="w-full bg-[#F8F8F8] py-5 md:py-10">
         <div className="w-[90%] xl:w-[80%] mx-auto">
-          <div className="mt-10">
-            <Title text="Related Products" />
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-5 xl:gap-20">
-              {productDetails.map((product, index) => {
-                return (
+          <Title text="Related Products" />
+
+          <Swiper
+            className="!pb-10 md:pb-0"
+            modules={[Pagination]}
+            spaceBetween={20}
+            speed={800}
+            pagination={showPagination ? { clickable: true } : false}
+            onInit={handleSwiperInit}
+            onResize={handleSwiperInit}
+            breakpoints={{
+              0: {
+                slidesPerView: 1,
+              },
+              768: {
+                slidesPerView: 3,
+              },
+              1024: {
+                slidesPerView: 3,
+              },
+            }}
+          >
+            {productDetails.map((product, index) => {
+              return (
+                <SwiperSlide key={index}>
                   <Product
                     key={index}
                     productImage={product.productImage}
@@ -427,10 +487,10 @@ const ProductDetails = () => {
                     price={product.price}
                     wineType={product.wineType}
                   />
-                );
-              })}
-            </div>
-          </div>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
         </div>
       </section>
     </>

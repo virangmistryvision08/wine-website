@@ -22,6 +22,7 @@
 .tabs-container::-webkit-scrollbar-track {
   background: #f1f1f1; /* light track color */
   border-radius: 10px;
+  background: #2e2e2ec7;
 }
 
 .tabs-container::-webkit-scrollbar-thumb {
@@ -31,4 +32,8 @@
 
 .tabs-container::-webkit-scrollbar-thumb:hover {
   background: #dcbf76; /* slightly darker on hover */
+}
+
+.active{
+  color: #EED291;
 }

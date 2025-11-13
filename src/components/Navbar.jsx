@@ -1,10 +1,10 @@
 import wine_logo from "/wine-website-logo.svg";
-import use_flag from "/navbar/usa-flag.jpg"
-import europe from "/navbar/europe.svg"
-import uk_flag from "/navbar/uk.svg"
-import china_flag from "/navbar/china.svg"
+import use_flag from "/navbar/usa-flag.jpg";
+import europe from "/navbar/europe.svg";
+import uk_flag from "/navbar/uk.svg";
+import china_flag from "/navbar/china.svg";
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
@@ -46,10 +46,11 @@ function Navbar() {
         {/* Main navbar */}
         <div
           ref={navbarRef}
-          className={`w-full transition-all duration-500 ease-in-out fixed ${isSticky
+          className={`w-full transition-all duration-500 ease-in-out fixed ${
+            isSticky
               ? "top-0 left-0 bg-black shadow-lg translate-y-0"
               : "bg-transparent translate-y-[-10px]"
-            }`}
+          }`}
         >
           <div className="w-[96%] mx-auto flex justify-between items-center py-4">
             <Link to="/">
@@ -62,13 +63,19 @@ function Navbar() {
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
               <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">
-                {["Home", "Shop", "About Us", "Blog"].map((item) => (
-                  <li
-                    key={item}
-                    className="relative cursor-pointer after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]"
+                {[
+                  { name: "Home", to: "" },
+                  { name: "Shop", to: "shop" },
+                  { name: "About Us", to: "about-us" },
+                  { name: "Blog", to: "blog" },
+                ].map((item) => (
+                  <NavLink
+                    to={`/${item.to}`}
+                    key={item.name}
+                    className={`relative cursor-pointer active:text-[#EED291] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]`}
                   >
-                    {item}
-                  </li>
+                    {item.name}
+                  </NavLink>
                 ))}
               </ul>
 
@@ -96,8 +103,9 @@ function Navbar() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${
+          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex justify-between items-center p-4 text-xl !font-[400] font-[Urbanist]">
           Menu
@@ -143,22 +151,38 @@ function Navbar() {
             </li>
             <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
               <div className="flex items-center gap-2">
-                <img className="h-7 w-7 rounded-full object-cover" src={use_flag} alt="use_flag" />
+                <img
+                  className="h-7 w-7 rounded-full object-cover"
+                  src={use_flag}
+                  alt="use_flag"
+                />
                 <p>USD</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <img className="h-7 w-7 rounded-full object-cover" src={europe} alt="europe" />
+                <img
+                  className="h-7 w-7 rounded-full object-cover"
+                  src={europe}
+                  alt="europe"
+                />
                 <p>EUR</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <img className="h-7 w-7 rounded-full object-cover" src={uk_flag} alt="uk_flag" />
+                <img
+                  className="h-7 w-7 rounded-full object-cover"
+                  src={uk_flag}
+                  alt="uk_flag"
+                />
                 <p>GBP</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <img className="h-7 w-7 rounded-full object-cover" src={china_flag} alt="china_flag" />
+                <img
+                  className="h-7 w-7 rounded-full object-cover"
+                  src={china_flag}
+                  alt="china_flag"
+                />
                 <p>CHF</p>
               </div>
             </div>

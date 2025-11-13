@@ -1,10 +1,16 @@
 import React from "react";
 import grapes from "/products/grapes.svg";
 import gold_medal from "/Gold_Medal.webp";
+import { useNavigate } from "react-router-dom";
 
 const Product = ({ productImage, title, verity, isGold, price, wineType }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="font-[Urbanist] flex flex-col gap-3 group">
+    <div
+      onClick={() => navigate("/products/id")}
+      className="font-[Urbanist] flex flex-col gap-3 group"
+    >
       {/* Image container */}
       <div className="relative h-[300px] md:h-[500px] xl:h-[600px] w-full bg-white p-8 flex justify-center items-center rounded-sm overflow-hidden">
         <img
@@ -40,9 +46,7 @@ const Product = ({ productImage, title, verity, isGold, price, wineType }) => {
             {isGold && (
               <img className="h-10 lg:h-14" src={gold_medal} alt="gold medal" />
             )}
-            <span className="font-semibold text-gray-600">
-              {wineType}
-            </span>
+            <span className="font-semibold text-gray-600">{wineType}</span>
           </p>
         </div>
 

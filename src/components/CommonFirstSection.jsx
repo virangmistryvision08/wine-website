@@ -1,0 +1,31 @@
+import React from "react";
+
+const CommonFirstSection = ({ productImage }) => {
+  return (
+    <>
+      <div
+        style={{
+          backgroundImage: `linear-gradient(to left, #000000aa, #000000aa), url("${productImage}")`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+        }}
+        className={`relative w-full h-96 overflow-hidden`}
+      >
+        <div className="w-[96%] mx-auto">
+          <div className="absolute flex flex-col gap-3 bottom-10 ">
+            <h4 className="text-white font-[Urbanist] text-xs md:text-base">
+              Home <span className="mx-2">&gt;</span> Shop{" "}
+              <span className="mx-2">&gt;</span> Product Detail
+            </h4>
+            <h1 className="font-[Cormorant-Upright-bold] text-2xl md:text-4xl 2xl:text-5xl text-white uppercase">
+              Product Detail
+            </h1>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default CommonFirstSection;

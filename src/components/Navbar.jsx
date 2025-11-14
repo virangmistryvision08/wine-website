@@ -4,12 +4,13 @@ import europe from "/navbar/europe.svg";
 import uk_flag from "/navbar/uk.svg";
 import china_flag from "/navbar/china.svg";
 import { useEffect, useState, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navbarRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +64,7 @@ function Navbar() {
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
               <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">
-                {[
+                {/* {[
                   { name: "Home", to: "" },
                   { name: "Shop", to: "shop" },
                   { name: "About Us", to: "about-us" },
@@ -76,7 +77,86 @@ function Navbar() {
                   >
                     {item.name}
                   </NavLink>
-                ))}
+                ))} */}
+
+                {/* Home */}
+                <NavLink
+                  to="/"
+                  className="relative cursor-pointer active:text-[#EED291] after:content-[''] 
+  after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] 
+  after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]"
+                >
+                  Home
+                </NavLink>
+
+                {/* Shop */}
+                <NavLink
+                  to="/shop"
+                  className="relative cursor-pointer active:text-[#EED291] after:content-[''] 
+  after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] 
+  after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]"
+                >
+                  Shop
+                </NavLink>
+
+                {/* ABOUT US + DROPDOWN (NEW) */}
+                <div className="relative group">
+                  <NavLink
+                    to="/about-us"
+                    className="cursor-pointer active:text-[#EED291] 
+    after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] 
+    after:bg-[#EED291] after:transition-all after:duration-300 
+    hover:after:w-full hover:text-[#EED291]"
+                  >
+                    About Us
+                  </NavLink>
+
+                  {/* Dropdown */}
+                  <div
+                    className="absolute left-0 mt-3 w-64 bg-black text-white shadow-lg border border-gray-400 
+  opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+  transition-all duration-300"
+                  >
+                    {[
+                      {
+                        name: "About Us Bergdolt, Reif & Nett",
+                        to: "/about-us/about-us-bergdolt,-reif-&-nett",
+                      },
+                      { name: "About Us Lamm-Jung", to: "/about-us/about-us-lamm-jung" },
+                      {
+                        name: "About Us KVD Strauch Sektmanufaktur",
+                        to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
+                      },
+                      {
+                        name: "About Château Clos De Boüard",
+                        to: "/about-us/about-château-clos-de-boüard",
+                      },
+                      {
+                        name: "About Weingut Matthias Anton",
+                        to: "/about-us/about-weingut-matthias-anton",
+                      },
+                    ].map((label) => (
+                      <Link
+                        key={label.name}
+                        to={label.to}
+                        className="block px-4 py-2 hover:text-[#EED291] border-b border-gray-700 last:border-none"
+                      >
+                        {label.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Blog */}
+                <NavLink
+                  to="/blog"
+                  className="relative cursor-pointer active:text-[#EED291] 
+  after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 
+  after:h-[2px] after:bg-[#EED291] after:transition-all after:duration-300 
+  hover:after:w-full hover:text-[#EED291]"
+                >
+                  Blog
+                </NavLink>
               </ul>
 
               {/* Icons */}

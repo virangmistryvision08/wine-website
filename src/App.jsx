@@ -12,6 +12,9 @@ import SwiperSection from "./components/customerSay/SwiperSection";
 import HomePage from "./components/HomePage";
 import ProductDetails from "./components/ProductDetails";
 import CommonFirstSection from "./components/CommonFirstSection";
+import FilterProducts from "./components/FilterProducts";
+import AboutUs_main from "./components/aboutUs/AboutUs_main";
+import AboutUs_Bergdolt from "./components/aboutUs/AboutUs_Bergdolt";
 
 function App() {
   return (
@@ -20,9 +23,10 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/shop" element={<FilterProducts />} />
+        <Route path="/about-us" element={<AboutUs_main />} />
+        <Route path="/about-us/:slug" element={<AboutUs_Bergdolt />} />
       </Routes>
-        {/* <CommonFirstSection/> */}
-        {/* <ProductDetails/> */}
       <Footer />
     </>
   );

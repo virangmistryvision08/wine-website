@@ -9,7 +9,7 @@ const Product = ({ productImage, title, verity, isGold, price, wineType }) => {
   return (
     <div
       onClick={() => navigate("/products/id")}
-      className="font-[Urbanist] flex flex-col gap-3 group"
+      className="font-[Urbanist] flex flex-col gap-3 group cursor-pointer"
     >
       {/* Image container */}
       <div className="relative h-[300px] md:h-[500px] xl:h-[600px] w-full bg-white p-8 flex justify-center items-center rounded-sm overflow-hidden">

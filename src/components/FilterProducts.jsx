@@ -60,6 +60,7 @@ const FilterProducts = () => {
 
       if (isSingle) {
         // Only ONE selection allowed
+        setProductType(option);
 
         if (option === "Bergdolt, Reif & Nett") setBgImage(Bergdolt_Reif_Nett);
         else if (option === "Lamm Jung") setBgImage(Lamm_Jung);

@@ -40,50 +40,53 @@ const FilterProducts = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
+  const singleSelectFilters = ["Product Type", "Availability", "Size"];
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsDesktop(window.innerWidth >= 1280);
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1280);
+    };
 
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
 
   const handleFilterChange = (label, option) => {
-    // setDrawerOpen(false);
+    const isSingle = singleSelectFilters.includes(label);
 
     setSelectedFilters((prev) => {
-      const previousValue = prev[label];
+      const existing = prev[label] || [];
 
-      // If not array → convert
-      const arrayValue = Array.isArray(previousValue) ? previousValue : [];
+      if (isSingle) {
+        // Only ONE selection allowed
 
-      // Toggle logic (add/remove)
-      const updatedArray = arrayValue.includes(option)
-        ? arrayValue.filter((item) => item !== option)
-        : [...arrayValue, option];
+        if (option === "Bergdolt, Reif & Nett") setBgImage(Bergdolt_Reif_Nett);
+        else if (option === "Lamm Jung") setBgImage(Lamm_Jung);
+        else if (option === "KvD Strauch Sektmanufaktur") setBgImage(KvD_Strauch_Sektmanufaktur);
+        else if (option === "Château Clos de Boüard") setBgImage(Château_Clos_de_Boüard);
+        else { setBgImage(Matthias_Anton) };
+        return {
+          ...prev,
+          [label]: [option],
+        };
+      }
 
-      return { ...prev, [label]: updatedArray };
+      // Multi-select logic (checkbox)
+      if (existing.includes(option)) {
+        return {
+          ...prev,
+          [label]: existing.filter((item) => item !== option),
+        };
+      }
+
+      return {
+        ...prev,
+        [label]: [...existing, option],
+      };
     });
-
-    // Product Type stays single-select
-    if (label === "Product Type") {
-      setProductType(option);
-
-      if (option === "All") setBgImage(image);
-      else if (option === "Bergdolt, Reif & Nett")
-        setBgImage(Bergdolt_Reif_Nett);
-      else if (option === "Lamm Jung") setBgImage(Lamm_Jung);
-      else if (option === "Château Clos de Boüard")
-        setBgImage(Château_Clos_de_Boüard);
-      else if (option === "Matthias Anton") setBgImage(Matthias_Anton);
-      else setBgImage(KvD_Strauch_Sektmanufaktur);
-    }
-
-    setOpenIndex(null);
   };
+
 
   const productDetails = [
     {
@@ -335,20 +338,35 @@ useEffect(() => {
                 </button>
 
                 {openIndex === idx && (
-                  <div className="absolute left-0 mt-2 w-40 bg-white border border-[#EED291] rounded-xl shadow p-2 z-10">
-                    {f.options.map((option, i) => (
-                      <div
-                        key={i}
-                        onClick={() => handleFilterChange(f.label, option)}
-                        className="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
-                      >
-                        {option}
-                      </div>
-                    ))}
+                  <div className="absolute left-0 mt-2 w-48 bg-white border border-[#EED291] rounded-xl shadow p-2 z-10">
+
+                    {f.options.map((option, i) => {
+                      const isSingle = singleSelectFilters.includes(f.label);
+                      const isChecked = selectedFilters[f.label]?.includes(option);
+
+                      return (
+                        <label
+                          key={i}
+                          className="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
+                        >
+                          <input
+                            type={isSingle ? "radio" : "checkbox"}
+                            name={f.label} // required for radio
+                            checked={isChecked}
+                            onChange={() => handleFilterChange(f.label, option)}
+                            className="accent-[#EED291] cursor-pointer"
+                          />
+                          <span>{option}</span>
+                        </label>
+                      );
+                    })}
+
+
                   </div>
                 )}
               </div>
             ))}
+
           </div>
 
           <div className="flex items-center gap-2">
@@ -374,10 +392,9 @@ useEffect(() => {
         {/* Drawer Overlay */}
         <div
           className={`fixed inset-0 bg-black/40 z-40 transition-opacity xl:hidden
-            ${
-              drawerOpen
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
+            ${drawerOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
             }`}
           onClick={() => setDrawerOpen(false)}
         ></div>
@@ -407,24 +424,21 @@ useEffect(() => {
                 <h3 className="font-medium text-sm">{f.label}</h3>
                 {openAccordion === idx ? (
                   <i
-                    className={`fa-solid fa-minus transition-transform duration-300 ${
-                      openAccordion === idx ? "rotate-180" : ""
-                    }`}
+                    className={`fa-solid fa-minus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
+                      }`}
                   ></i>
                 ) : (
                   <i
-                    className={`fa-solid fa-plus transition-transform duration-300 ${
-                      openAccordion === idx ? "rotate-180" : ""
-                    }`}
+                    className={`fa-solid fa-plus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
+                      }`}
                   ></i>
                 )}
               </button>
 
               {/* Accordion Body */}
               <div
-                className={`overflow-hidden transition-all duration-300 ${
-                  openAccordion === idx ? "max-h-40 mt-3" : "max-h-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ${openAccordion === idx ? "max-h-40 mt-3" : "max-h-0"
+                  }`}
               >
                 <div className="space-y-2 pl-1">
                   {f.options.map((option, i) => (
@@ -512,9 +526,9 @@ useEffect(() => {
                   {filteredProducts.length === 0
                     ? "0–0 / 0"
                     : `${indexOfFirst + 1}–${Math.min(
-                        indexOfLast,
-                        filteredProducts.length
-                      )} / ${filteredProducts.length}`}
+                      indexOfLast,
+                      filteredProducts.length
+                    )} / ${filteredProducts.length}`}
                 </div>
 
                 {/* First Page */}

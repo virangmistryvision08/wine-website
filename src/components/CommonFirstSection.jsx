@@ -8,7 +8,7 @@ const CommonFirstSection = ({ productImage, productType, alcohol }) => {
           backgroundImage: `linear-gradient(to left, #000000aa, #000000aa), url("${productImage}")`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
+          backgroundPosition: "30% 30%",
         }}
         className={`relative w-full h-96 overflow-hidden`}
       >

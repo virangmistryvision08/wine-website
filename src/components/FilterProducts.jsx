@@ -22,7 +22,7 @@ import Bergdolt_Reif_Nett from "/filterProducts/Bergdolt,-Reif-&-Nett.png";
 import Lamm_Jung from "/filterProducts/Lamm-Jung.jpg";
 import Château_Clos_de_Boüard from "/filterProducts/Château-Clos-de-Boüard.png";
 import Matthias_Anton from "/filterProducts/Matthias -Anton.png";
-import KvD_Strauch_Sektmanufaktur from "/hero-section-bg-bottle.svg";
+import KvD_Strauch_Sektmanufaktur from "/aboutUs/kvd/kvd-bg.png";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);

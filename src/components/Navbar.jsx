@@ -11,6 +11,7 @@ function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navbarRef = useRef(null);
   const navigate = useNavigate();
+  const [openSubMenu, setOpenSubMenu] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,11 +48,10 @@ function Navbar() {
         {/* Main navbar */}
         <div
           ref={navbarRef}
-          className={`w-full transition-all duration-500 ease-in-out fixed ${
-            isSticky
-              ? "top-0 left-0 bg-black shadow-lg translate-y-0"
-              : "bg-transparent translate-y-[-10px]"
-          }`}
+          className={`w-full transition-all duration-500 ease-in-out fixed ${isSticky
+            ? "top-0 left-0 bg-black shadow-lg translate-y-0"
+            : "bg-transparent translate-y-[-10px]"
+            }`}
         >
           <div className="w-[96%] mx-auto flex justify-between items-center py-4">
             <Link to="/">
@@ -128,21 +128,21 @@ function Navbar() {
                         to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
                       },
                       {
-                        name: "About Château Clos De Boüard",
-                        to: "/about-us/about-château-clos-de-boüard",
+                        name: "About Chateau Clos de Bouard",
+                        to: "/about-us/about-us-chateau-closbde-bouard",
                       },
                       {
                         name: "About Weingut Matthias Anton",
-                        to: "/about-us/about-weingut-matthias-anton",
+                        to: "/about-us/about-us-weingut-matthias-anton",
                       },
                     ].map((label) => (
-                      <Link
+                      <NavLink
                         key={label.name}
                         to={label.to}
                         className="block px-4 py-2 hover:text-[#EED291] border-b border-gray-700 last:border-none"
                       >
                         {label.name}
-                      </Link>
+                      </NavLink>
                     ))}
                   </div>
                 </div>
@@ -183,9 +183,8 @@ function Navbar() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex justify-between items-center p-4 text-xl !font-[400] font-[Urbanist]">
           Menu
@@ -194,80 +193,133 @@ function Navbar() {
             onClick={toggleDrawer}
           ></i>
         </div>
-        <ul className="flex flex-col gap-4 mt-6">
-          <li
-            onClick={toggleDrawer}
-            className="cursor-pointer pl-4 text-[#EED291]"
-          >
-            Home
-          </li>
-          <hr className="border border-gray-700" />
-          <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-            Shop All
-          </li>
-          <hr className="border border-gray-700" />
-          <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-            About Us
-          </li>
-          <hr className="border border-gray-700" />
-          <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-            Blog
-          </li>
-          <hr className="border border-gray-700" />
-          <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-            <i class="fa-regular fa-circle-user"></i> Sign In
-          </li>
-          <hr className="border border-gray-700" />
-          <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-            <i class="fa-solid fa-user-plus"></i> Create Account
-          </li>
 
-          <div>
-            <li
-              onClick={toggleDrawer}
-              className="cursor-pointer pl-4 text-xl font-[400]"
-            >
-              Currency
+        {/* MAIN MENU PANEL */}
+        <div className={`${openSubMenu ? "hidden" : "block"}`}>
+          <ul className="flex flex-col gap-4 mt-6">
+            <li onClick={toggleDrawer} className="cursor-pointer pl-4 text-[#EED291]">
+              Home
             </li>
-            <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
-              <div className="flex items-center gap-2">
-                <img
-                  className="h-7 w-7 rounded-full object-cover"
-                  src={use_flag}
-                  alt="use_flag"
-                />
-                <p>USD</p>
-              </div>
+            <hr className="border border-gray-700" />
 
-              <div className="flex items-center gap-2">
-                <img
-                  className="h-7 w-7 rounded-full object-cover"
-                  src={europe}
-                  alt="europe"
-                />
-                <p>EUR</p>
-              </div>
+            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+              Shop All
+            </li>
+            <hr className="border border-gray-700" />
 
-              <div className="flex items-center gap-2">
-                <img
-                  className="h-7 w-7 rounded-full object-cover"
-                  src={uk_flag}
-                  alt="uk_flag"
-                />
-                <p>GBP</p>
-              </div>
+            {/* OPEN SUBMENU */}
+            <li
+              onClick={() => setOpenSubMenu("about")}
+              className="cursor-pointer pl-4 flex justify-between items-center"
+            >
+              About Us
+              <i className="fa-solid fa-chevron-right pr-4"></i>
+            </li>
 
-              <div className="flex items-center gap-2">
-                <img
-                  className="h-7 w-7 rounded-full object-cover"
-                  src={china_flag}
-                  alt="china_flag"
-                />
-                <p>CHF</p>
+            <hr className="border border-gray-700" />
+
+            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+              Blog
+            </li>
+            <hr className="border border-gray-700" />
+
+            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+              <i className="fa-regular fa-circle-user"></i> Sign In
+            </li>
+            <hr className="border border-gray-700" />
+
+            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+              <i className="fa-solid fa-user-plus"></i> Create Account
+            </li>
+
+            {/* Currency Section (unchanged) */}
+            <div>
+              <li className="cursor-pointer pl-4 text-xl font-[400]">CURRENCY</li>
+              <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
+                <div className="flex items-center gap-2">
+                  <img className="h-7 w-7 rounded-full object-cover" src={use_flag} />
+                  <p>USD</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <img className="h-7 w-7 rounded-full object-cover" src={europe} />
+                  <p>EUR</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <img className="h-7 w-7 rounded-full object-cover" src={uk_flag} />
+                  <p>GBP</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <img className="h-7 w-7 rounded-full object-cover" src={china_flag} />
+                  <p>CHF</p>
+                </div>
               </div>
             </div>
+          </ul>
+        </div>
+
+
+        {/* ABOUT US SUBMENU PANEL */}
+        <div className={`${openSubMenu === "about" ? "block" : "hidden"}`}>
+          <div className="flex items-center gap-3 p-4 bg-[#EED291] text-black text-lg font-semibold cursor-pointer"
+            onClick={() => setOpenSubMenu(null)}
+          >
+            <i className="fa-solid fa-arrow-left"></i>
+            About Us
           </div>
-        </ul>
+
+          <ul className="flex flex-col">
+            <NavLink
+              to="/about-us"
+              end
+              className="px-4 py-3 border-b border-gray-700 cursor-pointer"
+              onClick={() => {
+                setIsDrawerOpen(null);
+                setOpenSubMenu(null);
+              }}
+            >
+              Go To About Us
+            </NavLink>
+            {
+              [
+                {
+                  name: "About Us Bergdolt, Reif & Nett",
+                  to: "/about-us/about-us-bergdolt,-reif-&-nett",
+                },
+                { name: "About Us Lamm-Jung", to: "/about-us/about-us-lamm-jung" },
+                {
+                  name: "About Us KVD Strauch Sektmanufaktur",
+                  to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
+                },
+                {
+                  name: "About Chateau Clos de Bouard",
+                  to: "/about-us/about-us-chateau-closbde-bouard",
+                },
+                {
+                  name: "About Weingut Matthias Anton",
+                  to: "/about-us/about-us-weingut-matthias-anton",
+                },
+              ].map((item) => {
+                return (
+
+                  <NavLink
+                    to={item.to}
+                    className="px-4 py-3 border-b border-gray-700 cursor-pointer"
+                    onClick={() => {
+                      setIsDrawerOpen(null);
+                      setOpenSubMenu(null);
+                    }}
+                  >
+                    {item.name}
+                  </NavLink>
+                )
+              })
+            }
+          </ul>
+        </div>
+
       </div>
 
       {/* Overlay to hide background content */}

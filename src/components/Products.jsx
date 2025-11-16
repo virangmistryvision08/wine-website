@@ -106,20 +106,20 @@ const Products = () => {
     },
     {
       productImage: product9,
-      title: "Château Clos de Boüard Eden dealcoholized",
+      title: "Chateau Clos de Bouard Eden dealcoholized",
       verity: "Grape Verity",
       isGold: false,
       price: 33.61,
-      productType: "Château Clos de Boüard",
+      productType: "Chateau Clos de Bouard",
       wineType: "Sauvignon Blanc",
     },
     {
       productImage: product10,
-      title: "Château Clos de Boüard Prince Oscar dealcoholized",
+      title: "Chateau Clos de Bouard Prince Oscar dealcoholized",
       verity: "Grape Verity",
       isGold: false,
       price: 32.67,
-      productType: "Château Clos de Boüard",
+      productType: "Chateau Clos de Bouard",
       wineType: (
         <>
           <p>80 % Merlot,</p>

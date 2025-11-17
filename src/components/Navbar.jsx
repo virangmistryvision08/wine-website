@@ -39,7 +39,7 @@ function Navbar() {
   return (
     <>
       {/* Navbar */}
-      <nav className="!font-[Urbanist] relative z-40">
+      <nav className="!font-[Urbanist] relative z-50">
         {/* Top bar */}
         <div className="bg-[#EED291] py-2">
           <p className="font-semibold text-center">Free shipping at $99+</p>
@@ -64,21 +64,6 @@ function Navbar() {
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
               <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">
-                {/* {[
-                  { name: "Home", to: "" },
-                  { name: "Shop", to: "shop" },
-                  { name: "About Us", to: "about-us" },
-                  { name: "Blog", to: "blog" },
-                ].map((item) => (
-                  <NavLink
-                    to={`/${item.to}`}
-                    key={item.name}
-                    className={`relative cursor-pointer active:text-[#EED291] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-[#EED291] after:transition-all after:duration-300 hover:after:w-full hover:text-[#EED291]`}
-                  >
-                    {item.name}
-                  </NavLink>
-                ))} */}
-
                 {/* Home */}
                 <NavLink
                   to="/"
@@ -197,14 +182,14 @@ function Navbar() {
         {/* MAIN MENU PANEL */}
         <div className={`${openSubMenu ? "hidden" : "block"}`}>
           <ul className="flex flex-col gap-4 mt-6">
-            <li onClick={toggleDrawer} className="cursor-pointer pl-4 text-[#EED291]">
+            <NavLink to="/" onClick={toggleDrawer} className="cursor-pointer pl-4">
               Home
-            </li>
+            </NavLink>
             <hr className="border border-gray-700" />
 
-            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
-              Shop All
-            </li>
+            <NavLink to="/shop" onClick={toggleDrawer} className="cursor-pointer pl-4">
+              Shop
+            </NavLink>
             <hr className="border border-gray-700" />
 
             {/* OPEN SUBMENU */}
@@ -218,23 +203,23 @@ function Navbar() {
 
             <hr className="border border-gray-700" />
 
-            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink to="/blogs" onClick={toggleDrawer} className="cursor-pointer pl-4">
               Blog
-            </li>
+            </NavLink>
             <hr className="border border-gray-700" />
 
-            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink to="/sign-in" onClick={toggleDrawer} className="cursor-pointer pl-4">
               <i className="fa-regular fa-circle-user"></i> Sign In
-            </li>
+            </NavLink>
             <hr className="border border-gray-700" />
 
-            <li onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink to="/sign-up" onClick={toggleDrawer} className="cursor-pointer pl-4">
               <i className="fa-solid fa-user-plus"></i> Create Account
-            </li>
+            </NavLink>
 
             {/* Currency Section (unchanged) */}
             <div>
-              <li className="cursor-pointer pl-4 text-xl font-[400]">CURRENCY</li>
+              <li className="cursor-pointer pl-4 text-xl font-[400] py-3">CURRENCY</li>
               <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
                 <div className="flex items-center gap-2">
                   <img className="h-7 w-7 rounded-full object-cover" src={use_flag} />

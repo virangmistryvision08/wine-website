@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import footer_logo from "/footer/footer-logo.png";
+import footer_grapes from "/footer/footer-grapes.svg";
 
 const Footer = () => {
   const [openCompany, setOpenCompany] = useState(false);
@@ -8,14 +9,14 @@ const Footer = () => {
   return (
     <>
       <section className="bg-black text-white w-full pt-10">
-        <div className="w-[90%] xl:w-[80%] mx-auto font-[Urbanist]">
+        <div className="w-[90%] xl:w-[80%] mx-auto font-[Urbanist] relative">
           {/* Top Section start */}
-          <div className="w-full md:w-[90%] lg:w-[80%] xl:w-[70%] 2xl:w-[50%] mx-auto text-center space-y-4 xl:space-y-7">
-            <h1 className="uppercase text-3xl lg:text-4xl font-[Cormorant-Upright-bold]">
+          <div className="z-40 w-full md:w-[90%] lg:w-[80%] xl:w-[70%] 2xl:w-[50%] mx-auto text-center space-y-4 xl:space-y-7">
+            <h1 className="z-40 uppercase text-3xl lg:text-4xl font-[Cormorant-Upright-bold]">
               OUR NEWSLETTER
             </h1>
-            <p className="text-lg">Sign up for our newsletter</p>
-            <div className="relative flex flex-col gap-4">
+            <p className="z-40 text-lg">Sign up for our newsletter</p>
+            <div className="z-40 relative flex flex-col gap-4">
               <input
                 className="h-[40px] md:h-[60px] w-full rounded-full outline-2 bg-white text-black placeholder:text-black placeholder:text-base md:placeholder:text-lg outline-white ps-3 md:ps-6"
                 type="email"
@@ -31,7 +32,7 @@ const Footer = () => {
           {/* Bottom section start */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:flex-row justify-between md:gap-10 mt-5 md:mt-16">
             {/* Logo Section */}
-            <div className="xl:items-start flex flex-col gap-3 xl:gap-5">
+            <div className="z-40 xl:items-start flex flex-col gap-3 xl:gap-5">
               <img
                 className="h-28 w-28 xl:h-24 xl:w-24"
                 src={footer_logo}
@@ -52,7 +53,7 @@ const Footer = () => {
             </div>
 
             {/* Company Accordion */}
-            <div className="flex flex-col gap-4 mt-7 md:mt-0">
+            <div className="z-40 flex flex-col gap-4 mt-7 md:mt-0">
               <button
                 onClick={() => setOpenCompany(!openCompany)}
                 className="flex justify-between items-center font-[Cormorant-Upright-bold] uppercase text-xl xl:text-2xl md:cursor-default border-b border-white pb-2 md:border-none md:p-0"
@@ -68,7 +69,7 @@ const Footer = () => {
               </button>
 
               <ul
-                className={`text-base xl:text-lg flex flex-col gap-1.5 text-gray-400 overflow-hidden transition-all duration-500 ease-in-out 
+                className={`text-base xl:text-lg flex flex-col ${openCompany && "mb-5"} gap-1.5 text-gray-400 overflow-hidden transition-all duration-500 ease-in-out 
                 ${
                   openCompany
                     ? "max-h-60 opacity-100"
@@ -76,20 +77,20 @@ const Footer = () => {
                 }
                 md:max-h-none md:opacity-100`}
               >
-                <li className="text-white font-semibold cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Home
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   About Us
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">Shop</li>
-                <li className="cursor-pointer w-fit hover:text-white">Blog</li>
-                <li className="cursor-pointer w-fit hover:text-white">FAQ</li>
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">Shop</li>
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">Blog</li>
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">FAQ</li>
               </ul>
             </div>
 
             {/* More Information Accordion */}
-            <div className="flex flex-col gap-4 mb-5 md:mb-0">
+            <div className="z-40 flex flex-col gap-4 mb-5 md:mb-0">
               <button
                 onClick={() => setOpenMoreInfo(!openMoreInfo)}
                 className="flex justify-between items-center font-[Cormorant-Upright-bold] uppercase text-xl xl:text-2xl md:cursor-default border-b border-white pb-2 md:border-none md:p-0"
@@ -113,26 +114,26 @@ const Footer = () => {
                 }
                 md:max-h-none md:opacity-100`}
               >
-                <li className="text-white font-semibold cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Shipping & Payment
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Privacy Policy
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Terms Of Service
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Refund Policy
                 </li>
-                <li className="cursor-pointer w-fit hover:text-white">
+                <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Contact
                 </li>
               </ul>
             </div>
 
             {/* Contact Section */}
-            <div className="flex flex-col gap-4">
+            <div className="z-40 flex flex-col gap-4">
               <h1 className="font-[Cormorant-Upright-bold] uppercase text-xl xl:text-2xl">
                 Contact
               </h1>
@@ -158,6 +159,12 @@ const Footer = () => {
             </div>
           </div>
           {/* Bottom section end */}
+
+          {/* bg grapes Image */}
+          <div className="absolute -top-10 -left-10">
+            <img className="" src={footer_grapes} alt="footer grapes" />
+            {/* <div className="absolute inset-0 bg-white/10"></div> */}
+          </div>
         </div>
         <div className="mt-10">
           <hr className="h-[2px] w-full border-none bg-gradient-to-r from-black via-gray-400 to-black" />

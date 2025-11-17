@@ -89,7 +89,7 @@ const Blogs = () => {
                 <p className="text-gray-700 text-base lg:text-base 2xl:text-lg line-clamp-3">
                   {item.description}
                 </p>
-                <button className="text-lg lg:text-xl mt-2 cursor-pointer text-start w-fit font-semibold">
+                <button className="text-lg lg:text-xl mt-2 cursor-pointer text-start w-fit font-semibold underline">
                   {item.button}
                 </button>
               </div>

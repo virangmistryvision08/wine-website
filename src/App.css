@@ -22,7 +22,7 @@
 .tabs-container::-webkit-scrollbar-track {
   background: #f1f1f1; /* light track color */
   border-radius: 10px;
-  background: #2e2e2ec7;
+  background: #eeeeeec7;
 }
 
 .tabs-container::-webkit-scrollbar-thumb {

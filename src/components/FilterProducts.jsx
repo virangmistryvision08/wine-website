@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CommonFirstSection from "./CommonFirstSection";
 import product1 from "/products/product1.png";
 import product2 from "/products/product2.png";
@@ -23,6 +23,8 @@ import Lamm_Jung from "/filterProducts/Lamm-Jung.jpg";
 import Château_Clos_de_Boüard from "/filterProducts/Château-Clos-de-Boüard.png";
 import Matthias_Anton from "/filterProducts/Matthias -Anton.png";
 import KvD_Strauch_Sektmanufaktur from "/aboutUs/kvd/kvd-bg.png";
+import Slider from "@mui/material/Slider";
+import { ChevronFirst, ChevronLast } from "lucide-react";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -30,7 +32,6 @@ const FilterProducts = () => {
   const [bgImage, setBgImage] = useState(image);
   const [selectedFilters, setSelectedFilters] = useState({
     Size: [],
-    Price: [],
     Grape: [],
     "Product Type": [],
     Availability: [],
@@ -40,8 +41,35 @@ const FilterProducts = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
-  const singleSelectFilters = ["Product Type", "Availability", "Size"];
+  const singleSelectFilters = ["Availability", "Size"];
+  const [sortOption, setSortOption] = useState("Best Sellers");
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 100]);
+  const filterRef = useRef(null);
+  const sortRef = useRef(null);
 
+  // Close Dropdown While clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // If clicking outside filter dropdown
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setOpenIndex(null);
+      }
+
+      // If clicking outside sort dropdown
+      if (sortRef.current && !sortRef.current.contains(e.target)) {
+        setOpenIndex(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Check Screen width
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -51,43 +79,67 @@ const FilterProducts = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
   const handleFilterChange = (label, option) => {
     const isSingle = singleSelectFilters.includes(label);
 
     setSelectedFilters((prev) => {
       const existing = prev[label] || [];
 
+      // -----------------------------
+      // SINGLE SELECT FILTER (Radio)
+      // -----------------------------
       if (isSingle) {
-        // Only ONE selection allowed
-        setProductType(option);
-
-        if (option === "Bergdolt, Reif & Nett") setBgImage(Bergdolt_Reif_Nett);
-        else if (option === "Lamm Jung") setBgImage(Lamm_Jung);
-        else if (option === "KvD Strauch Sektmanufaktur") setBgImage(KvD_Strauch_Sektmanufaktur);
-        else if (option === "Château Clos de Boüard") setBgImage(Château_Clos_de_Boüard);
-        else { setBgImage(Matthias_Anton) };
         return {
           ...prev,
           [label]: [option],
         };
       }
 
-      // Multi-select logic (checkbox)
+      // -----------------------------
+      // MULTI-SELECT LOGIC (Checkbox)
+      // -----------------------------
+      let updated;
+
       if (existing.includes(option)) {
-        return {
-          ...prev,
-          [label]: existing.filter((item) => item !== option),
-        };
+        updated = existing.filter((item) => item !== option);
+      } else {
+        updated = [...existing, option];
+      }
+
+      // Update background only for Product Type
+      if (label === "Product Type") {
+        if (updated.length === 1) {
+          const selected = updated[0];
+
+          if (selected === "Bergdolt, Reif & Nett") {
+            setBgImage(Bergdolt_Reif_Nett);
+            setProductType("Bergdolt, Reif & Nett");
+          } else if (selected === "Lamm Jung") {
+            setBgImage(Lamm_Jung);
+            setProductType("Lamm Jung");
+          } else if (selected === "KvD Strauch Sektmanufaktur") {
+            setBgImage(KvD_Strauch_Sektmanufaktur);
+            setProductType("KvD Strauch Sektmanufaktur");
+          } else if (selected === "Château Clos de Boüard") {
+            setBgImage(Château_Clos_de_Boüard);
+            setProductType("Château Clos de Boüard");
+          } else {
+            setBgImage(Matthias_Anton);
+            setProductType("Matthias Anton");
+          }
+        } else {
+          // If multiple selected → default background
+          setBgImage(image); // original hero image
+          setProductType("All");
+        }
       }
 
       return {
         ...prev,
-        [label]: [...existing, option],
+        [label]: updated,
       };
     });
   };
-
 
   const productDetails = [
     {
@@ -250,7 +302,7 @@ const FilterProducts = () => {
 
   const filters = [
     { label: "Size", options: ["Small", "Medium", "Large"] },
-    { label: "Price", options: ["Under $20", "$20-$50", "$50-$100"] },
+    { label: "Price", options: [] },
     { label: "Grape", options: uniqueGrapes },
     { label: "Product Type", options: uniqueProductTypes },
     { label: "Availability", options: ["In Stock", "Out of Stock"] },
@@ -271,21 +323,33 @@ const FilterProducts = () => {
     }
 
     // Price filter
-    if (selectedFilters.Price.length > 0) {
-      filtered = filtered.filter((p) => {
-        return selectedFilters.Price.some((price) => {
-          if (price === "Under $20") return p.price < 20;
-          if (price === "$20-$50") return p.price >= 20 && p.price <= 50;
-          if (price === "$50-$100") return p.price >= 50 && p.price <= 100;
-        });
-      });
-    }
+    // Price range filtering
+    filtered = filtered.filter(
+      (p) => p.price >= appliedPriceRange[0] && p.price <= appliedPriceRange[1]
+    );
 
     // Product Type filter
     if (selectedFilters["Product Type"].length > 0) {
       filtered = filtered.filter((p) =>
         selectedFilters["Product Type"].includes(p.productType)
       );
+    }
+
+    // SORTING
+    if (sortOption === "A - Z") {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    if (sortOption === "Z - A") {
+      filtered.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    if (sortOption === "Price: Low to High") {
+      filtered.sort((a, b) => a.price - b.price);
+    }
+
+    if (sortOption === "Price: High to Low") {
+      filtered.sort((a, b) => b.price - a.price);
     }
 
     return filtered;
@@ -309,6 +373,72 @@ const FilterProducts = () => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
+  // Selected Filters to Show on Desktop and Mobile Drawer
+  const selectedFilter = () => {
+    return (
+      <>
+        {Object.values(selectedFilters).some((arr) => arr.length > 0) ||
+        appliedPriceRange[0] !== 0 ||
+        appliedPriceRange[1] !== 100 ? (
+          <div className="flex flex-wrap items-center gap-2 mt-4">
+            {/* Clear All */}
+            <button
+              onClick={() => {
+                setSelectedFilters({
+                  Size: [],
+                  Grape: [],
+                  "Product Type": [],
+                  Availability: [],
+                });
+                setPriceRange([0, 100]);
+                setAppliedPriceRange([0, 100]);
+              }}
+              className="text-sm underline text-gray-700 hover:text-black"
+            >
+              Clear All
+            </button>
+
+            {/* Price Range Tag */}
+            {(appliedPriceRange[0] !== 0 || appliedPriceRange[1] !== 100) && (
+              <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
+                ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
+                <button
+                  onClick={() => setAppliedPriceRange([0, 100])}
+                  className="font-bold cursor-pointer"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+
+            {/* Loop through all selected filters */}
+            {Object.entries(selectedFilters).map(([label, values]) =>
+              values.map((value) => (
+                <span
+                  key={label + value}
+                  className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2"
+                >
+                  {value}
+                  <button
+                    onClick={() => {
+                      setSelectedFilters((prev) => ({
+                        ...prev,
+                        [label]: prev[label].filter((item) => item !== value),
+                      }));
+                    }}
+                    className="font-bold cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))
+            )}
+          </div>
+        ) : null}
+      </>
+    );
+  };
+
   return (
     <>
       <CommonFirstSection
@@ -317,273 +447,455 @@ const FilterProducts = () => {
         alcohol="Non-alcoholic (<0.5% ABV). Regulated as a food product. Intended for adults."
       />
 
-      <section className="w-[90%] mx-auto py-10 font-[Urbanist]">
-        {/* Dropdown Section */}
-        {/* Show Only XL or above Screen */}
-        <div className="w-full hidden xl:flex items-center justify-between bg-white">
-          <div className="flex items-center gap-4">
-            <i class="fa-solid fa-filter"></i>
-            <span className="text-sm font-medium">Filter</span>
+        <section className="w-[90%] mx-auto py-10 font-[Urbanist]">
+          {/* Dropdown Section */}
+          {/* Show Only XL or above Screen */}
+          <div className="w-full hidden xl:flex items-center justify-between bg-white">
+            <div className="flex items-center gap-4" ref={filterRef}>
+              <i class="fa-solid fa-filter"></i>
+              <span className="text-sm font-medium">Filter</span>
 
-            {filters.map((f, idx) => (
-              <div className="relative" key={idx}>
+              {filters.map((f, idx) => (
+                <div className="relative" key={idx}>
+                  <button
+                    onClick={() => {
+                      setOpenIndex(openIndex === idx ? null : idx);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 cursor-pointer border border-[#EED291] shadow-sm text-sm bg-white hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{f.label}</span>
+
+                      {/* Show count only for multiselect filters */}
+                      {!singleSelectFilters.includes(f.label) &&
+                        selectedFilters[f.label]?.length > 0 && (
+                          <span className="text-white bg-[#6A0D23] rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                            {selectedFilters[f.label].length}
+                          </span>
+                        )}
+                    </div>
+
+                    <i className="fa-solid fa-chevron-down"></i>
+                  </button>
+
+                  {openIndex === idx && (
+                    <div className="absolute left-0 mt-2 w-60 bg-white border border-[#EED291] rounded-xl shadow p-4 z-10">
+                      {f.label === "Price" ? (
+                        <div className="w-full mt-2">
+                          <Slider
+                            value={priceRange}
+                            onChange={(e, newValue) => setPriceRange(newValue)}
+                            valueLabelDisplay="auto"
+                            min={0}
+                            max={100}
+                            sx={{
+                              color: "#EED291", // slider color
+                              height: 4,
+                              "& .MuiSlider-thumb": {
+                                height: 16,
+                                width: 16,
+                                backgroundColor: "#fff",
+                                border: "2px solid #EED291",
+                              },
+                              "& .MuiSlider-rail": {
+                                opacity: 0.4,
+                              },
+                            }}
+                          />
+
+                          <div className="flex justify-between items-center text-sm mt-2 font-[Urbanist] font-semibold">
+                            <div className="flex items-center w-16 justify-between border border-[#EED291] p-2">
+                              <span>$</span>
+                              <span>{priceRange[0]}</span>
+                            </div>
+                            <p>to</p>
+                            <div className="flex items-center w-16 justify-between border border-[#EED291] p-2">
+                              <span>$</span>
+                              <span>{priceRange[1]}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setAppliedPriceRange(priceRange);
+                              setOpenIndex(null);
+                            }}
+                            className="text-center bg-[#EED291] hover:bg-[#ecc56a] w-full rounded-full py-2 mt-3 cursor-pointer"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      ) : (
+                        f.options.map((option, i) => {
+                          const isSingle = singleSelectFilters.includes(
+                            f.label
+                          );
+                          const isChecked =
+                            selectedFilters[f.label]?.includes(option);
+
+                          return (
+                            <label
+                              key={i}
+                              className="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
+                            >
+                              <input
+                                type={isSingle ? "radio" : "checkbox"}
+                                name={f.label}
+                                checked={isChecked}
+                                onChange={() =>
+                                  handleFilterChange(f.label, option)
+                                }
+                                className="accent-[#EED291] cursor-pointer"
+                              />
+                              <span>{option}</span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Sort By :</span>
+
+              <div className="relative" ref={sortRef}>
                 <button
-                  onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                  onClick={() =>
+                    setOpenIndex(openIndex === "sort" ? null : "sort")
+                  }
                   className="flex items-center gap-2 px-4 py-2 cursor-pointer border border-[#EED291] shadow-sm text-sm bg-white hover:bg-gray-50"
                 >
-                  {selectedFilters[f.label]?.length > 0
-                    ? selectedFilters[f.label].join(", ")
-                    : f.label}
-
+                  {sortOption}
                   <i className="fa-solid fa-chevron-down"></i>
                 </button>
 
-                {openIndex === idx && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white border border-[#EED291] rounded-xl shadow p-2 z-10">
-
-                    {f.options.map((option, i) => {
-                      const isSingle = singleSelectFilters.includes(f.label);
-                      const isChecked = selectedFilters[f.label]?.includes(option);
-
-                      return (
-                        <label
-                          key={i}
-                          className="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
-                        >
-                          <input
-                            type={isSingle ? "radio" : "checkbox"}
-                            name={f.label} // required for radio
-                            checked={isChecked}
-                            onChange={() => handleFilterChange(f.label, option)}
-                            className="accent-[#EED291] cursor-pointer"
-                          />
-                          <span>{option}</span>
-                        </label>
-                      );
-                    })}
-
-
+                {openIndex === "sort" && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EED291] rounded-xl shadow p-2 z-10 text-sm">
+                    {[
+                      "Default",
+                      "A - Z",
+                      "Z - A",
+                      "Price: Low to High",
+                      "Price: High to Low",
+                    ].map((option, i) => (
+                      <div
+                        key={i}
+                        onClick={() => {
+                          setSortOption(option);
+                          setOpenIndex(null);
+                        }}
+                        className="px-2 py-2 hover:bg-gray-100 rounded cursor-pointer"
+                      >
+                        {option}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            ))}
-
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort By :</span>
-            <button className="flex items-center gap-2 px-4 py-2 cursor-pointer border border-[#EED291] shadow-sm text-sm bg-white hover:bg-gray-50">
-              Best Sellers
-              <i class="fa-solid fa-chevron-down"></i>
+          {/* Filter Button (Mobile) */}
+          <div className="flex xl:hidden mb-4">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 border border-[#EED291] shadow-sm bg-white"
+            >
+              <i className="fa-solid fa-filter"></i>
+              Filter
             </button>
           </div>
-        </div>
 
-        {/* Filter Button (Mobile) */}
-        <div className="flex xl:hidden mb-4">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-[#EED291] shadow-sm bg-white"
-          >
-            <i className="fa-solid fa-filter"></i>
-            Filter
-          </button>
-        </div>
-
-        {/* Drawer Overlay */}
-        <div
-          className={`fixed inset-0 bg-black/40 z-40 transition-opacity xl:hidden
-            ${drawerOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
+          {/* Drawer Overlay */}
+          <div
+            className={`fixed inset-0 bg-black/40 z-40 transition-opacity xl:hidden
+            ${
+              drawerOpen
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
             }`}
-          onClick={() => setDrawerOpen(false)}
-        ></div>
+            onClick={() => setDrawerOpen(false)}
+          ></div>
 
-        {/* Drawer */}
-        <div
-          className={`fixed top-0 left-0 w-72 h-full bg-white shadow-xl z-50 p-5 overflow-y-auto
+          {/* Drawer */}
+          <div
+            className={`fixed top-0 left-0 w-72 h-full bg-white shadow-xl z-50 p-5 overflow-y-auto
             transition-transform duration-300 xl:hidden
             ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold">Filters</h2>
-            <button onClick={() => setDrawerOpen(false)} className="text-xl">
-              ✕
-            </button>
-          </div>
-
-          {filters.map((f, idx) => (
-            <div key={idx} className="mb-4 border-b pb-3">
-              {/* Accordion Header */}
-              <button
-                className="w-full flex justify-between items-center text-left"
-                onClick={() =>
-                  setOpenAccordion(openAccordion === idx ? null : idx)
-                }
-              >
-                <h3 className="font-medium text-sm">{f.label}</h3>
-                {openAccordion === idx ? (
-                  <i
-                    className={`fa-solid fa-minus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
-                      }`}
-                  ></i>
-                ) : (
-                  <i
-                    className={`fa-solid fa-plus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
-                      }`}
-                  ></i>
-                )}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold">Filters</h2>
+              <button onClick={() => setDrawerOpen(false)} className="text-xl">
+                ✕
               </button>
+            </div>
 
-              {/* Accordion Body */}
-              <div
-                className={`overflow-hidden transition-all duration-300 ${openAccordion === idx ? "max-h-40 mt-3" : "max-h-0"
+            <div className="pb-5">{selectedFilter()}</div>
+
+            {filters.map((f, idx) => (
+              <div key={idx} className="mb-4 border-b pb-3">
+                {/* Accordion Header */}
+                <button
+                  className="w-full flex justify-between items-center text-left"
+                  onClick={() =>
+                    setOpenAccordion(openAccordion === idx ? null : idx)
+                  }
+                >
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-sm">{f.label}</h3>
+
+                    {/* Multi-select badge */}
+                    {Array.isArray(selectedFilters[f.label]) &&
+                      selectedFilters[f.label].length > 0 && (
+                        <span className="text-white bg-[#6A0D23] rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                          {selectedFilters[f.label].length}
+                        </span>
+                      )}
+                  </div>
+
+                  {openAccordion === idx ? (
+                    <i
+                      className={`fa-solid fa-minus transition-transform duration-300 ${
+                        openAccordion === idx ? "rotate-180" : ""
+                      }`}
+                    ></i>
+                  ) : (
+                    <i
+                      className={`fa-solid fa-plus transition-transform duration-300 ${
+                        openAccordion === idx ? "rotate-180" : ""
+                      }`}
+                    ></i>
+                  )}
+                </button>
+
+                {/* Accordion Body */}
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    openAccordion === idx ? "h-auto mt-3" : "max-h-0"
                   }`}
-              >
-                <div className="space-y-2 pl-1">
-                  {f.options.map((option, i) => (
-                    <label
-                      key={i}
-                      className="flex items-center gap-3 cursor-pointer"
+                >
+                  <div className="space-y-2">
+                    <div
+                      className={` transition-all duration-300 ${
+                        openAccordion === idx ? "h-auto mt-3" : "max-h-0"
+                      }`}
                     >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4"
-                        checked={
-                          Array.isArray(selectedFilters[f.label]) &&
-                          selectedFilters[f.label].includes(option)
-                        }
-                        onChange={() => handleFilterChange(f.label, option)}
-                      />
-                      <span className="text-sm">{option}</span>
-                    </label>
-                  ))}
+                      <div className="space-y-2">
+                        {/* CHECK IF PRICE FILTER */}
+                        {f.label === "Price" ? (
+                          <div className="p-3">
+                            <div className="w-full mt-2 px-2.5 z-50">
+                              <Slider
+                                value={priceRange}
+                                onChange={(e, newValue) =>
+                                  setPriceRange(newValue)
+                                }
+                                valueLabelDisplay="on"
+                                min={0}
+                                max={100}
+                                sx={{
+                                  color: "#EED291",
+                                  height: 4,
+                                  "& .MuiSlider-thumb": {
+                                    height: 16,
+                                    width: 16,
+                                    backgroundColor: "#fff",
+                                    border: "2px solid #EED291",
+                                  },
+                                  "& .MuiSlider-rail": {
+                                    opacity: 0.4,
+                                  },
+                                }}
+                              />
+
+                              <div className="flex justify-between items-center text-sm mt-2 font-[Urbanist] font-semibold">
+                                <div className="flex items-center w-16 justify-between border border-[#EED291] p-2">
+                                  <span>$</span>
+                                  <span>{priceRange[0]}</span>
+                                </div>
+                                <p>to</p>
+                                <div className="flex items-center w-16 justify-between border border-[#EED291] p-2">
+                                  <span>$</span>
+                                  <span>{priceRange[1]}</span>
+                                </div>
+                              </div>
+
+                              {/* APPLY BUTTON */}
+                              <button
+                                onClick={() => {
+                                  setAppliedPriceRange(priceRange);
+                                }}
+                                className="text-center bg-[#EED291] hover:bg-[#ecc56a] w-full rounded-full py-2 mt-3 cursor-pointer"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          // NORMAL FILTER OPTIONS (checkbox / radio)
+                          f.options.map((option, i) => (
+                            <label
+                              key={i}
+                              className="flex items-center gap-3 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-[#EED291]"
+                                checked={
+                                  Array.isArray(selectedFilters[f.label]) &&
+                                  selectedFilters[f.label].includes(option)
+                                }
+                                onChange={() =>
+                                  handleFilterChange(f.label, option)
+                                }
+                              />
+                              <span className="text-sm">{option}</span>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="min-h-96">
-          {paginatedProducts.length <= 0 ? (
-            <>
-              <div className="p-10">
-                <img src={empty_product} alt="empty product" />
-                <h1 className="text-2xl font-semibold">Product Not Matched!</h1>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5 xl:gap-20">
-                {paginatedProducts.map((product, index) => {
-                  return (
-                    <Product
-                      key={index}
-                      productImage={product.productImage}
-                      title={product.title}
-                      verity={product.verity}
-                      isGold={product.isGold}
-                      price={product.price}
-                      wineType={product.wineType}
-                    />
-                  );
-                })}
-              </div>
+          <div className="min-h-96">
+            {paginatedProducts.length <= 0 ? (
+              <>
+                <div className="p-10">
+                  <img src={empty_product} alt="empty product" />
+                  <h1 className="text-2xl font-semibold">
+                    Product Not Matched!
+                  </h1>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Selected Filters — Appears Only When Filters Are Applied */}
+                {isDesktop && <>{selectedFilter()}</>}
 
-              {/* PAGINATION UI */}
-              <div
-                className="
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5 xl:gap-20">
+                  {paginatedProducts.map((product, index) => {
+                    return (
+                      <Product
+                        key={index}
+                        productImage={product.productImage}
+                        title={product.title}
+                        verity={product.verity}
+                        isGold={product.isGold}
+                        price={product.price}
+                        wineType={product.wineType}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* PAGINATION UI */}
+                <div
+                  className="
     flex justify-end items-center gap-6 mt-10 bg-white p-4 rounded
     max-sm:justify-between max-sm:gap-3 max-sm:px-3 max-sm:py-2
   "
-              >
-                {/* Rows per page dropdown */}
-                <div className="flex items-center gap-2 text-sm max-sm:gap-1">
-                  <span className="text-gray-600 max-sm:hidden">
-                    Rows per page:
-                  </span>
+                >
+                  {/* Rows per page dropdown */}
+                  <div className="flex items-center gap-2 text-sm max-sm:gap-1">
+                    <span className="text-gray-600 max-sm:hidden">
+                      Rows per page:
+                    </span>
 
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value));
-                    }}
-                    className="
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                      }}
+                      className="
         border border-gray-300 rounded px-2 py-1 bg-white
         max-sm:px-1 max-sm:py-0.5 max-sm:text-xs
       "
+                    >
+                      {[6, 10, 15, 20].map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Showing text */}
+                  <div className="text-sm text-gray-700 max-sm:text-xs">
+                    {filteredProducts.length === 0
+                      ? "0–0 / 0"
+                      : `${indexOfFirst + 1}–${Math.min(
+                          indexOfLast,
+                          filteredProducts.length
+                        )} / ${filteredProducts.length}`}
+                  </div>
+
+                  {/* First Page */}
+                  <button
+                    onClick={() => goToPage(1)}
+                    disabled={currentPage === 1}
+                    className={`
+      px-2 py-1 text-gray-500 disabled:opacity-30 flex items-center
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
+        currentPage !== 1 && "cursor-pointer"
+      }
+    `}
                   >
-                    {[6, 10, 15, 20].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <ChevronFirst />
+                  </button>
 
-                {/* Showing text */}
-                <div className="text-sm text-gray-700 max-sm:text-xs">
-                  {filteredProducts.length === 0
-                    ? "0–0 / 0"
-                    : `${indexOfFirst + 1}–${Math.min(
-                      indexOfLast,
-                      filteredProducts.length
-                    )} / ${filteredProducts.length}`}
-                </div>
-
-                {/* First Page */}
-                <button
-                  onClick={() => goToPage(1)}
-                  disabled={currentPage === 1}
-                  className="
-      px-2 py-1 text-gray-500 disabled:opacity-30 flex items-center
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs
-    "
-                >
-                  |<i className="fa-solid fa-angle-left max-sm:text-xs"></i>
-                </button>
-
-                {/* Prev */}
-                <button
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="
+                  {/* Prev */}
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`
       px-2 py-1 text-gray-500 disabled:opacity-30
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs
-    "
-                >
-                  <i className="fa-solid fa-angle-left max-sm:text-xs"></i>
-                </button>
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
+        currentPage !== 1 && "cursor-pointer"
+      }
+    `}
+                  >
+                    <i className="fa-solid fa-angle-left max-sm:text-xs"></i>
+                  </button>
 
-                {/* Next */}
-                <button
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="
+                  {/* Next */}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`
       px-2 py-1 text-gray-500 disabled:opacity-30
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs
-    "
-                >
-                  <i className="fa-solid fa-angle-right max-sm:text-xs"></i>
-                </button>
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
+        currentPage !== totalPages && "cursor-pointer"
+      }
+    `}
+                  >
+                    <i className="fa-solid fa-angle-right max-sm:text-xs"></i>
+                  </button>
 
-                {/* Last Page */}
-                <button
-                  onClick={() => goToPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                  className="
+                  {/* Last Page */}
+                  <button
+                    onClick={() => goToPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className={`}
       px-2 py-1 text-gray-500 disabled:opacity-30 flex items-center
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs
-    "
-                >
-                  <i className="fa-solid fa-angle-right max-sm:text-xs"></i>|
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
+        currentPage !== totalPages && "cursor-pointer"
+      }
+    `}
+                  >
+                    <ChevronLast />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
     </>
   );
 };

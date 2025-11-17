@@ -51,37 +51,15 @@ const ProductDetails = () => {
       label: "Description",
       content: (
         <div>
-          <p>
-            <strong>Type / Style:</strong> Non-alcoholic Pinot Noir (0.2 % ABV)
-          </p>
-          <p>
-            <strong>Region / Producer:</strong> Pfalz, Germany
-          </p>
-
-          <h4 className="font-semibold mt-4">Aromas & Visual</h4>
-          <p>
-            Deep red with ruby reflections. Aromas of sour cherry and Morello
-            cherry, with a fine fruit clarity.
-          </p>
-
-          <h4 className="font-semibold mt-4">Palate & Texture</h4>
-          <p>
-            Juicy cherry fruit dominates, supported by lively but elegant
-            acidity. Soft mouthfeel, barely perceptible tannins, smooth
-            structure. Served slightly chilled, it’s fresh yet full of varietal
-            character.
-          </p>
-
-          <h4 className="font-semibold mt-4">Pairing & Serving</h4>
-          <p>
-            At 17–19 °C, ideal with grilled poultry, mushroom risotto, or soft
-            cheeses.
-          </p>
-
-          <h4 className="font-semibold mt-4">Vinification</h4>
-          <p>
-            Aged in wooden barrels before gentle dealcoholization, preserving
-            Pinot Noir’s signature finesse.
+          <p className="md:text-base">
+            Sensorik this merlot presents a deep, appealing color that is nearly
+            indistinguishable from a conventional red wine. The nose reveals a
+            spicy-fruity bouquet with notes of dried berries and a hint of red
+            pepper. On the palate, It is juicy with cherry-like flavors,
+            supported by vibrant acidity. The body remains lean and completely
+            free of tannins. The finish is smooth and well-rounded. Also
+            enjoyable lightly chilled in summer – a fitting companion to salads,
+            picnics, or mild cheeses.
           </p>
         </div>
       ),
@@ -90,15 +68,15 @@ const ProductDetails = () => {
       id: "shipping-return",
       label: "Shipping & Return",
       content: (
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Returns Policy</h2>
-          <p className="mb-2">
+        <div className="space-y-3">
+          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold]">Returns Policy</h2>
+          <p className="md:text-base">
             You may return most new, unopened items within 30 days of delivery
             for a full refund. We'll also pay the return shipping costs if the
             return is a result of our error (you received an incorrect or
             defective item, etc.).
           </p>
-          <p className="mb-2">
+          <p className="md:text-base">
             You should expect to receive your refund within four weeks of giving
             your package to the return shipper, however, in many cases you will
             receive a refund more quickly. This time period includes the transit
@@ -107,27 +85,27 @@ const ProductDetails = () => {
             receive it (3 to 5 business days), and the time it takes your bank
             to process our refund request (5 to 10 business days).
           </p>
-          <p className="mb-2">
+          <p className="md:text-base">
             If you need to return an item, simply login to your account, view
             the order using the "Complete Orders" link under the My Account menu
             and click the Return Item(s) button. We'll notify you via e-mail of
             your refund once we've received and processed the returned item.
           </p>
 
-          <h2 className="text-lg font-semibold mt-4 mb-2">Shipping</h2>
-          <p className="mb-2">
+          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold] mt-4">Shipping</h2>
+          <p className="md:text-base">
             We can ship to virtually any address in the world. Note that there
             are restrictions on some products, and some products cannot be
             shipped to international destinations.
           </p>
-          <p className="mb-2">
+          <p className="md:text-base">
             When you place an order, we will estimate shipping and delivery
             dates for you based on the availability of your items and the
             shipping options you choose. Depending on the shipping provider you
             choose, shipping date estimates may appear on the shipping quotes
             page.
           </p>
-          <p>
+          <p className="md:text-base">
             Please also note that the shipping rates for many items we sell are
             weight-based. The weight of any such item can be found on its detail
             page. To reflect the policies of the shipping companies we use, all
@@ -365,9 +343,8 @@ const ProductDetails = () => {
             </div>
           </div>
 
-
           {/* Tabs */}
-          <div className="w-full mx-auto p-4 py-10 font-[Urbanist]">
+          <div className="w-full mx-auto py-4 py-10 font-[Urbanist]">
             {/* Desktop Tabs */}
             <div className="hidden md:block">
               <div className="flex justify-center gap-5 border-b border-gray-300">
@@ -378,8 +355,11 @@ const ProductDetails = () => {
                     className="relative px-4 py-2 text-lg font-medium transition-colors duration-300 cursor-pointer group"
                   >
                     <span
-                      className={`transition-colors duration-300 ${activeTab === tab.id ? "text-black" : "text-gray-500 group-hover:text-black"
-                        }`}
+                      className={`transition-colors duration-300 ${
+                        activeTab === tab.id
+                          ? "text-black"
+                          : "text-gray-500 group-hover:text-black"
+                      }`}
                     >
                       {tab.label}
                     </span>
@@ -393,7 +373,6 @@ const ProductDetails = () => {
                   </button>
                 ))}
               </div>
-
 
               <div className="mt-6 text-gray-700 text-sm leading-relaxed">
                 {tabs.map(
@@ -423,16 +402,16 @@ const ProductDetails = () => {
             {showModal && (
               <div className="fixed inset-0 bg-white z-50 flex flex-col animate-slideUp">
                 {/* Header */}
-                <div className="flex justify-between font-[Cormorant-Upright-bold] items-center border-b bg-[#EED291] border-gray-300 p-4">
+                <div className="flex justify-between font-[Urbanist] font-normal items-center border-b bg-[#EED291] border-gray-300 px-4 py-2">
                   {/* <h2 className="text-lg font-semibold uppercase">
                     {activeTab?.label || "Details"}
                   </h2> */}
-                  <h2 className="text-lg font-semibold uppercase">
+                  <h2 className="text-lg font-semibold uppercase font-[Cormorant-Upright-bold]">
                     {tabs.find((t) => t.id === activeTab)?.label || "Details"}
                   </h2>
                   <button
                     onClick={closeModal}
-                    className="text-5xl font-bold text-gray-600 hover:text-black"
+                    className="text-5xl font-normal text-gray-600 hover:text-black"
                   >
                     ×
                   </button>

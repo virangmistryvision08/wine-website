@@ -3,12 +3,12 @@ import grapes from "/products/grapes.svg";
 import gold_medal from "/Gold_Medal.webp";
 import { useNavigate } from "react-router-dom";
 
-const Product = ({ productImage, title, verity, isGold, price, wineType }) => {
+const Product = ({ productImage, title, verity, isGold, price, wineType, id }) => {
   const navigate = useNavigate();
 
   return (
     <div
-      onClick={() => navigate("/products/id")}
+      onClick={() => navigate(`/products/${id}`)}
       className="font-[Urbanist] flex flex-col gap-3 group cursor-pointer"
     >
       {/* Image container */}

@@ -31,6 +31,7 @@ const Products = () => {
 
   const productDetails = [
     {
+      id: 1,
       productImage: product1,
       title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
       verity: "Grape Verity",
@@ -40,6 +41,7 @@ const Products = () => {
       wineType: "Merlot",
     },
     {
+      id: 2,
       productImage: product2,
       title: "Bergdolt, Reif & Nett Breakaway Pinot NoirDealcoholized",
       verity: "Grape Verity",
@@ -49,9 +51,10 @@ const Products = () => {
       wineType: "Pinot Noir",
     },
     {
+      id: 3,
       productImage: product3,
       title:
-        "Bergdolt, Reif & Nett Reverse Sauvignon Blanc(vegan) Dealcoholized",
+        "Bergdolt, Reif & Nett Reverse Sauvignon Blanc(vegan) Dealalcoolized",
       verity: "Grape Verity",
       isGold: false,
       price: 25.76,
@@ -59,6 +62,7 @@ const Products = () => {
       wineType: "Sauvignon Blanc",
     },
     {
+      id: 4,
       productImage: product4,
       title: "Bergdolt, Reif & Nett Reverse GewurztraminerDealcoholized",
       verity: "Grape Verity",
@@ -68,6 +72,7 @@ const Products = () => {
       wineType: "Gewurztraminer",
     },
     {
+      id: 5,
       productImage: product5,
       title: "Bergdolt, Reif & Nett Reverse Rose (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -77,6 +82,7 @@ const Products = () => {
       wineType: "Rose",
     },
     {
+      id: 6,
       productImage: product6,
       title: "Bergdolt, Reif & Nett Reverse Riesling (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -86,6 +92,7 @@ const Products = () => {
       wineType: "Riesling",
     },
     {
+      id: 7,
       productImage: product7,
       title: "Lamm-Jung Riesling Dealcoholized (Vegan)",
       verity: "Grape Verity",
@@ -95,6 +102,7 @@ const Products = () => {
       wineType: "Riesling",
     },
     {
+      id: 8,
       productImage: product8,
       title:
         "KvD Strauch Sektmanufaktur GmbH Rouge Pur Alkoholfrei Dealcoholized",
@@ -105,6 +113,7 @@ const Products = () => {
       wineType: "rouge Pur",
     },
     {
+      id: 9,
       productImage: product9,
       title: "Chateau Clos de Bouard Eden dealcoholized",
       verity: "Grape Verity",
@@ -114,6 +123,7 @@ const Products = () => {
       wineType: "Sauvignon Blanc",
     },
     {
+      id: 10,
       productImage: product10,
       title: "Chateau Clos de Bouard Prince Oscar dealcoholized",
       verity: "Grape Verity",
@@ -124,11 +134,12 @@ const Products = () => {
         <>
           <p>80 % Merlot,</p>
           <p>15 % Cabernet Franc,</p>
-          <p> 5 % Cabernet Sauvignon</p>
+          <p>5 % Cabernet Sauvignon</p>
         </>
       ),
     },
     {
+      id: 11,
       productImage: product11,
       title: "Matthias Anton Blanc de Blancs sparkling (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -138,6 +149,7 @@ const Products = () => {
       wineType: "Riesling",
     },
     {
+      id: 12,
       productImage: product12,
       title: "Matthias Anton Pinot Grigio (vegan) – Dealcoholized",
       verity: "Grape Verity",
@@ -147,6 +159,7 @@ const Products = () => {
       wineType: "Pinot Grigio",
     },
     {
+      id: 13,
       productImage: product13,
       title: "Matthias Anton Rosé (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -156,6 +169,7 @@ const Products = () => {
       wineType: "Pinot Noir",
     },
     {
+      id: 14,
       productImage: product14,
       title: "Matthias Anton Rosé Sparkling (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -165,6 +179,7 @@ const Products = () => {
       wineType: "Pinot Noir",
     },
     {
+      id: 15,
       productImage: product15,
       title: "Matthias Anton Sauvignon Blanc (vegan) Dealcoholized",
       verity: "Grape Verity",
@@ -226,6 +241,7 @@ const Products = () => {
                   isGold={product.isGold}
                   price={product.price}
                   wineType={product.wineType}
+                  id={product.id}
                 />
               );
             })}

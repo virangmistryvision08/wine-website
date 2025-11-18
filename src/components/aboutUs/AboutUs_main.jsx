@@ -18,18 +18,18 @@ export default function AboutUs_main() {
       <div className="w-full flex flex-col items-center bg-gradient-to-b from-[#FFFFFF] to-[#FFF1D2] text-gray-900 font-[Urbanist]">
         <div className="w-[90%] xl:w-[80%] mx-auto">
           {/* ---------------- TOP SECTION ---------------- */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-14 lg:py-20 2xl:py-28 animate-fadeIn">
+          <section className="flex flex-col lg:flex-row items-center gap-5 lg:gap-20 py-14 lg:py-20 2xl:py-28 animate-fadeIn">
             {/* Image */}
-            <div className="w-full h-full">
+            <div className="w-full w-1/2 overflow-hidden">
               <img
                 src={main_glasses}
                 alt="Wine toast"
-                className="w-full h-full object-cover"
+                className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
               />
             </div>
 
             {/* Text */}
-            <div className="flex flex-col justify-center space-y-6">
+            <div className="w-full w-1/2 flex flex-col justify-center space-y-6">
               <h2 className="text-2xl md:text-3xl lg:text-2xl xl:text-3xl font-bold uppercase tracking-wide font-[Cormorant-Upright-bold] leading-tight">
                 Elite Wine Selections – <br /> Pure Terroir. Zero Compromise.
               </h2>
@@ -87,7 +87,7 @@ export default function AboutUs_main() {
               <img
                 src={main_black}
                 alt="Falstaff award"
-                className="w-full lg:w-80 rounded-xl"
+                className="h-[400px] md:h-[500px] lg:h-[580px] hover:scale-105 transition-transform duration-700 ease-in-out"
               />
             </div>
           </section>
@@ -98,7 +98,7 @@ export default function AboutUs_main() {
               <img
                 src={main_goldMedal}
                 alt="Gold Medal Award"
-                className="w-96"
+                className="h-[400px] md:h-[500px] lg:h-[580px] hover:scale-105 transition-transform duration-700 ease-in-out"
               />
             </div>
 
@@ -127,14 +127,14 @@ export default function AboutUs_main() {
 
       <div className="w-full flex flex-col items-center bg-gradient-to-b from-[#FFFFFF] via-[#fff] to-[#FFF1D2] text-gray-900 font-[Urbanist]">
         {/* ---------------- TOP SECTION ---------------- */}
-        <div className="w-[90%] xl:w-[80%] mx-auto py-10 lg:py-20 space-y-7 lg:space-y-20">
+        <div className="w-[90%] xl:w-[80%] mx-auto py-10 lg:pt-20 lg:pb-10 space-y-16 md:space-y-24 lg:space-y-32">
           <section className="grid xl:grid-cols-2 gap-5">
             {/* Image */}
-            <div className="flex justify-center">
+            <div className="flex justify-center overflow-hidden">
               <img
                 src={main_couple}
                 alt="Wine tasting"
-                className="w-full h-auto object-cover"
+                className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
               />
             </div>
 
@@ -162,7 +162,7 @@ export default function AboutUs_main() {
 
           {/* ---------------- CUSTOMERS SECTION ---------------- */}
           <section className="w-full text-center space-y-3">
-            <h2 className="text-2xl md:text-3xl lg:text-2xl xl:text-3xl font-bold uppercase tracking-wide font-[Cormorant-Upright-bold] leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold uppercase tracking-wide font-[Cormorant-Upright-bold] leading-tight">
               Customers
             </h2>
 
@@ -178,7 +178,7 @@ export default function AboutUs_main() {
       </div>
 
       {/* Vision Section */}
-      <div className="w-full flex flex-col items-center bg-white text-gray-900 font-[Urbanist] py-10 lg:py-20">
+      <div className="w-full flex flex-col items-center bg-white text-gray-900 font-[Urbanist] py-10 lg:py-20 xl:py-32">
         <section className="w-[90%] xl:w-[80%] flex flex-col-reverse xl:flex-row gap-5 items-center">
           {/* Left Text Block */}
           <div className="w-full xl:w-1/3 space-y-3 mx-auto">
@@ -201,11 +201,11 @@ export default function AboutUs_main() {
           </div>
 
           {/* Right Image */}
-          <div className="w-full xl:w-1/2 flex justify-center">
+          <div className="w-full xl:w-1/2 flex justify-center overflow-hidden">
             <img
               src={main_group}
               alt="Group enjoying wine together"
-              className="w-full h-auto object-cover"
+              className="w-full h-[250px] md:h-[350px] lg:h-[400px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
             />
           </div>
         </section>

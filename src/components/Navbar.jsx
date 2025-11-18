@@ -4,7 +4,7 @@ import europe from "/navbar/europe.svg";
 import uk_flag from "/navbar/uk.svg";
 import china_flag from "/navbar/china.svg";
 import { useEffect, useState, useRef } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
@@ -12,6 +12,8 @@ function Navbar() {
   const navbarRef = useRef(null);
   const navigate = useNavigate();
   const [openSubMenu, setOpenSubMenu] = useState(null);
+  const location = useLocation();
+  const isAboutActive = location.pathname.startsWith("/about-us");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,10 +50,11 @@ function Navbar() {
         {/* Main navbar */}
         <div
           ref={navbarRef}
-          className={`w-full transition-all duration-500 ease-in-out fixed ${isSticky
-            ? "top-0 left-0 bg-black shadow-lg translate-y-0"
-            : "bg-transparent translate-y-[-10px]"
-            }`}
+          className={`w-full transition-all duration-500 ease-in-out fixed ${
+            isSticky
+              ? "top-0 left-0 bg-black shadow-lg translate-y-0"
+              : "bg-transparent translate-y-[-10px]"
+          }`}
         >
           <div className="w-[96%] mx-auto flex justify-between items-center py-4">
             <Link to="/">
@@ -107,7 +110,10 @@ function Navbar() {
                         name: "About Us Bergdolt, Reif & Nett",
                         to: "/about-us/about-us-bergdolt,-reif-&-nett",
                       },
-                      { name: "About Us Lamm-Jung", to: "/about-us/about-us-lamm-jung" },
+                      {
+                        name: "About Us Lamm-Jung",
+                        to: "/about-us/about-us-lamm-jung",
+                      },
                       {
                         name: "About Us KVD Strauch Sektmanufaktur",
                         to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
@@ -168,8 +174,9 @@ function Navbar() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 h-full w-[80%] md:w-[50%] lg:w-[40%] bg-black text-white z-50 transform transition-transform duration-300 ease-in-out ${
+          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex justify-between items-center p-4 text-xl !font-[400] font-[Urbanist]">
           Menu
@@ -181,13 +188,21 @@ function Navbar() {
 
         {/* MAIN MENU PANEL */}
         <div className={`${openSubMenu ? "hidden" : "block"}`}>
-          <ul className="flex flex-col gap-4 mt-6">
-            <NavLink to="/" onClick={toggleDrawer} className="cursor-pointer pl-4">
+          <ul className="flex flex-col gap-4 mt-6 font-[Urbanist]">
+            <NavLink
+              to="/"
+              onClick={toggleDrawer}
+              className="cursor-pointer pl-4"
+            >
               Home
             </NavLink>
             <hr className="border border-gray-700" />
 
-            <NavLink to="/shop" onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink
+              to="/shop"
+              onClick={toggleDrawer}
+              className="cursor-pointer pl-4"
+            >
               Shop
             </NavLink>
             <hr className="border border-gray-700" />
@@ -195,7 +210,8 @@ function Navbar() {
             {/* OPEN SUBMENU */}
             <li
               onClick={() => setOpenSubMenu("about")}
-              className="cursor-pointer pl-4 flex justify-between items-center"
+              className={`cursor-pointer pl-4 flex justify-between items-center 
+    ${isAboutActive ? "text-[#EED291]" : ""}`}
             >
               About Us
               <i className="fa-solid fa-chevron-right pr-4"></i>
@@ -203,41 +219,67 @@ function Navbar() {
 
             <hr className="border border-gray-700" />
 
-            <NavLink to="/blogs" onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink
+              to="/blogs"
+              onClick={toggleDrawer}
+              className="cursor-pointer pl-4"
+            >
               Blog
             </NavLink>
             <hr className="border border-gray-700" />
 
-            <NavLink to="/sign-in" onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink
+              to="/sign-in"
+              onClick={toggleDrawer}
+              className="cursor-pointer pl-4"
+            >
               <i className="fa-regular fa-circle-user"></i> Sign In
             </NavLink>
             <hr className="border border-gray-700" />
 
-            <NavLink to="/sign-up" onClick={toggleDrawer} className="cursor-pointer pl-4">
+            <NavLink
+              to="/sign-up"
+              onClick={toggleDrawer}
+              className="cursor-pointer pl-4"
+            >
               <i className="fa-solid fa-user-plus"></i> Create Account
             </NavLink>
 
             {/* Currency Section (unchanged) */}
             <div>
-              <li className="cursor-pointer pl-4 text-xl font-[400] py-3">CURRENCY</li>
+              <li className="cursor-pointer pl-4 text-xl font-[400] py-3">
+                CURRENCY
+              </li>
               <div className="flex items-center flex-wrap gap-5 pl-4 mt-3">
                 <div className="flex items-center gap-2">
-                  <img className="h-7 w-7 rounded-full object-cover" src={use_flag} />
+                  <img
+                    className="h-7 w-7 rounded-full object-cover"
+                    src={use_flag}
+                  />
                   <p>USD</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <img className="h-7 w-7 rounded-full object-cover" src={europe} />
+                  <img
+                    className="h-7 w-7 rounded-full object-cover"
+                    src={europe}
+                  />
                   <p>EUR</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <img className="h-7 w-7 rounded-full object-cover" src={uk_flag} />
+                  <img
+                    className="h-7 w-7 rounded-full object-cover"
+                    src={uk_flag}
+                  />
                   <p>GBP</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <img className="h-7 w-7 rounded-full object-cover" src={china_flag} />
+                  <img
+                    className="h-7 w-7 rounded-full object-cover"
+                    src={china_flag}
+                  />
                   <p>CHF</p>
                 </div>
               </div>
@@ -245,17 +287,17 @@ function Navbar() {
           </ul>
         </div>
 
-
         {/* ABOUT US SUBMENU PANEL */}
         <div className={`${openSubMenu === "about" ? "block" : "hidden"}`}>
-          <div className="flex items-center gap-3 p-4 bg-[#EED291] text-black text-lg font-semibold cursor-pointer"
+          <div
+            className="flex items-center gap-3 p-4 bg-[#EED291] text-black text-lg font-semibold cursor-pointer font-[Urbanist]"
             onClick={() => setOpenSubMenu(null)}
           >
             <i className="fa-solid fa-arrow-left"></i>
             About Us
           </div>
 
-          <ul className="flex flex-col">
+          <ul className="flex flex-col font-[Urbanist]">
             <NavLink
               to="/about-us"
               end
@@ -267,44 +309,43 @@ function Navbar() {
             >
               Go To About Us
             </NavLink>
-            {
-              [
-                {
-                  name: "About Us Bergdolt, Reif & Nett",
-                  to: "/about-us/about-us-bergdolt,-reif-&-nett",
-                },
-                { name: "About Us Lamm-Jung", to: "/about-us/about-us-lamm-jung" },
-                {
-                  name: "About Us KVD Strauch Sektmanufaktur",
-                  to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
-                },
-                {
-                  name: "About Chateau Clos de Bouard",
-                  to: "/about-us/about-us-chateau-closbde-bouard",
-                },
-                {
-                  name: "About Weingut Matthias Anton",
-                  to: "/about-us/about-us-weingut-matthias-anton",
-                },
-              ].map((item) => {
-                return (
-
-                  <NavLink
-                    to={item.to}
-                    className="px-4 py-3 border-b border-gray-700 cursor-pointer"
-                    onClick={() => {
-                      setIsDrawerOpen(null);
-                      setOpenSubMenu(null);
-                    }}
-                  >
-                    {item.name}
-                  </NavLink>
-                )
-              })
-            }
+            {[
+              {
+                name: "About Us Bergdolt, Reif & Nett",
+                to: "/about-us/about-us-bergdolt,-reif-&-nett",
+              },
+              {
+                name: "About Us Lamm-Jung",
+                to: "/about-us/about-us-lamm-jung",
+              },
+              {
+                name: "About Us KVD Strauch Sektmanufaktur",
+                to: "/about-us/about-us-kvd-strauch-sektmanufaktur",
+              },
+              {
+                name: "About Chateau Clos de Bouard",
+                to: "/about-us/about-us-chateau-closbde-bouard",
+              },
+              {
+                name: "About Weingut Matthias Anton",
+                to: "/about-us/about-us-weingut-matthias-anton",
+              },
+            ].map((item) => {
+              return (
+                <NavLink
+                  to={item.to}
+                  className="px-4 py-3 border-b border-gray-700 cursor-pointer"
+                  onClick={() => {
+                    setIsDrawerOpen(null);
+                    setOpenSubMenu(null);
+                  }}
+                >
+                  {item.name}
+                </NavLink>
+              );
+            })}
           </ul>
         </div>
-
       </div>
 
       {/* Overlay to hide background content */}

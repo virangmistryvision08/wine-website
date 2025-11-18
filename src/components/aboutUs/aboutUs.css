@@ -1,0 +1,8 @@
+
+
+/* Swiper Content Center on About Us Page */
+.vineyardSwiper .swiper-wrapper {
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+}

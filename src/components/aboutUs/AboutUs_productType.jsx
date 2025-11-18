@@ -35,7 +35,7 @@ import vineyard11 from "/aboutUs/chateau/vineyards11.png";
 import aboutUs_weingut_bottle from "/aboutUs/weingut/weingut-bottle.svg";
 import vineyard13 from "/aboutUs/weingut/vineyards13.png";
 import vineyard14 from "/aboutUs/weingut/vineyards14.png";
-// import aboutUs from "./aboutUs.module.css"
+import "./aboutUs.css";
 
 const AboutUs_Bergdolt = () => {
   const { pathname } = useLocation();
@@ -59,7 +59,6 @@ const AboutUs_Bergdolt = () => {
     // If not → show pagination
     setShowPagination(slidesPerView < totalSlides);
   };
-  console.log(productType, "type");
 
   return (
     <>
@@ -85,23 +84,23 @@ const AboutUs_Bergdolt = () => {
           <section className="w-full bg-gradient-to-b from-[#fff] via-[#fff] to-[#FFF1D2]">
             <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-20 font-[Urbanist]">
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-16 font-[Cormorant-Upright-bold]">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-5 xl:mb-10 font-[Cormorant-Upright-bold]">
                 WEINGUT BERGDOLT-REIF & NETT (PALATINATE, GERMANY)
               </h1>
 
               {/* Top Section */}
-              <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-5 items-center">
+              <div className="w-full flex flex-col xl:flex-row gap-8 xl:gap-20 items-center">
                 {/* Bottle Image */}
-                <div className="flex justify-center">
+                <div className="w-full w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_bergdolt_bottle}
                     alt="Wine Bottle"
-                    className="w-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-5">
+                <div className="w-full w-1/2 space-y-5">
                   {/* History */}
                   <div>
                     <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
@@ -154,7 +153,7 @@ const AboutUs_Bergdolt = () => {
               </div>
 
               {/* Awards Section */}
-              <h2 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mt-16 mb-8 xl:mt-24 xl:mb-14 font-[Cormorant-Upright-bold]">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mt-10 lg:mt-14 mb-8 md:-mb-5 lg:mb-10 xl:mt-24 font-[Cormorant-Upright-bold]">
                 AWARDS & RECOGNITION (HIGHLIGHTS)
               </h2>
 
@@ -164,9 +163,9 @@ const AboutUs_Bergdolt = () => {
                   <img
                     src={main_black}
                     alt="Falstaff Award"
-                    className="h-auto md:h-[500px] object-contain"
+                    className="h-auto md:h-[500px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
-                  <p className="text-sm md:text-base text-gray-700 mt-4 max-w-xs">
+                  <p className="text-sm md:text-base text-gray-700 mt-10 max-w-xs">
                     Falstaff (Alcohol-Free Trophy): Reverse Riesling 90 pts;
                     Breakaway Pinot Blanc 90 pts; Breakaway Gewürztraminer 91
                     pts; Reverse Sauvignon Blanc 90.5 pts.
@@ -178,9 +177,9 @@ const AboutUs_Bergdolt = () => {
                   <img
                     src={goldMedal}
                     alt="International Non Alcoholic Competition Medal"
-                    className="h-auto md:h-[500px] object-contain"
+                    className="h-auto md:h-[500px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
-                  <p className="text-sm md:text-base text-gray-700 mt-1 max-w-xs">
+                  <p className="text-sm md:text-base text-gray-700 mt-10 max-w-xs">
                     <span className="font-semibold">
                       Gold Medal For Best Merlot 2025;
                     </span>{" "}
@@ -195,7 +194,7 @@ const AboutUs_Bergdolt = () => {
           <section className="w-full">
             <div className="w-[90%] xl:w-[80%] mx-auto py-10 md:pt-16 space-y-10 font-[Urbanist]">
               {/* ----------- TOP SECTION ----------- */}
-              <div className="flex flex-col-reverse xl:flex-row gap-5 items-center">
+              <div className="flex flex-col-reverse xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* LEFT TEXT */}
                 <div className=" w-full xl:w-1/2">
                   <h2 className="text-2xl md:text-3xl 2xl:text-4xl tracking-wide font-[Cormorant-Upright-bold]">
@@ -213,35 +212,35 @@ const AboutUs_Bergdolt = () => {
                 </div>
 
                 {/* RIGHT IMAGE AREA */}
-                <div className="flex justify-center w-full xl:w-1/2">
+                <div className="flex xl:justify-center w-full xl:w-1/2 bg-[#F8F8F8] p-10">
                   <img
                     src={gold_bottle}
                     alt="gold bottle"
-                    className="object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
               </div>
 
               {/* ----------- MIDDLE TITLE ----------- */}
               <div className="text-center">
-                <h2 className="text-2xl md:text-3xl 2xl:text-4xl tracking-wide font-[Cormorant-Upright-bold] mt-10 md:mt-14 lg:mt-20">
+                <h2 className="text-2xl md:text-3xl 2xl:text-4xl tracking-wide font-[Cormorant-Upright-bold] mt-10 md:mt-14 lg:mt-20 xl:mt-28">
                   TWO LINES, TWO INTENTIONS
                 </h2>
               </div>
 
               {/* ----------- TWO COLUMNS ----------- */}
-              <div className="grid xl:grid-cols-2 gap-5 items-center">
+              <div className="flex flex-col xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* LEFT BOTTLE IMAGE */}
-                <div className="flex justify-center">
+                <div className="flex xl:justify-center w-full xl:w-1/2 bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_bergdolt_bottle2}
                     alt="white wine bottle"
-                    className="object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* RIGHT TEXT CONTENT */}
-                <div className="space-y-5 font-[Urbanist]">
+                <div className="w-full xl:w-1/2 space-y-5 font-[Urbanist]">
                   {/* REVERSE */}
                   <div>
                     <h3 className="text-xl md:text-2xl 2xl:text-3xl tracking-wide font-[Cormorant-Upright-bold]">
@@ -283,8 +282,9 @@ const AboutUs_Bergdolt = () => {
             </div>
           </section>
 
+          {/* Vineyards Section */}
           <section className="w-full">
-            <div className="w-[90%] mx-auto pb-10 md:pb-16 xl:py-20 space-y-10 font-[Urbanist]">
+            <div className="w-[90%] mx-auto pb-5 md:pb-16 xl:pt-10 xl:pb-20 space-y-5 md:space-y-10 font-[Urbanist]">
               <h2 className="text-xl md:text-2xl 2xl:text-3xl text-center tracking-wide font-[Cormorant-Upright-bold]">
                 VINEYARDS
               </h2>
@@ -306,25 +306,25 @@ const AboutUs_Bergdolt = () => {
                 onResize={updatePagination}
                 className="mySwiper"
               >
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-auto object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard1}
                     alt="vineyard1"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-auto object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard2}
                     alt="vineyard2"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-auto object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard3}
                     alt="vineyard3"
                   />
@@ -338,29 +338,29 @@ const AboutUs_Bergdolt = () => {
       {/* about us Lamm Jung */}
       {productType === "about us lamm jung" && (
         <>
-          <section className="w-full bg-gradient-to-b from-[#fff] via-[#fff] to-[#FFF1D2]">
-            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-20 font-[Urbanist]">
+          <section className="w-full">
+            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center pt-10 xl:pt-20 font-[Urbanist]">
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-16 font-[Cormorant-Upright-bold] uppercase">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-5 xl:mb-10 font-[Cormorant-Upright-bold] uppercase">
                 About Weingut Lamm-Jung (Rheingau, Germany)
               </h1>
 
               {/* Top Section */}
-              <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-5 items-center">
+              <div className="w-full flex flex-col xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Bottle Image */}
-                <div className="flex justify-center">
+                <div className="flex xl:justify-center w-full xl:w-1/2 bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_lammJung_bottle}
                     alt="Wine Bottle"
-                    className="w-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-5">
+                <div className="w-full xl:w-1/2 space-y-5">
                   {/* History */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl lg:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       HISTORY
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -374,7 +374,7 @@ const AboutUs_Bergdolt = () => {
 
                   {/* Terroir */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl lg:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       TERROIR
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -389,7 +389,7 @@ const AboutUs_Bergdolt = () => {
 
                   {/* Philosophy */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl lg:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       PHILOSOPHY
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -403,6 +403,20 @@ const AboutUs_Bergdolt = () => {
             </div>
           </section>
 
+          <section className="w-full bg-gradient-to-b from-[#fff] via-[#fffaee] to-[#FFF1D2]">
+            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center pt-32 pb-14 font-[Urbanist]">
+              <p className="text-center text-sm md:text-base xl:text-lg">
+                Riesling Dealcoholized (Vegan). Made from Rheingau Riesling and
+                gently dealcoholized to &lt;0.5% ABV; labeled vegan. Flavor is
+                classically Riesling—yellow-fruit (peach/apricot) notes, lively
+                freshness, fine creaminess and a charming touch of sweetness;
+                typical analysis: RS 33.0 g/L, acidity 6.8 g/L. Suggested with
+                seafood/fish or light poultry.{" "}
+              </p>
+            </div>
+          </section>
+
+          {/* Vineyards Section */}
           <section className="w-full">
             <div className="w-[90%] mx-auto md:pb-16 py-10 xl:py-20 space-y-10 font-[Urbanist]">
               <h2 className="text-xl md:text-2xl 2xl:text-3xl text-center tracking-wide font-[Cormorant-Upright-bold]">
@@ -426,25 +440,25 @@ const AboutUs_Bergdolt = () => {
                 onResize={updatePagination}
                 className="mySwiper"
               >
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard4}
                     alt="vineyard4"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard5}
                     alt="vineyard5"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard6}
                     alt="vineyard6"
                   />
@@ -459,25 +473,25 @@ const AboutUs_Bergdolt = () => {
       {productType === "about us kvd strauch sektmanufaktur" && (
         <>
           <section className="w-full">
-            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-20 font-[Urbanist]">
+            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-24 font-[Urbanist]">
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-16 font-[Cormorant-Upright-bold] uppercase">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-5 xl:mb-10 font-[Cormorant-Upright-bold] uppercase">
                 KvD Strauch Sektmanufaktur
               </h1>
 
               {/* Top Section */}
-              <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-10 items-center">
+              <div className="w-full flex flex-col xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Bottle Image */}
-                <div className="flex justify-center">
+                <div className="w-full xl:w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_kvd_bottle1}
                     alt="Wine Bottle"
-                    className="w-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-5">
+                <div className="w-full xl:w-1/2 space-y-5">
                   <p className="text-sm md:text-base leading-relaxed text-gray-700">
                     KvD Strauch Sektmanufaktur is a family-run sparkling wine
                     house based in Osthofen (Wonnegau), Rheinhessen. The Strauch
@@ -516,14 +530,14 @@ const AboutUs_Bergdolt = () => {
           </section>
 
           <section className="w-full">
-            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center pb-10 xl:pb-20 font-[Urbanist]">
+            <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center pb-10 xl:pb-28 font-[Urbanist]">
               {/* Top Section */}
-              <div className="w-full flex flex-col-reverse xl:flex-row gap-10 items-center">
+              <div className="w-full flex flex-col-reverse xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Text Content */}
                 <div className="w-full xl:w-1/2 space-y-5">
                   {/* History */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl xl:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       HISTORY
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -540,7 +554,7 @@ const AboutUs_Bergdolt = () => {
 
                   {/* Terroir */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl xl:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       TERROIR
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -562,7 +576,7 @@ const AboutUs_Bergdolt = () => {
 
                   {/* Philosophy */}
                   <div>
-                    <h2 className="text-xl md:text-2xl mb-2 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl xl:text-3xl mb-2 font-[Cormorant-Upright-bold]">
                       PHILOSOPHY
                     </h2>
                     <p className="text-sm md:text-base leading-relaxed text-gray-700">
@@ -582,17 +596,18 @@ const AboutUs_Bergdolt = () => {
                 </div>
 
                 {/* Bottle Image */}
-                <div className="w-full xl:w-1/2">
+                <div className="w-full xl:w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_kvd_bottle2}
                     alt="Wine Bottle"
-                    className="w-full h-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
               </div>
             </div>
           </section>
 
+          {/* vineyards Section */}
           <section className="w-full">
             <div className="w-[90%] mx-auto md:pb-16 pb-10 xl:pb-20 space-y-10 font-[Urbanist]">
               <h2 className="text-xl md:text-2xl 2xl:text-3xl text-center tracking-wide font-[Cormorant-Upright-bold]">
@@ -616,25 +631,25 @@ const AboutUs_Bergdolt = () => {
                 onResize={updatePagination}
                 className="mySwiper"
               >
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard7}
                     alt="vineyard7"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard8}
                     alt="vineyard8"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard9}
                     alt="vineyard9"
                   />
@@ -651,23 +666,23 @@ const AboutUs_Bergdolt = () => {
           <section className="w-full">
             <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-20 font-[Urbanist]">
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-16 font-[Cormorant-Upright-bold] uppercase">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-5 xl:mb-10 font-[Cormorant-Upright-bold] uppercase">
                 Château Clos de Boüard
               </h1>
 
               {/* Top Section */}
-              <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-10 items-center">
+              <div className="w-full flex flex-col xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Bottle Image */}
-                <div className="flex justify-center">
+                <div className="w-full xl:w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_chateau_bottle1}
                     alt="Wine Bottle"
-                    className="w-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-5">
+                <div className="w-full xl:w-1/2 space-y-5">
                   <p className="text-sm md:text-base xl:text-lg leading-relaxed text-gray-700">
                     Alongside its traditional sekt, Strauch makes a
                     dealcoholized line designed to keep varietal character and
@@ -687,11 +702,11 @@ const AboutUs_Bergdolt = () => {
           <section className="w-full">
             <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center pb-10 xl:pb-20 font-[Urbanist]">
               {/* Top Section */}
-              <div className="w-full flex flex-col-reverse xl:flex-row gap-10 items-center">
+              <div className="w-full flex flex-col-reverse xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Text Content */}
                 <div className="w-full xl:w-1/2 space-y-5">
                   <div className="space-y-4">
-                    <h2 className="text-xl md:text-2xl mb-4 font-[Cormorant-Upright-bold]">
+                    <h2 className="text-xl md:text-2xl xl:text-3xl mb-4 font-[Cormorant-Upright-bold] uppercase">
                       Non-Alcoholic (Dealcoholized) Project — Prince Oscar
                     </h2>
                     <p className="text-sm md:text-base xl:text-lg leading-relaxed text-gray-700">
@@ -714,17 +729,18 @@ const AboutUs_Bergdolt = () => {
                 </div>
 
                 {/* Bottle Image */}
-                <div className="w-full xl:w-1/2">
+                <div className="w-full xl:w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
                     src={aboutUs_chateau_bottle2}
                     alt="Wine Bottle"
-                    className="w-full h-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
               </div>
             </div>
           </section>
 
+          {/* Vineyards Section */}
           <section className="w-full">
             <div className="w-[90%] mx-auto md:pb-16 pb-10 xl:pb-20 space-y-10 font-[Urbanist]">
               <h2 className="text-xl md:text-2xl 2xl:text-3xl text-center tracking-wide font-[Cormorant-Upright-bold]">
@@ -746,19 +762,19 @@ const AboutUs_Bergdolt = () => {
                 modules={[Pagination]}
                 onInit={updatePagination}
                 onResize={updatePagination}
-                className="mySwiper swiper-wrapper"
+                className="mySwiper vineyardSwiper"
               >
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard10}
                     alt="vineyard10"
                   />
                 </SwiperSlide>
 
-                <SwiperSlide>
+                <SwiperSlide className="overflow-hidden">
                   <img
-                    className="w-full h-52 xl:h-96 object-cover"
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
                     src={vineyard11}
                     alt="vineyard11"
                   />
@@ -775,31 +791,94 @@ const AboutUs_Bergdolt = () => {
           <section className="w-full">
             <div className="w-[90%] xl:w-[80%] mx-auto text-gray-900 flex flex-col items-center py-10 xl:py-20 font-[Urbanist]">
               {/* Title */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-16 font-[Cormorant-Upright-bold] uppercase">
-                Château Clos de Boüard
+              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-wide text-center mb-5 xl:mb-10 font-[Cormorant-Upright-bold] uppercase">
+                Weingut Matthias Anton
               </h1>
 
               {/* Top Section */}
-              <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-10 items-center">
+              <div className="w-full flex flex-col xl:flex-row gap-5 xl:gap-20 items-center">
                 {/* Bottle Image */}
-                <div className="flex justify-center">
+                <div className="w-full xl:w-1/2 flex justify-center bg-[#F8F8F8] p-10">
                   <img
-                    src={aboutUs_chateau_bottle1}
+                    src={aboutUs_weingut_bottle}
                     alt="Wine Bottle"
-                    className="w-full object-contain"
+                    className="w-full h-[200px] md:h-[400px] object-contain hover:scale-105 transition-transform duration-700 ease-in-out"
                   />
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-5">
+                <div className="w-full xl:w-1/2 space-y-5">
                   <p className="text-sm md:text-base leading-relaxed text-gray-700">
-                    Weingut Matthias Anton is a fourth-generation family estate in Herxheim bei Landau in the Southern Palatinate—one of Germany’s sunniest wine regions—farming roughly 20 hectares with a close-to-nature, sustainable approach that blends tradition and innovation.
+                    Weingut Matthias Anton is a fourth-generation family estate
+                    in Herxheim bei Landau in the Southern Palatinate—one of
+                    Germany’s sunniest wine regions—farming roughly 20 hectares
+                    with a close-to-nature, sustainable approach that blends
+                    tradition and innovation.
                   </p>
-                   <p className="text-sm md:text-base leading-relaxed text-gray-700">
-                    Alongside its classic Palatinate wines, the estate crafts a growing range of dealcoholized (&lt;0.5% ABV) wines under the Anton free label, including Sauvignon Blanc, Pinot Grigio, Rosé, and a Blanc de Blancs sparkling. Using aroma-recovery technology and gentle, low-temperature dealcoholization, the team captures and reintegrates varietal aromas to retain authentic character, texture, and freshness—delivering a true wine experience without the alcohol.
+                  <p className="text-sm md:text-base leading-relaxed text-gray-700">
+                    Alongside its classic Palatinate wines, the estate crafts a
+                    growing range of dealcoholized (&lt;0.5% ABV) wines under
+                    the Anton free label, including Sauvignon Blanc, Pinot
+                    Grigio, Rosé, and a Blanc de Blancs sparkling. Using
+                    aroma-recovery technology and gentle, low-temperature
+                    dealcoholization, the team captures and reintegrates
+                    varietal aromas to retain authentic character, texture, and
+                    freshness—delivering a true wine experience without the
+                    alcohol.
                   </p>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Vineyards Section */}
+          <section className="w-full">
+            <div className="w-[90%] mx-auto pb-10 md:pb-16 space-y-10 font-[Urbanist]">
+              <h2 className="text-xl md:text-2xl 2xl:text-3xl text-center tracking-wide font-[Cormorant-Upright-bold]">
+                VINEYARDS
+              </h2>
+
+              <Swiper
+                slidesPerView={1.5}
+                spaceBetween={20}
+                centeredSlides={false}
+                loop={true}
+                pagination={showPagination ? { clickable: true } : false}
+                style={{ paddingBlockEnd: showPagination && "50px" }}
+                breakpoints={{
+                  480: { slidesPerView: 1.5 },
+                  768: { slidesPerView: 2.5 },
+                  1024: { slidesPerView: 3, spaceBetween: 30 },
+                }}
+                modules={[Pagination]}
+                onInit={updatePagination}
+                onResize={updatePagination}
+                className="mySwiper"
+              >
+                <SwiperSlide className="overflow-hidden">
+                  <img
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
+                    src={aboutUs_weingut_bg}
+                    alt="aboutUs_weingut_bg"
+                  />
+                </SwiperSlide>
+
+                <SwiperSlide className="overflow-hidden">
+                  <img
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
+                    src={vineyard13}
+                    alt="vineyard13"
+                  />
+                </SwiperSlide>
+
+                <SwiperSlide className="overflow-hidden">
+                  <img
+                    className="w-full h-[250px] md:h-[350px] lg:h-[400px] 2xl:h-[550px] object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
+                    src={vineyard14}
+                    alt="vineyard14"
+                  />
+                </SwiperSlide>
+              </Swiper>
             </div>
           </section>
         </>

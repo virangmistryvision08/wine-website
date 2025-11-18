@@ -19,11 +19,24 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [showModal, setShowModal] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
+  const { id } = useParams();
+  const { products } = useSelector((state) => state);
+  const [product, setProduct] = useState({});
+
+  useEffect(() => {
+    const getSingleProduct = products.allProducts.filter(
+      (product) => product.id === +id
+    );
+
+    setProduct(getSingleProduct[0]);
+  }, [id]);
 
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;
@@ -69,7 +82,9 @@ const ProductDetails = () => {
       label: "Shipping & Return",
       content: (
         <div className="space-y-3">
-          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold]">Returns Policy</h2>
+          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold]">
+            Returns Policy
+          </h2>
           <p className="md:text-base">
             You may return most new, unopened items within 30 days of delivery
             for a full refund. We'll also pay the return shipping costs if the
@@ -92,7 +107,9 @@ const ProductDetails = () => {
             your refund once we've received and processed the returned item.
           </p>
 
-          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold] mt-4">Shipping</h2>
+          <h2 className="text-2xl text-black font-[Cormorant-Upright-bold] mt-4">
+            Shipping
+          </h2>
           <p className="md:text-base">
             We can ship to virtually any address in the world. Note that there
             are restrictions on some products, and some products cannot be
@@ -116,36 +133,14 @@ const ProductDetails = () => {
     },
   ];
 
-  const productDetails = [
-    {
-      productImage: product1,
-      title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
-      verity: "Grape Verity",
-      isGold: true,
-      price: 29.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Merlot",
-    },
-    {
-      productImage: product2,
-      title: "Bergdolt, Reif & Nett Breakaway Pinot NoirDealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 29.38,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Pinot Noir",
-    },
-    {
-      productImage: product3,
-      title:
-        "Bergdolt, Reif & Nett Reverse Sauvignon Blanc(vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Sauvignon Blanc",
-    },
-  ];
+  // Get Random Three Products
+  const allProducts = products.allProducts;
+
+  const getRandomThree = (arr) => {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+  const productDetails = getRandomThree(allProducts);
 
   const openModal = (tab) => {
     setActiveTab(tab.id);
@@ -159,12 +154,12 @@ const ProductDetails = () => {
 
       <section className="bg-white w-full pt-10 md:pt-24">
         <div className="w-[90%] xl:w-[80%] mx-auto">
-          <div className=" flex flex-col md:flex-row justify-between gap-10 font-[Urbanist]">
-            <div className="flex flex-col items-center w-full md:w-1/2">
+          <div className="flex flex-col md:flex-row relative justify-between gap-10 font-[Urbanist] md:items-start">
+            <div className="flex flex-col items-center md:sticky md:top-28 w-full md:w-1/2">
               {/* Main Product Image */}
               <div className="border w-full flex items-center justify-center border-gray-200 p-4 rounded-md bg-white">
                 <img
-                  src={productImage}
+                  src={product.productImage}
                   alt="Bergdolt Reif & Nett Breakaway Pinot Noir"
                   className="w-52 lg:w-72 max-w-sm object-contain"
                 />
@@ -173,7 +168,7 @@ const ProductDetails = () => {
               {/* Thumbnail Below */}
               <div className="mt-6 w-52 border border-gray-200 flex items-center justify-center">
                 <img
-                  src={productImage}
+                  src={product.productImage}
                   alt="Thumbnail"
                   className="w-18 lg:w-24 rounded-md opacity-50 hover:opacity-100 transition duration-300"
                 />
@@ -182,11 +177,11 @@ const ProductDetails = () => {
 
             <div className="w-full md:w-1/2">
               <div className="flex flex-col gap-1">
-                <h1 className="font-[Cormorant-Upright-bold] text-2xl">
-                  Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized
+                <h1 className="font-[Cormorant-Upright-bold] text-2xl 2xl:text-3xl">
+                  {product.title}
                 </h1>
                 <span className="capitalize">De-Alcoholized</span>
-                <p className="text-xl font-bold">$ 29.76</p>
+                <p className="text-xl font-bold">$ {product.price}</p>
               </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 xl:gap-5">
@@ -214,10 +209,7 @@ const ProductDetails = () => {
                       <span className="font-bold text-sm xl:text-lg capitalize">
                         {"GRAPE VARIETY".toLowerCase()}
                       </span>
-                      <span className=" capitalize">
-                        {" "}
-                        {"MERLOT".toLowerCase()}
-                      </span>
+                      <span className=" capitalize"> {product.wineType}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2 xl:gap-5">
@@ -253,10 +245,10 @@ const ProductDetails = () => {
 
                   <p>
                     <span className="font-semibold">Tasting Notes </span>A
-                    smooth, fruit-driven Merlot with deep notes of dark
-                    berries, plum, and a hint of spice. On the palate, it’s soft
-                    and rounded, with gentle tannins and a pleasantly dry
-                    finish. A refined and full-bodied red – without the alcohol.
+                    smooth, fruit-driven Merlot with deep notes of dark berries,
+                    plum, and a hint of spice. On the palate, it’s soft and
+                    rounded, with gentle tannins and a pleasantly dry finish. A
+                    refined and full-bodied red – without the alcohol.
                   </p>
 
                   <div>
@@ -320,7 +312,7 @@ const ProductDetails = () => {
                       </div>
                       <i class="fa-solid fa-share-nodes cursor-pointer"></i>
                     </div>
-                    <button className=" w-full 2xl:w-[80%] bg-white outline outline-[#f3c968] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
+                    <button className="w-full 2xl:w-[80%] bg-white outline outline-[#f3c968] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
                       BUY IT NOW
                     </button>
                   </div>
@@ -435,7 +427,7 @@ const ProductDetails = () => {
           <Title text="Related Products" />
 
           <Swiper
-            className="!pb-10 md:pb-0"
+            className="!pb-10 md:!pb-0"
             modules={[Pagination]}
             spaceBetween={20}
             speed={800}
@@ -465,6 +457,7 @@ const ProductDetails = () => {
                     isGold={product.isGold}
                     price={product.price}
                     wineType={product.wineType}
+                    id={product.id}
                   />
                 </SwiperSlide>
               );

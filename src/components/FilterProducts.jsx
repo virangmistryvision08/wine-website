@@ -1,20 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import CommonFirstSection from "./CommonFirstSection";
-import product1 from "/products/product1.png";
-import product2 from "/products/product2.png";
-import product3 from "/products/product3.png";
-import product4 from "/products/product4.png";
-import product5 from "/products/product5.png";
-import product6 from "/products/product6.png";
-import product7 from "/products/product7.png";
-import product8 from "/products/product8.png";
-import product9 from "/products/product9.png";
-import product10 from "/products/product10.png";
-import product11 from "/products/product11.png";
-import product12 from "/products/product12.png";
-import product13 from "/products/product13.png";
-import product14 from "/products/product14.png";
-import product15 from "/products/product15.png";
 import Product from "./Product";
 import empty_product from "/filterProducts/empty-product.png";
 import image from "/products/product-details-bg.jpg";
@@ -25,10 +10,11 @@ import Matthias_Anton from "/filterProducts/Matthias -Anton.png";
 import KvD_Strauch_Sektmanufaktur from "/aboutUs/kvd/kvd-bg.png";
 import Slider from "@mui/material/Slider";
 import { ChevronFirst, ChevronLast } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);
-  const [productType, setProductType] = useState("All");
+  const [productType, setProductType] = useState("Products");
   const [bgImage, setBgImage] = useState(image);
   const [selectedFilters, setSelectedFilters] = useState({
     Size: [],
@@ -41,27 +27,19 @@ const FilterProducts = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
-  const singleSelectFilters = ["Availability", "Size"];
-  const [sortOption, setSortOption] = useState("Best Sellers");
+  const singleSelectFilters = []; // Add in this one if want to single select on dropdown option
+  const [sortOption, setSortOption] = useState("Alphabetically, A-Z");
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 100]);
-  const filterRef = useRef(null);
-  const sortRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const { products } = useSelector((state) => state);
 
-  // Close Dropdown While clicking outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      // If clicking outside filter dropdown
-      if (filterRef.current && !filterRef.current.contains(e.target)) {
-        setOpenIndex(null);
-      }
-
-      // If clicking outside sort dropdown
-      if (sortRef.current && !sortRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setOpenIndex(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
@@ -69,7 +47,6 @@ const FilterProducts = () => {
     };
   }, []);
 
-  // Check Screen width
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 1280);
@@ -130,7 +107,7 @@ const FilterProducts = () => {
         } else {
           // If multiple selected → default background
           setBgImage(image); // original hero image
-          setProductType("All");
+          setProductType("Products");
         }
       }
 
@@ -141,160 +118,14 @@ const FilterProducts = () => {
     });
   };
 
-  const productDetails = [
-    {
-      productImage: product1,
-      title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
-      verity: "Grape Verity",
-      isGold: true,
-      price: 29.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Merlot",
-    },
-    {
-      productImage: product2,
-      title: "Bergdolt, Reif & Nett Breakaway Pinot NoirDealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 29.38,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Pinot Noir",
-    },
-    {
-      productImage: product3,
-      title:
-        "Bergdolt, Reif & Nett Reverse Sauvignon Blanc(vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Sauvignon Blanc",
-    },
-    {
-      productImage: product4,
-      title: "Bergdolt, Reif & Nett Reverse GewurztraminerDealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 29.38,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Gewurztraminer",
-    },
-    {
-      productImage: product5,
-      title: "Bergdolt, Reif & Nett Reverse Rose (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Rose",
-    },
-    {
-      productImage: product6,
-      title: "Bergdolt, Reif & Nett Reverse Riesling (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 27.16,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Riesling",
-    },
-    {
-      productImage: product7,
-      title: "Lamm-Jung Riesling Dealcoholized (Vegan)",
-      verity: "Grape Verity",
-      isGold: true,
-      price: 26.97,
-      productType: "Lamm Jung",
-      wineType: "Riesling",
-    },
-    {
-      productImage: product8,
-      title:
-        "KvD Strauch Sektmanufaktur GmbH Rouge Pur Alkoholfrei Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 26.97,
-      productType: "KvD Strauch Sektmanufaktur",
-      wineType: "rouge Pur",
-    },
-    {
-      productImage: product9,
-      title: "Château Clos de Boüard Eden dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 33.61,
-      productType: "Château Clos de Boüard",
-      wineType: "Sauvignon Blanc",
-    },
-    {
-      productImage: product10,
-      title: "Château Clos de Boüard Prince Oscar dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 32.67,
-      productType: "Château Clos de Boüard",
-      wineType: (
-        <>
-          <p>80 % Merlot,</p>
-          <p>15 % Cabernet Franc,</p>
-          <p> 5 % Cabernet Sauvignon</p>
-        </>
-      ),
-    },
-    {
-      productImage: product11,
-      title: "Matthias Anton Blanc de Blancs sparkling (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 27.19,
-      productType: "Matthias Anton",
-      wineType: "Riesling",
-    },
-    {
-      productImage: product12,
-      title: "Matthias Anton Pinot Grigio (vegan) – Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.61,
-      productType: "Matthias Anton",
-      wineType: "Pinot Grigio",
-    },
-    {
-      productImage: product13,
-      title: "Matthias Anton Rosé (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.61,
-      productType: "Matthias Anton",
-      wineType: "Pinot Noir",
-    },
-    {
-      productImage: product14,
-      title: "Matthias Anton Rosé Sparkling (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 28.19,
-      productType: "Matthias Anton",
-      wineType: "Pinot Noir",
-    },
-    {
-      productImage: product15,
-      title: "Matthias Anton Sauvignon Blanc (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.61,
-      productType: "Matthias Anton",
-      wineType: "Sauvignon Blanc",
-    },
-  ];
-
   // Add Product Types in Filter Array
   const uniqueProductTypes = [
-    ...new Set(productDetails.map((p) => p.productType)),
+    ...new Set(products.allProducts.map((p) => p.productType)),
   ];
 
   const uniqueGrapes = [
     ...new Set(
-      productDetails
+      products.allProducts
         .map((p) => (typeof p.wineType === "string" ? p.wineType : null))
         .filter(Boolean)
     ),
@@ -309,7 +140,7 @@ const FilterProducts = () => {
   ];
 
   const applyFilters = () => {
-    let filtered = [...productDetails];
+    let filtered = [...products.allProducts];
 
     // Grape filter
     if (selectedFilters.Grape.length > 0) {
@@ -336,11 +167,11 @@ const FilterProducts = () => {
     }
 
     // SORTING
-    if (sortOption === "A - Z") {
+    if (sortOption === "Alphabetically, A-Z") {
       filtered.sort((a, b) => a.title.localeCompare(b.title));
     }
 
-    if (sortOption === "Z - A") {
+    if (sortOption === "Alphabetically, Z-A") {
       filtered.sort((a, b) => b.title.localeCompare(a.title));
     }
 
@@ -382,21 +213,27 @@ const FilterProducts = () => {
         appliedPriceRange[1] !== 100 ? (
           <div className="flex flex-wrap items-center gap-2 mt-4">
             {/* Clear All */}
-            <button
-              onClick={() => {
-                setSelectedFilters({
-                  Size: [],
-                  Grape: [],
-                  "Product Type": [],
-                  Availability: [],
-                });
-                setPriceRange([0, 100]);
-                setAppliedPriceRange([0, 100]);
-              }}
-              className="text-sm underline text-gray-700 hover:text-black"
-            >
-              Clear All
-            </button>
+            <div className="flex justify-between w-full items-center">
+              <h3 className="block xl:hidden">Filters</h3>
+              <button
+                onClick={() => {
+                  setSelectedFilters({
+                    Size: [],
+                    Grape: [],
+                    "Product Type": [],
+                    Availability: [],
+                  });
+                  setPriceRange([0, 100]);
+                  setAppliedPriceRange([0, 100]);
+                  setOpenIndex(null);
+                  setBgImage(image);
+                  setProductType("Products");
+                }}
+                className="text-sm underlinetext-gray-700hover:text-black cursor-pointer underline"
+              >
+                Clear All
+              </button>
+            </div>
 
             {/* Price Range Tag */}
             {(appliedPriceRange[0] !== 0 || appliedPriceRange[1] !== 100) && (
@@ -416,7 +253,7 @@ const FilterProducts = () => {
               values.map((value) => (
                 <span
                   key={label + value}
-                  className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2"
+                  className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2 text-black"
                 >
                   {value}
                   <button
@@ -444,23 +281,28 @@ const FilterProducts = () => {
       <CommonFirstSection
         productImage={bgImage}
         productType={productType}
-        alcohol="Non-alcoholic (<0.5% ABV). Regulated as a food product. Intended for adults."
+        alcohol={
+          productType.toLowerCase() !== "products" &&
+          "Non-alcoholic (<0.5% ABV). Regulated as a food product. Intended for adults."
+        }
       />
 
+      <div className="w-full">
         <section className="w-[90%] mx-auto py-10 font-[Urbanist]">
           {/* Dropdown Section */}
           {/* Show Only XL or above Screen */}
-          <div className="w-full hidden xl:flex items-center justify-between bg-white">
-            <div className="flex items-center gap-4" ref={filterRef}>
+          <div
+            className="w-full hidden xl:flex items-center justify-between bg-white"
+            ref={dropdownRef}
+          >
+            <div className="flex items-center gap-4">
               <i class="fa-solid fa-filter"></i>
               <span className="text-sm font-medium">Filter</span>
 
               {filters.map((f, idx) => (
                 <div className="relative" key={idx}>
                   <button
-                    onClick={() => {
-                      setOpenIndex(openIndex === idx ? null : idx);
-                    }}
+                    onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                     className="flex items-center gap-2 px-4 py-2 cursor-pointer border border-[#EED291] shadow-sm text-sm bg-white hover:bg-gray-50"
                   >
                     <div className="flex items-center gap-2">
@@ -561,7 +403,7 @@ const FilterProducts = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Sort By :</span>
 
-              <div className="relative" ref={sortRef}>
+              <div className="relative">
                 <button
                   onClick={() =>
                     setOpenIndex(openIndex === "sort" ? null : "sort")
@@ -575,9 +417,8 @@ const FilterProducts = () => {
                 {openIndex === "sort" && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EED291] rounded-xl shadow p-2 z-10 text-sm">
                     {[
-                      "Default",
-                      "A - Z",
-                      "Z - A",
+                      "Alphabetically, A-Z",
+                      "Alphabetically, Z-A",
                       "Price: Low to High",
                       "Price: High to Low",
                     ].map((option, i) => (
@@ -587,7 +428,9 @@ const FilterProducts = () => {
                           setSortOption(option);
                           setOpenIndex(null);
                         }}
-                        className="px-2 py-2 hover:bg-gray-100 rounded cursor-pointer"
+                        className={`px-2 py-2 hover:bg-gray-100 rounded cursor-pointer ${
+                          sortOption === option && "underline"
+                        }`}
                       >
                         {option}
                       </div>
@@ -627,8 +470,11 @@ const FilterProducts = () => {
             ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold">Filters</h2>
-              <button onClick={() => setDrawerOpen(false)} className="text-xl">
+              <h2 className="text-lg font-semibold">Sidebar</h2>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="text-xl cursor-pointer"
+              >
                 ✕
               </button>
             </div>
@@ -639,7 +485,7 @@ const FilterProducts = () => {
               <div key={idx} className="mb-4 border-b pb-3">
                 {/* Accordion Header */}
                 <button
-                  className="w-full flex justify-between items-center text-left"
+                  className="w-full flex justify-between items-center text-left cursor-pointer"
                   onClick={() =>
                     setOpenAccordion(openAccordion === idx ? null : idx)
                   }
@@ -790,6 +636,7 @@ const FilterProducts = () => {
                         isGold={product.isGold}
                         price={product.price}
                         wineType={product.wineType}
+                        id={product.id}
                       />
                     );
                   })}
@@ -896,6 +743,7 @@ const FilterProducts = () => {
             )}
           </div>
         </section>
+      </div>
     </>
   );
 };

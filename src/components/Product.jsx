@@ -2,9 +2,32 @@ import React from "react";
 import grapes from "/products/grapes.svg";
 import gold_medal from "/Gold_Medal.webp";
 import { useNavigate } from "react-router-dom";
+import { addToCart } from "../redux/reducers/productReducer";
+import { useDispatch } from "react-redux";
 
-const Product = ({ productImage, title, verity, isGold, price, wineType, id }) => {
+const Product = ({
+  productImage,
+  title,
+  verity,
+  isGold,
+  price,
+  wineType,
+  id,
+  quantity,
+}) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const productData = {
+    id,
+    productImage,
+    title,
+    verity,
+    isGold,
+    price,
+    wineType,
+    quantity,
+  };
 
   return (
     <div
@@ -21,6 +44,10 @@ const Product = ({ productImage, title, verity, isGold, price, wineType, id }) =
 
         {/* Hover button (initially hidden, slides up) */}
         <button
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch(addToCart(productData));
+          }}
           className="
         absolute bottom-[-100px] left-1/2 -translate-x-1/2
         bg-[#EED291] text-black font-bold px-6 py-4 rounded-full
@@ -29,7 +56,7 @@ const Product = ({ productImage, title, verity, isGold, price, wineType, id }) =
         shadow-md hover:bg-[#6d0718] hover:text-[#EED291] uppercase w-full text-lg cursor-pointer
       "
         >
-          QUICK ADD
+          Add To Cart
         </button>
       </div>
 

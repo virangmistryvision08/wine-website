@@ -5,6 +5,8 @@ import uk_flag from "/navbar/uk.svg";
 import china_flag from "/navbar/china.svg";
 import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import close_image from "/close-image.png";
+import { useSelector } from "react-redux";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
@@ -14,10 +16,36 @@ function Navbar() {
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const location = useLocation();
   const isAboutActive = location.pathname.startsWith("/about-us");
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSubDrawerOpen, setIsSubDrawerOpen] = useState(false);
+  const [isDrawerItem, setIsDrawerItem] = useState(null);
+  const { products } = useSelector((state) => state);
+  const carts = products.cart;
+  const { pathname } = useLocation();
+  const isCartPage = pathname.slice(1);
+  const [isScrolling50, setIsScrolling50] = useState(false);
+
+  // Stop Scrolling While Drawer is Open
+  useEffect(() => {
+    if (isCartOpen || isDrawerOpen) {
+      document.body.style.overflow = "hidden"; // Disable scroll
+    } else {
+      document.body.style.overflow = "auto"; // Enable scroll again
+    }
+
+    return () => {
+      document.body.style.overflow = "auto"; // Cleanup
+    };
+  }, [isCartOpen, isDrawerOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsSticky(window.scrollY > 50);
+      if (window.scrollY > 49) {
+        setIsScrolling50(true);
+      } else {
+        setIsScrolling50(false);
+      }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -66,7 +94,13 @@ function Navbar() {
             </Link>
             <div className="flex items-center gap-3 xl:gap-7">
               {/* Desktop Menu */}
-              <ul className="items-center list-none gap-7 text-lg font-semibold text-white hidden xl:flex">
+              <ul
+                className={`items-center list-none gap-7 text-lg font-semibold ${
+                  isCartPage === "cart" && !isScrolling50
+                    ? "text-black"
+                    : "text-white"
+                } hidden xl:flex`}
+              >
                 {/* Home */}
                 <NavLink
                   to="/"
@@ -151,14 +185,23 @@ function Navbar() {
               </ul>
 
               {/* Icons */}
-              <div className="flex items-center gap-3 xl:gap-5 text-2xl text-white">
+              <div
+                className={`flex items-center gap-3 xl:gap-5 text-2xl ${
+                  isCartPage === "cart" && !isScrolling50
+                    ? "text-black"
+                    : "text-white"
+                }`}
+              >
                 <i className="fa-solid fa-magnifying-glass cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
                 <i className="fa-regular fa-user cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
-                <i className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
+                <i
+                  onClick={() => setIsCartOpen(true)}
+                  className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"
+                ></i>
               </div>
 
               {/* Desktop Button */}
-              <button className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
+              <button className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent hover:outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
                 CONTACT US
               </button>
 
@@ -353,6 +396,350 @@ function Navbar() {
         <div
           className="fixed inset-0 bg-gray-600/70 bg-opacity-80 z-40"
           onClick={toggleDrawer}
+        ></div>
+      )}
+
+      {/* CART DRAWER (RIGHT SIDE) */}
+      <div
+        className={`fixed top-0 right-0 font-[Urbanist] h-full w-[90%] sm:w-[420px] bg-white text-black z-[90] shadow-xl transform transition-transform duration-300 flex flex-col cursor-default ${
+          isCartOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* HEADER */}
+        <div className="p-5 z-[300]">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Shopping Cart</h2>
+            <i
+              className="fa-solid fa-xmark text-2xl cursor-pointer transition-transform duration-300 hover:rotate-180"
+              onClick={() => setIsCartOpen(false)}
+            ></i>
+          </div>
+
+          {/* TOP PROGRESS BAR */}
+          <div className="mt-4 flex flex-col gap-2">
+            <span className="text-gray-600">{carts.length} Item</span>
+            {carts.length === 0 ? (
+              <>
+                {/* Free Shipping */}
+                <div className="flex flex-col items-center mt-2 space-y-3">
+                  <p className="text-lg text-start me-auto font-semibold text-gray-700">
+                    Free shipping for all orders over $85.00 !
+                  </p>
+
+                  {/* Empty text */}
+                  <p className="text-gray-600 text-base">Your cart is empty</p>
+
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(false);
+                      navigate("/shop");
+                    }}
+                    className="w-full text-lg font-semibold cursor-pointer py-3 rounded-full border border-gray-400 font-medium transition hover:bg-black hover:text-white"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#EED291] w-[40%]"></div>
+                </div>
+                <p className="text-sm mb-2 font-medium text-gray-700">
+                  Only $59.62 away from Free Shipping
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        {carts.length !== 0 && (
+          <>
+            {/* CART CONTENT */}
+            <div className="p-5 overflow-y-auto flex-1">
+              {/* CART ITEM */}
+              {carts.map((cart) => {
+                return (
+                  <>
+                    <div className="flex items-center justify-center gap-7 mt-6">
+                      <img
+                        src={cart.productImage}
+                        className="h-36 p-3 w-28 border border-gray-100 object-contain"
+                      />
+
+                      <div className="flex-1 space-y-2.5 text-sm">
+                        <p className="text-base">
+                          {cart.title}
+                        </p>
+                        <p className="font-semibold">${cart.price}</p>
+                        <p className="font-semibold">
+                          Bottle Size{" "}
+                          <span className="text-gray-500">0.75L / 25.4 oz</span>
+                        </p>
+
+                        <p className="font-semibold">Quantity - {cart.quantity}</p>
+                        {/* Quantity Box */}
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center justify-between gap-5 font-bold border border-[#EED291] px-4 py-1 rounded-full w-fit text-base">
+                            <button>-</button>
+                            <span>1</span>
+                            <button>+</button>
+                          </div>
+                          <i className="fa-solid fa-circle-xmark text-xl cursor-pointer"></i>
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr className="my-6 border border-gray-200" />
+                  </>
+                );
+              })}
+
+              {/* YOU MAY ALSO LIKE */}
+              <h3 className="font-semibold text-lg">You May Also Like</h3>
+
+              {/* PRODUCT CARD */}
+              <div className="relative mt-5 flex gap-4 overflow-x-auto no-scrollbar">
+                <div className="flex items-start justify-center gap-7">
+                  <img
+                    src="/products/product1.png"
+                    className="h-36 p-3 w-28 border border-gray-100 object-contain"
+                  />
+
+                  <div className="flex-1 space-y-2.5 text-sm">
+                    <p className="text-base">
+                      Bergdolt, Reif & Nett Reverse...
+                    </p>
+                    <p className="font-semibold">$25.38</p>
+                  </div>
+
+                  <div className="absolute hidden xl:flex items-center gap-3 font-normal bottom-0 right-0 text-xl z-[300]">
+                    <i class="fa-solid fa-arrow-left-long cursor-pointer text-gray-500"></i>
+                    <i class="fa-solid fa-arrow-right-long cursor-pointer text-gray-500"></i>
+                  </div>
+                </div>
+
+                {/* Add more suggested items here */}
+              </div>
+
+              {/* MOBILE DOTS */}
+              <div className="flex justify-center gap-2 mt-3 sm:hidden">
+                <div className="h-2 w-2 rounded-full bg-black"></div>
+                <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+                <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+              </div>
+            </div>
+
+            {/* FOOTER TOTAL */}
+            <div className="p-5 bg-white">
+              <div className="flex items-center justify-center mb-5">
+                <div
+                  onClick={() => {
+                    setIsDrawerItem("Clipboard");
+                    setIsSubDrawerOpen(true);
+                  }}
+                  className="px-7 py-5 border border-gray-200 flex justify-center items-center hover:bg-gray-100 cursor-pointer"
+                >
+                  <i class="fa-regular fa-clipboard text-xl"></i>
+                </div>
+                <div
+                  onClick={() => {
+                    setIsDrawerItem("Truck");
+                    setIsSubDrawerOpen(true);
+                  }}
+                  className="px-7 py-5 border-y border-gray-200 flex justify-center items-center hover:bg-gray-100 cursor-pointer"
+                >
+                  <i class="fa-solid fa-truck-fast text-xl"></i>
+                </div>
+                <div
+                  onClick={() => {
+                    setIsDrawerItem("Tag");
+                    setIsSubDrawerOpen(true);
+                  }}
+                  className="px-7 py-5 border border-gray-200 flex justify-center items-center hover:bg-gray-100 cursor-pointer"
+                >
+                  <i class="fa-solid fa-tag text-xl"></i>
+                </div>
+              </div>
+
+              <div className="flex justify-between text-lg font-semibold">
+                <p>Subtotal:</p>
+                <p>$25.38</p>
+              </div>
+
+              <div className="flex justify-between text-lg font-semibold mt-2">
+                <p>Total:</p>
+                <p className="text-xl">$25.38</p>
+              </div>
+
+              <p className="text-base text-gray-500 mt-2">
+                Tax included and shipping calculated at checkout
+              </p>
+
+              {/* Checkout */}
+              <button className="mt-4 w-full py-3 border border-[#EED291] bg-[#EED291] hover:bg-white hover:outline hover:outline-[#EED291] transition duration-300 cursor-pointer font-semibold rounded-full text-lg">
+                Checkout
+              </button>
+
+              {/* View Cart */}
+              <button
+                onClick={() => {
+                  setIsCartOpen(false);
+                  navigate("/cart");
+                }}
+                className="mt-3 w-full py-3 outline outline-[#EED291] hover:bg-[#EED291] transition duration-300 cursor-pointer font-semibold rounded-full text-lg"
+              >
+                View Cart
+              </button>
+            </div>
+
+            {/* SubDrawer */}
+            {/* Bottom Drawer (Order Instructions) */}
+            <div
+              className={`
+            fixed left-0 bottom-0 w-full border-t border-gray-200 bg-white z-[200]
+            p-6 transition-transform duration-300
+            ${isSubDrawerOpen ? "translate-y-0" : "translate-y-full"}
+            `}
+            >
+              {/* Clipboard Drawer */}
+              {isDrawerItem === "Clipboard" && (
+                <>
+                  {/* Header */}
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                      <i class="fa-regular fa-clipboard text-xl"></i>
+                      Order Special Instructions
+                    </h2>
+                    {/* <i
+              className="fa-solid fa-xmark text-2xl cursor-pointer"
+              onClick={() => setIsSubDrawerOpen(false)}
+            ></i> */}
+                  </div>
+
+                  {/* Textarea */}
+                  <textarea
+                    placeholder="Order special instructions"
+                    className="mt-2 w-full h-24 border border-gray-300 p-3 rounded-4xl outline-none"
+                  ></textarea>
+
+                  {/* Buttons */}
+                  <button className="mt-4 w-full text-lg cursor-pointer py-3 border border-[#EED291] bg-[#EED291] hover:bg-white hover:outline hover:outline-[#EED291] transition duration-300 rounded-full font-semibold">
+                    Save
+                  </button>
+
+                  <button
+                    className="mt-3 w-full text-lg cursor-pointer py-3 border border-[#EED291] hover:bg-[#EED291] transition duration-300 rounded-full font-semibold"
+                    onClick={() => setIsSubDrawerOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+
+              {/* Truck Drawer */}
+              {isDrawerItem === "Truck" && (
+                <>
+                  {/* Title */}
+                  <h2 className="text-lg font-semibold flex items-center gap-3 mb-4">
+                    <i class="fa-solid fa-truck-fast text-xl"></i> Estimate
+                    Shipping Rates
+                  </h2>
+
+                  {/* Country */}
+                  <label className="text-sm text-gray-700">
+                    Country/Region
+                  </label>
+                  <div className="mt-1 mb-4">
+                    <select className="w-full p-3 rounded-full border border-gray-300 text-sm focus:ring-0">
+                      <option>United States</option>
+                    </select>
+                  </div>
+
+                  {/* State */}
+                  <label className="text-sm text-gray-700">State</label>
+                  <div className="mt-1 mb-4">
+                    <select className="w-full p-3 rounded-full border border-gray-300 text-sm focus:ring-0">
+                      <option>Alabama</option>
+                      <option>Alaska</option>
+                    </select>
+                  </div>
+
+                  {/* ZIP Code */}
+                  <label className="text-sm text-gray-700">ZIP Code</label>
+                  <div className="mt-1 mb-5">
+                    <input
+                      type="text"
+                      placeholder="Postal code"
+                      className="w-full p-3 rounded-full border border-gray-300 text-sm focus:ring-0"
+                    />
+                  </div>
+
+                  {/* Calculate Button */}
+                  <button className="w-full py-3 rounded-full border border-[#EED291] bg-[#EED291] hover:bg-white hover:outline hover:outline-[#EED291] transition duration-300 font-semibold cursor-pointer mb-4 text-lg">
+                    Calculate Shipping
+                  </button>
+
+                  {/* Cancel Button */}
+                  <button
+                    onClick={() => setIsSubDrawerOpen(false)}
+                    className="w-full py-3 rounded-full border border-[#EED291] hover:bg-[#EED291] transition duration-300 text-black font-semibold cursor-pointer text-lg"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+
+              {/* Tag Drawer */}
+              {isDrawerItem === "Tag" && (
+                <>
+                  {/* Title */}
+                  <h2 className="text-lg font-semibold flex items-center gap-3 mb-4">
+                    <i class="fa-solid fa-tag text-xl"></i> Add A Coupon
+                  </h2>
+
+                  {/* Subtitle */}
+                  <p className="text-sm text-gray-600 mb-3">
+                    Coupon code content
+                  </p>
+
+                  {/* Input */}
+                  <input
+                    type="text"
+                    className="w-full p-3 rounded-full border border-gray-300 text-sm focus:ring-0 mb-5"
+                  />
+
+                  {/* Save Button */}
+                  <button className="w-full py-3 rounded-full border border-[#EED291] bg-[#EED291] hover:bg-white hover:outline hover:outline-[#EED291] transition duration-300 font-semibold cursor-pointer mb-4 text-lg">
+                    Save
+                  </button>
+
+                  {/* Cancel Button */}
+                  <button
+                    onClick={() => setIsSubDrawerOpen(false)}
+                    className="w-full py-3 rounded-full border border-[#EED291] hover:bg-[#EED291] transition duration-300 font-semibold cursor-pointer text-lg"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* SubDrawer Overlay */}
+        {isSubDrawerOpen && (
+          <div className="fixed inset-0 bg-white/60 z-[90]"></div>
+        )}
+      </div>
+
+      {/* CART Drawer Overlay */}
+      {isCartOpen && (
+        <div
+          className={`fixed inset-0 bg-black/70 cursor-crosshair z-[80]`}
+          onClick={() => setIsCartOpen(false)}
+          // style={{
+          //   cursor: `url("https://upload.wikimedia.org/wikipedia/commons/7/70/Emoji_u274c.svg.png") 16 16, pointer`,
+          // }}
         ></div>
       )}
     </>

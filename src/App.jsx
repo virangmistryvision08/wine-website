@@ -16,6 +16,7 @@ import FilterProducts from "./components/FilterProducts";
 import AboutUs_main from "./components/aboutUs/AboutUs_main";
 import AboutUs_productType from "./components/aboutUs/AboutUs_productType";
 import MoveOnTop from "./components/MoveOnTop";
+import Cart from "./components/Cart";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/shop" element={<FilterProducts />} />
         <Route path="/about-us" element={<AboutUs_main />} />
         <Route path="/about-us/:slug" element={<AboutUs_productType />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
       <Footer />
     </>

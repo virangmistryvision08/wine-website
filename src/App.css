@@ -37,3 +37,8 @@
 .active{
   color: #EED291;
 }
+
+/* Show Content First */
+.description-preview img {
+  display: none !important;
+}

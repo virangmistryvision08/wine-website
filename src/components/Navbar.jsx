@@ -6,7 +6,19 @@ import china_flag from "/navbar/china.svg";
 import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import close_image from "/close-image.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  decreaseQty,
+  increaseQty,
+  removeFromCart,
+  toggleCartDrawer,
+} from "../redux/reducers/productReducer";
+import { Badge } from "@mui/material";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Navigation, Pagination } from "swiper/modules";
+import SwiperCore from "swiper";
 
 function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
@@ -16,7 +28,6 @@ function Navbar() {
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const location = useLocation();
   const isAboutActive = location.pathname.startsWith("/about-us");
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubDrawerOpen, setIsSubDrawerOpen] = useState(false);
   const [isDrawerItem, setIsDrawerItem] = useState(null);
   const { products } = useSelector((state) => state);
@@ -24,10 +35,37 @@ function Navbar() {
   const { pathname } = useLocation();
   const isCartPage = pathname.slice(1);
   const [isScrolling50, setIsScrolling50] = useState(false);
+  const dispatch = useDispatch();
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const subtotal = carts?.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
+  // Cart Drawer State From Redux
+  const cartOpen = products.isCartOpen;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1280);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      SwiperCore.emit("swiper-navigation-init");
+      SwiperCore.emit("swiper-navigation-update");
+    }, 0);
+  }, []);
 
   // Stop Scrolling While Drawer is Open
   useEffect(() => {
-    if (isCartOpen || isDrawerOpen) {
+    if (cartOpen || isDrawerOpen) {
       document.body.style.overflow = "hidden"; // Disable scroll
     } else {
       document.body.style.overflow = "auto"; // Enable scroll again
@@ -36,7 +74,7 @@ function Navbar() {
     return () => {
       document.body.style.overflow = "auto"; // Cleanup
     };
-  }, [isCartOpen, isDrawerOpen]);
+  }, [cartOpen, isDrawerOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +103,15 @@ function Navbar() {
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
+
+  // Get Random Three Products
+  const allProducts = products.allProducts;
+
+  const getRandomThree = (arr) => {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+  const productDetails = getRandomThree(allProducts);
 
   return (
     <>
@@ -194,10 +241,26 @@ function Navbar() {
               >
                 <i className="fa-solid fa-magnifying-glass cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
                 <i className="fa-regular fa-user cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"></i>
-                <i
-                  onClick={() => setIsCartOpen(true)}
-                  className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"
-                ></i>
+                <Badge
+                  badgeContent={carts.length}
+                  overlap="circular"
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      backgroundColor: "#EED291",
+                      color: "black", // text color inside badge
+                      fontWeight: "600",
+                    },
+                  }}
+                >
+                  <i
+                    onClick={() => dispatch(toggleCartDrawer())}
+                    className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200 text-xl"
+                  ></i>
+                </Badge>
               </div>
 
               {/* Desktop Button */}
@@ -402,7 +465,7 @@ function Navbar() {
       {/* CART DRAWER (RIGHT SIDE) */}
       <div
         className={`fixed top-0 right-0 font-[Urbanist] h-full w-[90%] sm:w-[420px] bg-white text-black z-[90] shadow-xl transform transition-transform duration-300 flex flex-col cursor-default ${
-          isCartOpen ? "translate-x-0" : "translate-x-full"
+          cartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* HEADER */}
@@ -411,7 +474,7 @@ function Navbar() {
             <h2 className="text-xl font-semibold">Shopping Cart</h2>
             <i
               className="fa-solid fa-xmark text-2xl cursor-pointer transition-transform duration-300 hover:rotate-180"
-              onClick={() => setIsCartOpen(false)}
+              onClick={() => dispatch(toggleCartDrawer())}
             ></i>
           </div>
 
@@ -431,7 +494,7 @@ function Navbar() {
 
                   <button
                     onClick={() => {
-                      setIsCartOpen(false);
+                      dispatch(toggleCartDrawer());
                       navigate("/shop");
                     }}
                     className="w-full text-lg font-semibold cursor-pointer py-3 rounded-full border border-gray-400 font-medium transition hover:bg-black hover:text-white"
@@ -455,19 +518,29 @@ function Navbar() {
         {carts.length !== 0 && (
           <>
             {/* CART CONTENT */}
-            <div className="p-5 overflow-y-auto flex-1">
+            <div className="px-5 overflow-y-auto flex-1">
               {/* CART ITEM */}
               {carts.map((cart) => {
                 return (
                   <>
-                    <div className="flex items-center justify-center gap-7 mt-6">
+                    <div className="flex items-center justify-center gap-7">
                       <img
+                        onClick={() => {
+                          dispatch(toggleCartDrawer());
+                          navigate(`/products/${cart.id}`);
+                        }}
                         src={cart.productImage}
-                        className="h-36 p-3 w-28 border border-gray-100 object-contain"
+                        className="h-36 p-3 w-28 border border-gray-100 object-contain cursor-pointer"
                       />
 
                       <div className="flex-1 space-y-2.5 text-sm">
-                        <p className="text-base">
+                        <p
+                          onClick={() => {
+                            dispatch(toggleCartDrawer());
+                            navigate(`/products/${cart.id}`);
+                          }}
+                          className="text-base hover:underline cursor-pointer font-semibold"
+                        >
                           {cart.title}
                         </p>
                         <p className="font-semibold">${cart.price}</p>
@@ -476,15 +549,28 @@ function Navbar() {
                           <span className="text-gray-500">0.75L / 25.4 oz</span>
                         </p>
 
-                        <p className="font-semibold">Quantity - {cart.quantity}</p>
+                        <p className="font-semibold">Quantity</p>
                         {/* Quantity Box */}
                         <div className="flex justify-between items-center">
                           <div className="flex items-center justify-between gap-5 font-bold border border-[#EED291] px-4 py-1 rounded-full w-fit text-base">
-                            <button>-</button>
-                            <span>1</span>
-                            <button>+</button>
+                            <button
+                              onClick={() => dispatch(decreaseQty(cart.id))}
+                              className="cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span>{cart.quantity}</span>
+                            <button
+                              onClick={() => dispatch(increaseQty(cart.id))}
+                              className="cursor-pointer"
+                            >
+                              +
+                            </button>
                           </div>
-                          <i className="fa-solid fa-circle-xmark text-xl cursor-pointer"></i>
+                          <i
+                            onClick={() => dispatch(removeFromCart(cart.id))}
+                            className="fa-solid fa-circle-xmark text-xl cursor-pointer"
+                          ></i>
                         </div>
                       </div>
                     </div>
@@ -499,33 +585,69 @@ function Navbar() {
 
               {/* PRODUCT CARD */}
               <div className="relative mt-5 flex gap-4 overflow-x-auto no-scrollbar">
-                <div className="flex items-start justify-center gap-7">
-                  <img
-                    src="/products/product1.png"
-                    className="h-36 p-3 w-28 border border-gray-100 object-contain"
-                  />
+                <Swiper
+                onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                  slidesPerView={1}
+                  spaceBetween={20}
+                  centeredSlides={false}
+                  loop={isDesktop === true ? false : true}
+                  pagination={isDesktop === true ? false : { clickable: true }}
+                  navigation={{
+                    prevEl: ".custom-prev",
+                    nextEl: ".custom-next",
+                  }}
+                  modules={[Navigation, Pagination]}
+                  className="mySwiper !pb-10"
+                >
+                  {productDetails.map((product) => {
+                    return (
+                      <SwiperSlide className="overflow-hidden">
+                        <div className="flex items-start justify-center gap-7">
+                          <img
+                            onClick={() => {
+                              dispatch(toggleCartDrawer());
+                              navigate(`/products/${product.id}`);
+                            }}
+                            src={product.productImage}
+                            className="h-36 p-3 w-28 border border-gray-100 object-contain cursor-pointer"
+                          />
 
-                  <div className="flex-1 space-y-2.5 text-sm">
-                    <p className="text-base">
-                      Bergdolt, Reif & Nett Reverse...
-                    </p>
-                    <p className="font-semibold">$25.38</p>
+                          <div className="flex-1 space-y-2.5 text-sm">
+                            <p
+                              onClick={() => {
+                                dispatch(toggleCartDrawer());
+                                navigate(`/products/${product.id}`);
+                              }}
+                              className="text-base font-semibold line-clamp-2 cursor-pointer hover:underline"
+                            >
+                              {product.title}
+                            </p>
+                            <p className="font-semibold">${product.price}</p>
+                          </div>
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })}
+                  <div className="absolute hidden xl:flex items-center gap-3 font-normal bottom-12 right-0 text-xl z-[300]">
+                    {/* PREV */}
+                    <i
+                      className={`fa-solid fa-arrow-left-long custom-prev 
+    ${
+      activeIndex === 0 ? "text-gray-300 cursor-default" : "text-gray-800 cursor-pointer"
+    }`}
+                    ></i>
+
+                    {/* NEXT */}
+                    <i
+                      className={`fa-solid fa-arrow-right-long custom-next 
+    ${
+      activeIndex === productDetails.length - 1
+        ? "text-gray-300 cursor-default"
+        : "text-gray-800 cursor-pointer"
+    }`}
+                    ></i>
                   </div>
-
-                  <div className="absolute hidden xl:flex items-center gap-3 font-normal bottom-0 right-0 text-xl z-[300]">
-                    <i class="fa-solid fa-arrow-left-long cursor-pointer text-gray-500"></i>
-                    <i class="fa-solid fa-arrow-right-long cursor-pointer text-gray-500"></i>
-                  </div>
-                </div>
-
-                {/* Add more suggested items here */}
-              </div>
-
-              {/* MOBILE DOTS */}
-              <div className="flex justify-center gap-2 mt-3 sm:hidden">
-                <div className="h-2 w-2 rounded-full bg-black"></div>
-                <div className="h-2 w-2 rounded-full bg-gray-300"></div>
-                <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+                </Swiper>
               </div>
             </div>
 
@@ -563,12 +685,12 @@ function Navbar() {
 
               <div className="flex justify-between text-lg font-semibold">
                 <p>Subtotal:</p>
-                <p>$25.38</p>
+                <p>${subtotal?.toFixed(2)}</p>
               </div>
 
               <div className="flex justify-between text-lg font-semibold mt-2">
                 <p>Total:</p>
-                <p className="text-xl">$25.38</p>
+                <p className="text-xl">${subtotal?.toFixed(2)}</p>
               </div>
 
               <p className="text-base text-gray-500 mt-2">
@@ -583,7 +705,7 @@ function Navbar() {
               {/* View Cart */}
               <button
                 onClick={() => {
-                  setIsCartOpen(false);
+                  dispatch(toggleCartDrawer());
                   navigate("/cart");
                 }}
                 className="mt-3 w-full py-3 outline outline-[#EED291] hover:bg-[#EED291] transition duration-300 cursor-pointer font-semibold rounded-full text-lg"
@@ -728,15 +850,18 @@ function Navbar() {
 
         {/* SubDrawer Overlay */}
         {isSubDrawerOpen && (
-          <div className="fixed inset-0 bg-white/60 z-[90]"></div>
+          <div
+            onClick={() => setIsSubDrawerOpen(false)}
+            className="fixed inset-0 bg-white/60 z-[90]"
+          ></div>
         )}
       </div>
 
       {/* CART Drawer Overlay */}
-      {isCartOpen && (
+      {cartOpen && (
         <div
-          className={`fixed inset-0 bg-black/70 cursor-crosshair z-[80]`}
-          onClick={() => setIsCartOpen(false)}
+          className={`fixed inset-0 bg-black/70 z-[80]`}
+          onClick={() => dispatch(toggleCartDrawer())}
           // style={{
           //   cursor: `url("https://upload.wikimedia.org/wikipedia/commons/7/70/Emoji_u274c.svg.png") 16 16, pointer`,
           // }}

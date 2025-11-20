@@ -19,8 +19,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import {
+  addToCart,
+  decreaseQty,
+  increaseQty,
+} from "../redux/reducers/productReducer";
 
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -28,15 +33,21 @@ const ProductDetails = () => {
   const [showPagination, setShowPagination] = useState(true);
   const { id } = useParams();
   const { products } = useSelector((state) => state);
-  const [product, setProduct] = useState({});
+  const [quantityState, setQuantityState] = useState(1);
+  const dispatch = useDispatch();
+  const product = products.allProducts.find((product) => product.id === +id);
+
+  const cartItem = useSelector((state) =>
+    state.products.cart.find((c) => c.id === +id)
+  );
+
+  const quantity = cartItem?.quantity || quantityState;
 
   useEffect(() => {
-    const getSingleProduct = products.allProducts.filter(
-      (product) => product.id === +id
-    );
-
-    setProduct(getSingleProduct[0]);
+    setQuantityState(1);
   }, [id]);
+
+  console.log(cartItem, "product");
 
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;
@@ -289,13 +300,33 @@ const ProductDetails = () => {
                   <div className="flex flex-col gap-3">
                     <span className="font-semibold">Quantity</span>
                     <div className="flex items-center border border-[#EED291] w-36 rounded-full overflow-hidden">
-                      <button className="flex-1 text-center py-2 text-xl cursor-pointer">
+                      <button
+                        onClick={() => {
+                          if (!cartItem) {
+                            setQuantityState((prev) =>
+                              prev > 1 ? prev - 1 : 1
+                            );
+                          } else {
+                            dispatch(decreaseQty(product.id));
+                          }
+                        }}
+                        className="flex-1 text-center py-2 text-xl cursor-pointer"
+                      >
                         <i className="fa-solid fa-minus"></i>
                       </button>
                       <p className="flex-1 text-center py-2 text-xl font-bold">
-                        1
+                        {quantity}
                       </p>
-                      <button className="flex-1 text-center py-2 text-xl cursor-pointer">
+                      <button
+                        onClick={() => {
+                          if (!cartItem) {
+                            setQuantityState((prev) => prev + 1);
+                          } else {
+                            dispatch(increaseQty(product.id));
+                          }
+                        }}
+                        className="flex-1 text-center py-2 text-xl cursor-pointer"
+                      >
                         <i className="fa-solid fa-plus"></i>
                       </button>
                     </div>
@@ -304,15 +335,22 @@ const ProductDetails = () => {
                   {/* Buttons */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 w-full 2xl:w-[85%]">
-                      <button className=" w-full 2xl:w-[80%] bg-[#EED291] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
-                        BUY NOW
+                      <button
+                        onClick={() => {
+                          dispatch(
+                            addToCart({ product, quantity: quantityState })
+                          );
+                        }}
+                        className="font-semibold w-full 2xl:w-[80%] bg-[#EED291] py-3 rounded-full hover:bg-[#000000] hover:text-[#EED291] transition duration-300 cursor-pointer uppercase"
+                      >
+                        Add To Cart
                       </button>
-                      <div className="bg-[#EED291] hover:bg-[#f3c968] transition duration-200 h-[40px] w-[40px] flex items-center justify-center rounded-full cursor-pointer flex-shrink-0">
+                      <div className="bg-white border border-gray-300 hover:border-none hover:bg-[#EED291] transition duration-200 h-[40px] w-[40px] flex items-center justify-center rounded-full cursor-pointer flex-shrink-0">
                         <i class="fa-regular fa-heart"></i>
                       </div>
                       <i class="fa-solid fa-share-nodes cursor-pointer"></i>
                     </div>
-                    <button className="w-full 2xl:w-[80%] bg-white outline outline-[#f3c968] py-3 rounded-full hover:bg-[#f3c968] transition duration-200 cursor-pointer">
+                    <button className="font-semibold w-full 2xl:w-[80%] bg-white outline outline-[#f3c968] py-3 rounded-full hover:bg-[#EED291] transition duration-200 cursor-pointer">
                       BUY IT NOW
                     </button>
                   </div>

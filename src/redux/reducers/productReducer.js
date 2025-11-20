@@ -14,6 +14,7 @@ import product12 from "/products/product12.png";
 import product13 from "/products/product13.png";
 import product14 from "/products/product14.png";
 import product15 from "/products/product15.png";
+import { toast } from "react-toastify";
 
 const allPostsSlice = createSlice({
   name: "allCourses",
@@ -128,7 +129,7 @@ const allPostsSlice = createSlice({
         isGold: false,
         price: 32.67,
         productType: "Chateau Clos de Bouard",
-        wineType: "XYZ",
+        wineType: "80 % Merlot,",
         quantity: 0,
         // wineType: (
         // quantity:0
@@ -196,27 +197,33 @@ const allPostsSlice = createSlice({
       },
     ],
     cart: [],
+    isCartOpen: false,
   },
 
   reducers: {
     addToCart: (state, action) => {
-      const product = action.payload;
+      const { product, quantity } = action.payload;
+      toast.success("Product Added!")
 
       const existingItem = state.cart.find((item) => item.id === product.id);
 
       if (existingItem) {
         existingItem.quantity += 1;
+        state.isCartOpen = true;
       } else {
-        state.cart.push({ ...product, quantity: 1 });
+        state.cart.push({ ...product, quantity: quantity ? quantity : 1 });
+        state.isCartOpen = true;
       }
     },
 
     removeFromCart: (state, action) => {
+      toast.success("Product Removed!");
       const id = action.payload;
       state.cart = state.cart.filter((item) => item.id !== id);
     },
 
     increaseQty: (state, action) => {
+      toast.success("Increment Quantity!");
       const id = action.payload;
       const item = state.cart.find((item) => item.id === id);
       if (item) {
@@ -225,6 +232,7 @@ const allPostsSlice = createSlice({
     },
 
     decreaseQty: (state, action) => {
+      toast.success("Decrement Quantity!");
       const id = action.payload;
       const item = state.cart.find((item) => item.id === id);
 
@@ -234,10 +242,19 @@ const allPostsSlice = createSlice({
         state.cart = state.cart.filter((item) => item.id !== id);
       }
     },
+
+    toggleCartDrawer: (state) => {
+      state.isCartOpen = !state.isCartOpen;
+    },
   },
 });
 
-export const { addToCart, removeFromCart, increaseQty, decreaseQty } =
-  allPostsSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  increaseQty,
+  decreaseQty,
+  toggleCartDrawer,
+} = allPostsSlice.actions;
 
 export default allPostsSlice.reducer;

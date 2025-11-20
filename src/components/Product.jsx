@@ -46,7 +46,7 @@ const Product = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            dispatch(addToCart(productData));
+            dispatch(addToCart({product: productData, quantity: 1}));
           }}
           className="
         absolute bottom-[-100px] left-1/2 -translate-x-1/2

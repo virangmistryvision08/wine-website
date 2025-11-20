@@ -11,35 +11,36 @@ import post1 from "/instagram/post1.jpg";
 import post2 from "/instagram/post2.jpg";
 import post3 from "/instagram/post3.jpg";
 import post4 from "/instagram/post4.jpg";
+import { useSelector } from "react-redux";
 
 const Blogs = () => {
   const [showPagination, setShowPagination] = useState(true);
+  const { blogs } = useSelector((state) => state);
+  console.log(blogs, "blogs");
+  const blogsDetails = blogs.allBlogs;
 
-  const blogsDetails = [
-    {
-      blogImage: blog1,
-      title:
-        "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work",
-      description:
-        "For a long time, non-alcoholic wines carried a reputation for being overly sweet, flat, or marked by cooked flavors...",
-      button: "Read More",
-    },
-    {
-      blogImage: blog2,
-      title:
-        "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out",
-      description:
-        "Wine has always been part of life’s most memorable moments — toasting newlyweds, sharing a Sunday brunch, or opening a bottle...",
-      button: "Read More",
-    },
-    {
-      blogImage: blog3,
-      title: "Hosting a Dinner Party with Wine Pairings for Everyone",
-      description:
-        "There’s something magical about gathering friends and family around the table. The laughter, the conversation, the aroma of home-cooked dishes — and of course, the wine...",
-      button: "Read More",
-    },
-  ];
+  // const blogsDetails = [
+  //   {
+  //     blogImage: blog1,
+  //     title:
+  //       "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work",
+  //     description:
+  //       "For a long time, non-alcoholic wines carried a reputation for being overly sweet, flat, or marked by cooked flavors...",
+  //   },
+  //   {
+  //     blogImage: blog2,
+  //     title:
+  //       "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out",
+  //     description:
+  //       "Wine has always been part of life’s most memorable moments — toasting newlyweds, sharing a Sunday brunch, or opening a bottle...",
+  //   },
+  //   {
+  //     blogImage: blog3,
+  //     title: "Hosting a Dinner Party with Wine Pairings for Everyone",
+  //     description:
+  //       "There’s something magical about gathering friends and family around the table. The laughter, the conversation, the aroma of home-cooked dishes — and of course, the wine...",
+  //   },
+  // ];
 
   // Function to conditionally show/hide pagination
   const handleSwiperInit = (swiper) => {
@@ -86,11 +87,14 @@ const Blogs = () => {
                 <p className="lg:text-lg 2xl:text-xl font-semibold text-gray-900 mt-2 line-clamp-2">
                   {item.title}
                 </p>
-                <p className="text-gray-700 text-base lg:text-base 2xl:text-lg line-clamp-3">
-                  {item.description}
+                <p
+                  dangerouslySetInnerHTML={{ __html: item.description }}
+                  className="description-preview text-gray-600 text-base lg:text-base 2xl:text-lg line-clamp-3"
+                >
+                  {/* {item.description} */}
                 </p>
-                <button className="text-lg lg:text-xl mt-2 cursor-pointer text-start w-fit font-semibold underline">
-                  {item.button}
+                <button className="text-lg lg:text-xl mt-2 cursor-pointer text-start w-fit font-semibold hover:underline">
+                  Read more
                 </button>
               </div>
             </SwiperSlide>

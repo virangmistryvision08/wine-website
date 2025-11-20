@@ -17,10 +17,14 @@ import AboutUs_main from "./components/aboutUs/AboutUs_main";
 import AboutUs_productType from "./components/aboutUs/AboutUs_productType";
 import MoveOnTop from "./components/MoveOnTop";
 import Cart from "./components/Cart";
+import { ToastContainer } from "react-toastify";
+import BlogPage from "./components/BlogPage";
 
 function App() {
   return (
     <>
+      {/* For Toast Message */}
+      <ToastContainer />
       <MoveOnTop />
       <Navbar />
       <Routes>
@@ -30,6 +34,7 @@ function App() {
         <Route path="/about-us" element={<AboutUs_main />} />
         <Route path="/about-us/:slug" element={<AboutUs_productType />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/blog" element={<BlogPage />} />
       </Routes>
       <Footer />
     </>

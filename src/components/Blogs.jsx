@@ -12,35 +12,13 @@ import post2 from "/instagram/post2.jpg";
 import post3 from "/instagram/post3.jpg";
 import post4 from "/instagram/post4.jpg";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Blogs = () => {
   const [showPagination, setShowPagination] = useState(true);
   const { blogs } = useSelector((state) => state);
-  console.log(blogs, "blogs");
   const blogsDetails = blogs.allBlogs;
-
-  // const blogsDetails = [
-  //   {
-  //     blogImage: blog1,
-  //     title:
-  //       "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work",
-  //     description:
-  //       "For a long time, non-alcoholic wines carried a reputation for being overly sweet, flat, or marked by cooked flavors...",
-  //   },
-  //   {
-  //     blogImage: blog2,
-  //     title:
-  //       "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out",
-  //     description:
-  //       "Wine has always been part of life’s most memorable moments — toasting newlyweds, sharing a Sunday brunch, or opening a bottle...",
-  //   },
-  //   {
-  //     blogImage: blog3,
-  //     title: "Hosting a Dinner Party with Wine Pairings for Everyone",
-  //     description:
-  //       "There’s something magical about gathering friends and family around the table. The laughter, the conversation, the aroma of home-cooked dishes — and of course, the wine...",
-  //   },
-  // ];
+  const navigate = useNavigate();
 
   // Function to conditionally show/hide pagination
   const handleSwiperInit = (swiper) => {
@@ -79,21 +57,24 @@ const Blogs = () => {
           {blogsDetails.map((item, index) => (
             <SwiperSlide key={index}>
               <div className="flex flex-col justify-between gap-2 lg:gap-3 mx-auto pb-16 font-[Urbanist]">
-                <img
-                  src={item.blogImage}
-                  alt="Blog Image"
-                  className="w-full h-[350px] xl:h-[500px] object-cover"
-                />
-                <p className="lg:text-lg 2xl:text-xl font-semibold text-gray-900 mt-2 line-clamp-2">
+                <div className="overflow-hidden">
+                  <img
+                   onClick={() => navigate(`/blog/${item.slug}`)}
+                    src={item.blogImage}
+                    alt="Blog Image"
+                    className="w-full h-[350px] xl:h-[500px] object-cover transition-transform hover:scale-105 transition duration-500 cursor-pointer"
+                  />
+                </div>
+                <p onClick={() => navigate(`/blog/${item.slug}`)} className="lg:text-lg font-semibold text-gray-900 mt-2 line-clamp-2 cursor-pointer">
                   {item.title}
                 </p>
                 <p
                   dangerouslySetInnerHTML={{ __html: item.description }}
-                  className="description-preview text-gray-600 text-base lg:text-base 2xl:text-lg line-clamp-3"
+                  className="description-preview text-gray-600 text-base line-clamp-3"
                 >
                   {/* {item.description} */}
                 </p>
-                <button className="text-lg lg:text-xl mt-2 cursor-pointer text-start w-fit font-semibold hover:underline">
+                <button onClick={() => navigate(`/blog/${item.slug}`)} className="text-lg mt-2 cursor-pointer text-start w-fit font-semibold hover:underline">
                   Read more
                 </button>
               </div>

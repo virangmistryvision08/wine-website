@@ -10,7 +10,7 @@ const initialState = {
       title:
         "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work",
       description: `
-    <p><img src="http://localhost:5173/blogs/blog3.jpg" alt="blog3" width="100%" height="100%" /></p>
+    <p class="description-img"><img src="http://localhost:5173/blogs/blog3.jpg" alt="blog3" width="100%" height="100%" /></p>
     <p>There’s something magical about gathering friends and family around the table &mdash; the laughter, the conversation, the aroma of home-cooked dishes — and of course, the wine. But what if not everyone drinks alcohol? The answer is simple: serve non-alcoholic wines that taste every bit as authentic as their traditional counterparts. With today’s premium selections (&lt;0.5% ABV), you can pair every course beautifully without compromise.</p>
 
     <h3>The Welcome Toast</h3>
@@ -36,9 +36,10 @@ const initialState = {
 
     <p>Explore our curated collection of premium non-alcoholic wines (&lt;0.5% ABV) and find the perfect pairings for your next gathering.</p>
   `,
-      by: "by Ioana Rednic 25 Sep 2025",
-      slug:"blog-1",
-      id: 1
+      by: "Ioana Rednic",
+      slug: "blog-slug-1",
+      createdAt: "25 September 2025",
+      id: 1,
     },
 
     {
@@ -46,7 +47,7 @@ const initialState = {
       title:
         "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out",
       description: `
-        <p><img src="http://localhost:5173/blogs/blog2.jpg" alt="blog3" width="100%" height="100%" /></p>
+        <p class="description-img"><img src="http://localhost:5173/blogs/blog2.jpg" alt="blog3" width="100%" height="100%" /></p>
 <p>Wine has always been part of life&rsquo;s most memorable moments &mdash; toasting newlyweds, sharing a Sunday brunch, or opening a bottle at a family gathering. But today, more and more people want the full wine experience without the alcohol. Whether it&rsquo;s for health, lifestyle, or simply to feel included, non-alcoholic wines are making celebrations more inclusive than ever.</p>
 <h3>Weddings</h3>
 <p>A wedding toast should be unforgettable &mdash; for everyone. Sparkling non-alcoholic wines, like a crisp&nbsp;Riesling Sekt&nbsp;&lt;0.5%&nbsp;or a refined&nbsp;Blanc de Blancs &lt;0.5%&nbsp;, bring all the elegance of champagne without the limits. Guests can raise a glass, and remember the night for all the right reasons.</p>
@@ -61,23 +62,25 @@ const initialState = {
 <h3>A New Way to Celebrate</h3>
 <p>Non-alcoholic wines are not about giving something up &mdash; they&rsquo;re about opening the door wider. They let everyone at the table share the same experience, with the same aromas, flavors, and sense of joy. From wedding bells to lazy brunches, from laughter in the park to big family dinners, the right bottle ensures no one has to sit out the toast.</p>
 <p>Explore our curated collection of award-winning non-alcoholic wines (&lt;0.5% ABV) and find the perfect match for your next celebration.</p>`,
-      by: "by Ioana Rednic 25 Sep 2025",
-      slug:"blog-2",
-      id: 2
+      by: "Ioana Rednic",
+      slug: "blog-slug-2",
+      createdAt: "25 September 2025",
+      id: 2,
     },
     {
       blogImage: blog3,
       title: "Hosting a Dinner Party with Wine Pairings for Everyone",
       description: `
-        <p><img src="http://localhost:5173/blogs/blog1.png" alt="blog3" width="100%" height="100%" /></p>
-<p>For a long time, non-alcoholic wines carried a reputation for being overly sweet, flat, or marked by cooked flavors. The reason was not the idea of removing alcohol itself but the technology available at the time, which stripped away not only ethanol but also the delicate aromas that make wine so distinctive.</p>
-<p>Gentle Low Temperature Vacuum Distillation (LTVD) has changed this. By reducing the pressure in the distillation column, alcohol can be removed at temperatures far below its normal boiling point. This means the wine no longer suffers heat damage, and its freshness, acidity, and varietal character are preserved. Instead of tasting &ldquo;cooked,&rdquo; the base wine remains vibrant and balanced.</p>
-<p>To preserve the delicate aromas that would otherwise be lost with the alcohol vapor, the process is paired with advanced aroma recovery. The escaping fragrance compounds are gently collected, concentrated, and later returned to the wine, restoring its authentic bouquet and complexity.</p>
+        <p class="description-img"><img src="http://localhost:5173/blogs/blog1.png" alt="blog3" width="100%" height="100%" /></p>
+<p>For a long time, non-alcoholic wines carried a reputation for being overly sweet, flat, or marked by cooked flavors. The reason was not the idea of removing alcohol itself but the technology available at the time, which stripped away not only ethanol but also the delicate aromas that make wine so distinctive.</p><br/>
+<p>Gentle Low Temperature Vacuum Distillation (LTVD) has changed this. By reducing the pressure in the distillation column, alcohol can be removed at temperatures far below its normal boiling point. This means the wine no longer suffers heat damage, and its freshness, acidity, and varietal character are preserved. Instead of tasting &ldquo;cooked,&rdquo; the base wine remains vibrant and balanced.</p><br/>
+<p>To preserve the delicate aromas that would otherwise be lost with the alcohol vapor, the process is paired with advanced aroma recovery. The escaping fragrance compounds are gently collected, concentrated, and later returned to the wine, restoring its authentic bouquet and complexity.</p><br/>
 <p>The result is a non-alcoholic wine that expresses its terroir and varietal typicity with authenticity &mdash; pure, complex, and enjoyable. What was once a compromise has become a true wine experience, simply without alcohol.</p>
         `,
-      by: "by Ioana Rednic 25 Sep 2025",
-      slug:"blog-3",
-      id: 3
+      by: "Ioana Rednic",
+      slug: "blog-slug-3",
+      createdAt: "25 September 2025",
+      id: 3,
     },
   ],
 };

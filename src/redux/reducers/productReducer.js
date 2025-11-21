@@ -29,7 +29,7 @@ const allPostsSlice = createSlice({
         price: 29.76,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Merlot",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 2,
@@ -40,7 +40,7 @@ const allPostsSlice = createSlice({
         price: 29.38,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Pinot Noir",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 3,
@@ -52,7 +52,7 @@ const allPostsSlice = createSlice({
         price: 25.76,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Sauvignon Blanc",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 4,
@@ -63,7 +63,7 @@ const allPostsSlice = createSlice({
         price: 29.38,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Gewurztraminer",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 5,
@@ -74,7 +74,7 @@ const allPostsSlice = createSlice({
         price: 25.76,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Rose",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 6,
@@ -85,7 +85,7 @@ const allPostsSlice = createSlice({
         price: 27.16,
         productType: "Bergdolt, Reif & Nett",
         wineType: "Riesling",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 7,
@@ -96,7 +96,7 @@ const allPostsSlice = createSlice({
         price: 26.97,
         productType: "Lamm Jung",
         wineType: "Riesling",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 8,
@@ -108,7 +108,7 @@ const allPostsSlice = createSlice({
         price: 26.97,
         productType: "KvD Strauch Sektmanufaktur",
         wineType: "rouge Pur",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 9,
@@ -119,7 +119,7 @@ const allPostsSlice = createSlice({
         price: 33.61,
         productType: "Chateau Clos de Bouard",
         wineType: "Sauvignon Blanc",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 10,
@@ -130,7 +130,7 @@ const allPostsSlice = createSlice({
         price: 32.67,
         productType: "Chateau Clos de Bouard",
         wineType: "80 % Merlot,",
-        quantity: 0,
+        quantity: 1,
         // wineType: (
         // quantity:0
         //   <>
@@ -149,7 +149,7 @@ const allPostsSlice = createSlice({
         price: 27.19,
         productType: "Matthias Anton",
         wineType: "Riesling",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 12,
@@ -160,7 +160,7 @@ const allPostsSlice = createSlice({
         price: 25.61,
         productType: "Matthias Anton",
         wineType: "Pinot Grigio",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 13,
@@ -171,7 +171,7 @@ const allPostsSlice = createSlice({
         price: 25.61,
         productType: "Matthias Anton",
         wineType: "Pinot Noir",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 14,
@@ -182,7 +182,7 @@ const allPostsSlice = createSlice({
         price: 28.19,
         productType: "Matthias Anton",
         wineType: "Pinot Noir",
-        quantity: 0,
+        quantity: 1,
       },
       {
         id: 15,
@@ -193,11 +193,35 @@ const allPostsSlice = createSlice({
         price: 25.61,
         productType: "Matthias Anton",
         wineType: "Sauvignon Blanc",
-        quantity: 0,
+        quantity: 1,
       },
     ],
     cart: [],
     isCartOpen: false,
+    featuredProducts:[
+      {
+        id: 1,
+        productImage: product1,
+        title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
+        verity: "Grape Verity",
+        isGold: true,
+        price: 29.76,
+        productType: "Bergdolt, Reif & Nett",
+        wineType: "Merlot",
+        quantity: 1,
+      },
+      {
+        id: 5,
+        productImage: product5,
+        title: "Bergdolt, Reif & Nett Reverse Rose (vegan) Dealcoholized",
+        verity: "Grape Verity",
+        isGold: false,
+        price: 25.76,
+        productType: "Bergdolt, Reif & Nett",
+        wineType: "Rose",
+        quantity: 1,
+      },
+    ],
   },
 
   reducers: {

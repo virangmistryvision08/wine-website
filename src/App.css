@@ -42,3 +42,14 @@
 .description-preview img {
   display: none !important;
 }
+
+/* Style HTML h3 tag in Blog Details Page */
+.blog-details-description h3{
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  margin-block: 10px;
+  color: black !important;
+}
+.description-img{
+  margin-bottom: 20px !important;
+}

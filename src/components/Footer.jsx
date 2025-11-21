@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import footer_logo from "/footer/footer-logo.png";
 import footer_grapes from "/footer/footer-grapes.svg";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
   const [openCompany, setOpenCompany] = useState(false);
   const [openMoreInfo, setOpenMoreInfo] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -77,14 +79,14 @@ const Footer = () => {
                 }
                 md:max-h-none md:opacity-100`}
               >
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">
+                <li onClick={() => navigate("/")} className="cursor-pointer w-fit hover:text-[#EED291]">
                   Home
                 </li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">
+                <li onClick={() => navigate("/about-us")} className="cursor-pointer w-fit hover:text-[#EED291]">
                   About Us
                 </li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">Shop</li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">Blog</li>
+                <li onClick={() => navigate("/shop")} className="cursor-pointer w-fit hover:text-[#EED291]">Shop</li>
+                <li onClick={() => navigate("/blog")} className="cursor-pointer w-fit hover:text-[#EED291]">Blog</li>
                 <li className="cursor-pointer w-fit hover:text-[#EED291]">FAQ</li>
               </ul>
             </div>

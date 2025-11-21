@@ -280,6 +280,7 @@ const FilterProducts = () => {
     <>
       <CommonFirstSection
         productImage={bgImage}
+        page="Shop"
         productType={productType}
         alcohol={
           productType.toLowerCase() !== "products" &&

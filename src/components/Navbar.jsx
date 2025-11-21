@@ -56,13 +56,6 @@ function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      SwiperCore.emit("swiper-navigation-init");
-      SwiperCore.emit("swiper-navigation-update");
-    }, 0);
-  }, []);
-
   // Stop Scrolling While Drawer is Open
   useEffect(() => {
     if (cartOpen || isDrawerOpen) {
@@ -264,7 +257,7 @@ function Navbar() {
               </div>
 
               {/* Desktop Button */}
-              <button className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent hover:outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
+              <button onClick={() => navigate("/contact-us")} className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent hover:outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
                 CONTACT US
               </button>
 
@@ -326,7 +319,7 @@ function Navbar() {
             <hr className="border border-gray-700" />
 
             <NavLink
-              to="/blogs"
+              to="/blog"
               onClick={toggleDrawer}
               className="cursor-pointer pl-4"
             >
@@ -436,9 +429,10 @@ function Navbar() {
                 name: "About Weingut Matthias Anton",
                 to: "/about-us/about-us-weingut-matthias-anton",
               },
-            ].map((item) => {
+            ].map((item, index) => {
               return (
                 <NavLink
+                  key={index}
                   to={item.to}
                   className="px-4 py-3 border-b border-gray-700 cursor-pointer"
                   onClick={() => {
@@ -586,7 +580,7 @@ function Navbar() {
               {/* PRODUCT CARD */}
               <div className="relative mt-5 flex gap-4 overflow-x-auto no-scrollbar">
                 <Swiper
-                onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                  onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
                   slidesPerView={1}
                   spaceBetween={20}
                   centeredSlides={false}
@@ -633,7 +627,9 @@ function Navbar() {
                     <i
                       className={`fa-solid fa-arrow-left-long custom-prev 
     ${
-      activeIndex === 0 ? "text-gray-300 cursor-default" : "text-gray-800 cursor-pointer"
+      activeIndex === 0
+        ? "text-gray-300 cursor-default"
+        : "text-gray-800 cursor-pointer"
     }`}
                     ></i>
 

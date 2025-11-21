@@ -19,6 +19,8 @@ import MoveOnTop from "./components/MoveOnTop";
 import Cart from "./components/Cart";
 import { ToastContainer } from "react-toastify";
 import BlogPage from "./components/BlogPage";
+import BlogDetailsPage from "./components/BlogDetailsPage";
+import ContactUs from "./components/ContactUs";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
         <Route path="/about-us/:slug" element={<AboutUs_productType />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogDetailsPage />} />
+        <Route path="/contact-us" element={<ContactUs />} />
       </Routes>
       <Footer />
     </>

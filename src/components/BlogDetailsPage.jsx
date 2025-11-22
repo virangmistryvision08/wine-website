@@ -9,6 +9,7 @@ import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
 import Product from "./Product";
 import Title from "./Title";
+import Blog from "./Blog";
 
 const BlogDetailsPage = () => {
   const { slug } = useParams();
@@ -122,31 +123,27 @@ const BlogDetailsPage = () => {
             <div className="pointer-events-none absolute inset-0 flex items-center justify-between z-[300]">
               {/* PREV */}
               <div
-                className={`prev-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${
-                  activeIndex === 0 ? "cursor-default" : "cursor-pointer"
-                }`}
+                className={`prev-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${activeIndex === 0 ? "cursor-default" : "cursor-pointer"
+                  }`}
               >
                 <i
-                  className={`fa-solid fa-arrow-left-long !text-2xl ${
-                    activeIndex === 0 ? "text-gray-300" : "text-gray-800"
-                  }`}
+                  className={`fa-solid fa-arrow-left-long !text-2xl ${activeIndex === 0 ? "text-gray-300" : "text-gray-800"
+                    }`}
                 ></i>
               </div>
 
               {/* NEXT */}
               <div
-                className={`next-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${
-                  activeIndex === featuredProducts.length - 1
+                className={`next-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${activeIndex === featuredProducts.length - 1
                     ? "cursor-default"
                     : "cursor-pointer"
-                }`}
+                  }`}
               >
                 <i
-                  className={`fa-solid fa-arrow-right-long !text-2xl ${
-                    activeIndex === featuredProducts.length - 1
+                  className={`fa-solid fa-arrow-right-long !text-2xl ${activeIndex === featuredProducts.length - 1
                       ? "text-gray-300"
                       : "text-gray-800"
-                  }`}
+                    }`}
                 ></i>
               </div>
             </div>
@@ -165,15 +162,15 @@ const BlogDetailsPage = () => {
         page="News"
         productType={
           blog.title ===
-          "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work"
+            "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work"
             ? "“How non-alcoholic wine is made without losing the taste”"
             : "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out"
-            ? "The Perfect Non-Alcoholic Wines for Functions"
-            : blog.title
+              ? "The Perfect Non-Alcoholic Wines for Functions"
+              : blog.title
         }
       />
       <section className="w-[96%] mx-auto">
-        <div className="py-10 xl:py-20">
+        <div className="py-10">
           {/* Sidebar on Below XL Screen */}
           <div className="xl:hidden text-3xl mb-7">
             <i
@@ -222,41 +219,11 @@ const BlogDetailsPage = () => {
                 1024: { slidesPerView: 3 },
               }}
               modules={[Pagination]}
-              className="mySwiper !pb-10"
+              className="mySwiper !pb-0"
             >
               {allBlogs.map((item, index) => (
-                <SwiperSlide className="overflow-hidden">
-                  <div
-                    key={index}
-                    className="flex flex-col justify-between gap-2 lg:gap-3 mx-auto font-[Urbanist]"
-                  >
-                    <div className=" overflow-hidden">
-                      <img
-                        onClick={() => navigate(`/blog/${item.slug}`)}
-                        src={item.blogImage}
-                        alt="Blog Image"
-                        className="w-full h-[350px] xl:h-[500px] object-cover transition-transform hover:scale-105 transition duration-500 cursor-pointer"
-                      />
-                    </div>
-                    <p
-                      onClick={() => navigate(`/blog/${item.slug}`)}
-                      className="lg:text-lg font-semibold text-gray-900 mt-2 line-clamp-2 cursor-pointer"
-                    >
-                      {item.title}
-                    </p>
-                    <p
-                      dangerouslySetInnerHTML={{ __html: item.description }}
-                      className="description-preview text-gray-600 text-base lg:text-base line-clamp-3"
-                    >
-                      {/* {item.description} */}
-                    </p>
-                    <button
-                      onClick={() => navigate(`/blog/${item.slug}`)}
-                      className="text-lg mt-2 cursor-pointer text-start w-fit font-semibold hover:underline"
-                    >
-                      Read more
-                    </button>
-                  </div>
+                <SwiperSlide key={item.id} className="overflow-hidden">
+                  <Blog blogImage={item.blogImage} title={item.title} description={item.description} slug={item.slug} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -268,11 +235,10 @@ const BlogDetailsPage = () => {
       {/* Drawer */}
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${
-          isDrawerOpen
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${isDrawerOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={() => setIsDrawerOpen(false)}
       ></div>
 

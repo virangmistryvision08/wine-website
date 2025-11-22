@@ -21,6 +21,7 @@ import { ToastContainer } from "react-toastify";
 import BlogPage from "./components/BlogPage";
 import BlogDetailsPage from "./components/BlogDetailsPage";
 import ContactUs from "./components/ContactUs";
+import FAQs from "./components/FAQs";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogDetailsPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/faqs" element={<FAQs />} />
       </Routes>
       <Footer />
     </>

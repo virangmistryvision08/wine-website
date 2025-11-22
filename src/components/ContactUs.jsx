@@ -258,7 +258,7 @@ const ContactUs = () => {
         </div>
       </div>
 
-      <div className="w-[96%] 2xl:w-[80%] pb-10 lg:pb-20 mx-auto">
+      <div className="w-[96%] 2xl:w-[90%] pb-10 lg:pb-20 mx-auto">
         <iframe
           className="rounded-2xl h-52 md:h-80 lg:h-96 w-full"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d378.2265895210637!2d72.84249545774274!3d21.196808276046106!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04ef22a0178b1%3A0x2f02ec2c91fcd100!2sVision%20Infotech!5e0!3m2!1sen!2sin!4v1761055425289!5m2!1sen!2sin"

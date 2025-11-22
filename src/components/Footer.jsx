@@ -87,7 +87,7 @@ const Footer = () => {
                 </li>
                 <li onClick={() => navigate("/shop")} className="cursor-pointer w-fit hover:text-[#EED291]">Shop</li>
                 <li onClick={() => navigate("/blog")} className="cursor-pointer w-fit hover:text-[#EED291]">Blog</li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">FAQ</li>
+                <li onClick={() => navigate("/faqs")} className="cursor-pointer w-fit hover:text-[#EED291]">FAQ</li>
               </ul>
             </div>
 

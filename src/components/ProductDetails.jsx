@@ -47,8 +47,6 @@ const ProductDetails = () => {
     setQuantityState(1);
   }, [id]);
 
-  console.log(cartItem, "product");
-
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;
     if (swiper.slides.length <= slidesPerView) {

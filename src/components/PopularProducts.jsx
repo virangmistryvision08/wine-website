@@ -35,6 +35,7 @@ const PopularProducts = () => {
 
   const productDetails = [
     {
+      id: 1,
       productImage: product1,
       title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
       verity: "Grape Verity",
@@ -44,6 +45,7 @@ const PopularProducts = () => {
       wineType: "Merlot",
     },
     {
+      id: 2,
       productImage: product2,
       title: "Bergdolt, Reif & Nett Breakaway Pinot Noir Dealcoholized",
       verity: "Grape Verity",
@@ -53,6 +55,7 @@ const PopularProducts = () => {
       wineType: "Pinot Noir",
     },
     {
+      id: 3,
       productImage: product3,
       title:
         "Bergdolt, Reif & Nett Reverse Sauvignon Blanc (vegan) Dealcoholized",
@@ -99,12 +102,14 @@ const PopularProducts = () => {
             {productDetails.map((product, index) => (
               <SwiperSlide key={index}>
                 <Product
+                  id={product.id}
                   productImage={product.productImage}
                   title={product.title}
                   verity={product.verity}
                   isGold={product.isGold}
                   price={product.price}
                   wineType={product.wineType}
+                  slug={product.slug}
                 />
               </SwiperSlide>
             ))}

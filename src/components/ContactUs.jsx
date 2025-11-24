@@ -97,7 +97,7 @@ const ContactUs = () => {
       <div className="w-[96%] 2xl:w-[80%] mx-auto py-16 font-[Urbanist]">
         <div className="flex flex-col xl:flex-row gap-16">
           {/* LEFT FORM SECTION */}
-          <div className="w-full xl:w-2/4">
+          <div className="w-full xl:w-[70%]">
             <h2 className="text-3xl font-semibold mb-10 font-[Cormorant-Upright-bold] uppercase">
               SEND US A MESSAGE
             </h2>
@@ -191,7 +191,7 @@ const ContactUs = () => {
           </div>
 
           {/* RIGHT CONTACT INFO SECTION */}
-          <div className="w-full xl:w-1/2">
+          <div className="w-full xl:w-[30%]">
             <h2 className="text-3xl font-semibold mb-10 font-[Cormorant-Upright-bold]">
               GET IN TOUCH
             </h2>
@@ -242,6 +242,8 @@ const ContactUs = () => {
                   </p>
                 </div>
               </div>
+
+              <hr className="border border-gray-300" />
 
               {/* Social */}
               <div className="pt-6">

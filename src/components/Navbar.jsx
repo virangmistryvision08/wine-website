@@ -33,7 +33,7 @@ function Navbar() {
   const { products } = useSelector((state) => state);
   const carts = products.cart;
   const { pathname } = useLocation();
-  const isCartPage = pathname.slice(1);
+  const isWhiteBG = pathname.slice(1);
   const [isScrolling50, setIsScrolling50] = useState(false);
   const dispatch = useDispatch();
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
@@ -136,7 +136,7 @@ function Navbar() {
               {/* Desktop Menu */}
               <ul
                 className={`items-center list-none gap-7 text-lg font-semibold ${
-                  isCartPage === "cart" && !isScrolling50
+                  isWhiteBG === "cart" || isWhiteBG === "register" || isWhiteBG === "login" && !isScrolling50
                     ? "text-black"
                     : "text-white"
                 } hidden xl:flex`}
@@ -227,7 +227,7 @@ function Navbar() {
               {/* Icons */}
               <div
                 className={`flex items-center gap-3 xl:gap-5 text-2xl ${
-                  isCartPage === "cart" && !isScrolling50
+                  isWhiteBG === "cart" || isWhiteBG === "register" || isWhiteBG === "login" && !isScrolling50
                     ? "text-black"
                     : "text-white"
                 }`}
@@ -257,7 +257,7 @@ function Navbar() {
               </div>
 
               {/* Desktop Button */}
-              <button onClick={() => navigate("/contact-us")} className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent hover:outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-200">
+              <button onClick={() => navigate("/contact-us")} className="bg-[#EED291] px-9 py-4 rounded-full font-semibold hidden xl:block cursor-pointer hover:bg-transparent hover:outline hover:outline-[#EED291] hover:text-[#EED291] transition-all duration-500">
                 CONTACT US
               </button>
 

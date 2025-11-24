@@ -11,6 +11,7 @@ import KvD_Strauch_Sektmanufaktur from "/aboutUs/kvd/kvd-bg.png";
 import Slider from "@mui/material/Slider";
 import { ChevronFirst, ChevronLast } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -33,6 +34,79 @@ const FilterProducts = () => {
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 100]);
   const dropdownRef = useRef(null);
   const { products } = useSelector((state) => state);
+  const { slug } = useParams();
+
+  const slugifyString = (str) =>
+    str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+  useEffect(() => {
+    if (!slug) {
+      setSelectedFilters({
+        Size: [],
+        Grape: [],
+        "Product Type": [],
+        Availability: [],
+      });
+      setBgImage(image);
+      setProductType("Products");
+      setCurrentPage(1);
+      return;
+    }
+
+    // Find a productType from products.allProducts whose slugified value === slug
+    const allTypes = [
+      ...new Set(
+        products.allProducts.map((p) => p.productType).filter(Boolean)
+      ),
+    ];
+
+    const matchedType = allTypes.find((type) => slugifyString(type) === slug);
+
+    if (matchedType) {
+      setSelectedFilters((prev) => ({
+        ...prev,
+        "Product Type": [matchedType],
+      }));
+
+      if (matchedType === "Bergdolt, Reif & Nett") {
+        setBgImage(Bergdolt_Reif_Nett);
+        setProductType("Bergdolt, Reif & Nett");
+      } else if (matchedType === "Lamm Jung") {
+        setBgImage(Lamm_Jung);
+        setProductType("Lamm Jung");
+      } else if (matchedType === "Chateau Clos de Bouard") {
+        setBgImage(Château_Clos_de_Boüard);
+        setProductType("Château Clos de Boüard");
+      } else if (matchedType === "Matthias Anton") {
+        setBgImage(Matthias_Anton);
+        setProductType("Matthias Anton");
+      } else if (matchedType === "KvD Strauch Sektmanufaktur") {
+        setBgImage(KvD_Strauch_Sektmanufaktur);
+        setProductType("KvD Strauch Sektmanufaktur");
+      } else {
+        setBgImage(image);
+        setProductType(matchedType);
+      }
+
+      setCurrentPage(1);
+      setOpenIndex(null);
+      setOpenAccordion(null);
+    } else {
+      setSelectedFilters((prev) => ({
+        ...prev,
+        "Product Type": [],
+      }));
+      setBgImage(image);
+      setProductType("Products");
+      setCurrentPage(1);
+    }
+  }, [slug, products.allProducts]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -94,15 +168,15 @@ const FilterProducts = () => {
           } else if (selected === "Lamm Jung") {
             setBgImage(Lamm_Jung);
             setProductType("Lamm Jung");
-          } else if (selected === "KvD Strauch Sektmanufaktur") {
-            setBgImage(KvD_Strauch_Sektmanufaktur);
-            setProductType("KvD Strauch Sektmanufaktur");
           } else if (selected === "Château Clos de Boüard") {
             setBgImage(Château_Clos_de_Boüard);
             setProductType("Château Clos de Boüard");
-          } else {
+          } else if (selected === "Matthias Anton") {
             setBgImage(Matthias_Anton);
             setProductType("Matthias Anton");
+          } else {
+            setBgImage(KvD_Strauch_Sektmanufaktur);
+            setProductType("KvD Strauch Sektmanufaktur");
           }
         } else {
           // If multiple selected → default background

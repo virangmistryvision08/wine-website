@@ -88,6 +88,7 @@ const Footer = () => {
                 <li onClick={() => navigate("/shop")} className="cursor-pointer w-fit hover:text-[#EED291]">Shop</li>
                 <li onClick={() => navigate("/blog")} className="cursor-pointer w-fit hover:text-[#EED291]">Blog</li>
                 <li onClick={() => navigate("/faqs")} className="cursor-pointer w-fit hover:text-[#EED291]">FAQ</li>
+                <li onClick={() => navigate("/collections")} className="cursor-pointer w-fit hover:text-[#EED291]">Collections</li>
               </ul>
             </div>
 
@@ -128,8 +129,8 @@ const Footer = () => {
                 <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Refund Policy
                 </li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">
-                  Contact
+                <li onClick={() => navigate("/contact-us")} className="cursor-pointer w-fit hover:text-[#EED291]">
+                  Contact Us
                 </li>
               </ul>
             </div>

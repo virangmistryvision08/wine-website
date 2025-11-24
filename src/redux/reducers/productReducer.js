@@ -30,6 +30,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Merlot",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 2,
@@ -41,6 +42,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Pinot Noir",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 3,
@@ -53,6 +55,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Sauvignon Blanc",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 4,
@@ -64,6 +67,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Gewurztraminer",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 5,
@@ -75,6 +79,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Rose",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 6,
@@ -86,6 +91,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Riesling",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 7,
@@ -97,6 +103,7 @@ const allPostsSlice = createSlice({
         productType: "Lamm Jung",
         wineType: "Riesling",
         quantity: 1,
+        slug: "lamm-jung"
       },
       {
         id: 8,
@@ -109,6 +116,7 @@ const allPostsSlice = createSlice({
         productType: "KvD Strauch Sektmanufaktur",
         wineType: "rouge Pur",
         quantity: 1,
+        slug: "kvd-strauch-sektmanufaktur"
       },
       {
         id: 9,
@@ -120,6 +128,7 @@ const allPostsSlice = createSlice({
         productType: "Chateau Clos de Bouard",
         wineType: "Sauvignon Blanc",
         quantity: 1,
+        slug: "chateau-clos-de-bouard"
       },
       {
         id: 10,
@@ -131,6 +140,7 @@ const allPostsSlice = createSlice({
         productType: "Chateau Clos de Bouard",
         wineType: "80 % Merlot,",
         quantity: 1,
+        slug: "chateau-clos-de-bouard"
         // wineType: (
         // quantity:0
         //   <>
@@ -150,6 +160,7 @@ const allPostsSlice = createSlice({
         productType: "Matthias Anton",
         wineType: "Riesling",
         quantity: 1,
+        slug: "matthias-anton"
       },
       {
         id: 12,
@@ -161,6 +172,7 @@ const allPostsSlice = createSlice({
         productType: "Matthias Anton",
         wineType: "Pinot Grigio",
         quantity: 1,
+        slug: "matthias-anton"
       },
       {
         id: 13,
@@ -172,6 +184,7 @@ const allPostsSlice = createSlice({
         productType: "Matthias Anton",
         wineType: "Pinot Noir",
         quantity: 1,
+        slug: "matthias-anton"
       },
       {
         id: 14,
@@ -183,6 +196,7 @@ const allPostsSlice = createSlice({
         productType: "Matthias Anton",
         wineType: "Pinot Noir",
         quantity: 1,
+        slug: "matthias-anton"
       },
       {
         id: 15,
@@ -194,6 +208,7 @@ const allPostsSlice = createSlice({
         productType: "Matthias Anton",
         wineType: "Sauvignon Blanc",
         quantity: 1,
+        slug: "matthias-anton"
       },
     ],
     cart: [],
@@ -209,6 +224,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Merlot",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
       {
         id: 5,
@@ -220,6 +236,7 @@ const allPostsSlice = createSlice({
         productType: "Bergdolt, Reif & Nett",
         wineType: "Rose",
         quantity: 1,
+        slug: "bergdolt,-reif-&-nett"
       },
     ],
   },

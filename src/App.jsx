@@ -22,6 +22,9 @@ import BlogPage from "./components/BlogPage";
 import BlogDetailsPage from "./components/BlogDetailsPage";
 import ContactUs from "./components/ContactUs";
 import FAQs from "./components/FAQs";
+import Collections from "./components/Collections";
+import Register from "./components/authPages/Register";
+import Account from "./components/authPages/Account";
 
 function App() {
   return (
@@ -34,6 +37,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/shop" element={<FilterProducts />} />
+        <Route path="/shop/:slug" element={<FilterProducts />} />
         <Route path="/about-us" element={<AboutUs_main />} />
         <Route path="/about-us/:slug" element={<AboutUs_productType />} />
         <Route path="/cart" element={<Cart />} />
@@ -41,6 +45,9 @@ function App() {
         <Route path="/blog/:slug" element={<BlogDetailsPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/faqs" element={<FAQs />} />
+        <Route path="/collections" element={<Collections />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/account/:page" element={<Account />} />
       </Routes>
       <Footer />
     </>

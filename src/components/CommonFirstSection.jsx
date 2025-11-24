@@ -1,17 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const CommonFirstSection = ({ productImage, productType, alcohol, page }) => {
+const CommonFirstSection = ({ productImage, productType, alcohol, page, hideGradient }) => {
   const navigate = useNavigate();
 
   return (
     <>
       <div
         style={{
-          backgroundImage: `linear-gradient(to left, #000000aa, #000000aa), url("${productImage}")`,
+          backgroundImage: `${!hideGradient ? `linear-gradient(to left, #000000aa, #000000aa), url("${productImage}")` : `url("${productImage}")` }`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "30% 30%",
+          backgroundPosition: !hideGradient ? "30% 30%" : "30% 80%",
         }}
         className={`relative w-full h-64 xl:h-[430px] overflow-hidden`}
       >

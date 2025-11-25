@@ -120,7 +120,7 @@ const Footer = () => {
                 <li className="cursor-pointer w-fit hover:text-[#EED291]">
                   Shipping & Payment
                 </li>
-                <li className="cursor-pointer w-fit hover:text-[#EED291]">
+                <li onClick={() => navigate("/privacy-policy")} className="cursor-pointer w-fit hover:text-[#EED291]">
                   Privacy Policy
                 </li>
                 <li className="cursor-pointer w-fit hover:text-[#EED291]">

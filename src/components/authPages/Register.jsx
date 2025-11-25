@@ -32,7 +32,7 @@ const Register = () => {
 
           <div className="w-full xl:w-[70%] 2xl:w-[60%] mx-auto">
             {/* Form */}
-            <RegisterForm/>
+            <RegisterForm emailMarketing={true} />
           </div>
         </div>
       </section>

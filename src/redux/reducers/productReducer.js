@@ -60,7 +60,7 @@ const allPostsSlice = createSlice({
       {
         id: 4,
         productImage: product4,
-        title: "Bergdolt, Reif & Nett Reverse GewurztraminerDealcoholized",
+        title: "Bergdolt, Reif & Nett Reverse Gewurztraminer Dealcoholized",
         verity: "Grape Verity",
         isGold: false,
         price: 29.38,

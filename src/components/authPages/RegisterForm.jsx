@@ -38,7 +38,7 @@ const RegisterForm = ({ emailMarketing }) => {
     // Email validation
     if (name === "email") {
       if (value.trim() === "") {
-        msg = "Email is required!";
+        msg = "Email address is required!";
       } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) msg = "Invalid email format!";
@@ -70,7 +70,7 @@ const RegisterForm = ({ emailMarketing }) => {
     if (!data.lastName.trim()) errors.lastName = "Last name is required!";
 
     if (!data.email.trim()) {
-      errors.email = "Email is required";
+      errors.email = "Email address is required";
     } else if (!/\S+@\S+\.\S+/.test(data.email)) {
       errors.email = "Enter a valid email!";
     }

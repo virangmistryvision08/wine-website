@@ -8,6 +8,8 @@ const Account = () => {
     email: "",
     password: "",
   });
+  const [email, setEmail] = useState({ email: "" });
+  const [emailError, setEmailError] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
   const navigate = useNavigate();
 
@@ -25,7 +27,7 @@ const Account = () => {
     // Email validation
     if (name === "email") {
       if (value.trim() === "") {
-        msg = "Email is required!";
+        msg = "Email address is required!";
       } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) msg = "Invalid email format!";
@@ -54,7 +56,7 @@ const Account = () => {
     const errors = {};
 
     if (!data.email.trim()) {
-      errors.email = "Email is required";
+      errors.email = "Email address is required";
     } else if (!/\S+@\S+\.\S+/.test(data.email)) {
       errors.email = "Enter a valid email!";
     }
@@ -69,6 +71,51 @@ const Account = () => {
     if (Object.keys(errors).length !== 0) return;
 
     console.log(data, "data");
+  };
+
+  const handleEmail = (e) => {
+    const { name, value } = e.target;
+
+    // update data
+    setEmail((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    let error = "";
+
+    // Email validation
+    if (name === "email") {
+      if (value.trim() === "") {
+        error = "Email address is required!";
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) error = "Invalid email format!";
+      }
+    }
+
+    // update error message
+    setEmailError((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSubmitEmail = (e) => {
+    e.preventDefault();
+
+    const err = {};
+    if (!email.email.trim()) {
+      err.email = "Email address is required";
+    } else if (!/\S+@\S+\.\S+/.test(email.email)) {
+      err.email = "Enter a valid email!";
+    }
+
+    setEmailError({ ...err });
+
+    if (Object.keys(err).length !== 0) return;
+
+    console.log(email, "email");
   };
   return (
     <>
@@ -92,12 +139,12 @@ const Account = () => {
 
         {/* <div className="bg-white flex items-center justify-center p-4"> */}
         <div className="w-full  flex flex-col md:flex-row gap-10 mx-auto py-10 xl:py-16">
-          {page === "login" ? (
+          {page === "login" && (
             <>
               {/* Login Section */}
               <div className="w-full md:w-[40%] py-6 lg:py-10">
-                <h2 className="text-xl mb-3">Login</h2>
-                <p className="text-gray-600 mb-10">
+                <h2 className="text-xl mb-3 font-[500]">Login</h2>
+                <p className=" font-[500] text-lg mb-10">
                   Please enter your email and password below to access your
                   account
                 </p>
@@ -110,7 +157,7 @@ const Account = () => {
                       type="email"
                       name="email"
                       className="w-full border-b border-gray-300 focus:border-black outline-none py-2"
-                      placeholder="Email"
+                      placeholder="Email address"
                     />
                     {errorMsg.email && (
                       <p className="text-red-500 text-sm mt-1">
@@ -143,8 +190,8 @@ const Account = () => {
                       SIGN IN
                     </button>
                     <Link
-                      to="/verify-email"
-                      className="text-sm text-gray-700 underline"
+                      to="/account/verify-email"
+                      className="text-base text-gray-700 underline"
                     >
                       Lost your password?
                     </Link>
@@ -152,27 +199,33 @@ const Account = () => {
                 </form>
               </div>
             </>
-          ) : (
+          )}
+
+          {/* Verify Email */}
+          {page === "verify-email" && (
             <>
               <div className="w-full md:w-[40%] py-6 lg:py-10">
-                <h2 className="text-xl mb-3">Reset your password</h2>
-                <p className="text-gray-600 mb-10">
+                <h2 className="text-xl mb-3 font-[500]">Reset your password</h2>
+                <p className=" font-[500] text-lg mb-10">
                   We will send you an email to reset your password
                 </p>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <form
+                  onSubmit={handleSubmitEmail}
+                  className="flex flex-col gap-6"
+                >
                   {/* Email */}
                   <div>
                     <input
-                      onChange={handleChange}
+                      onChange={handleEmail}
                       type="email"
                       name="email"
                       className="w-full border-b border-gray-300 focus:border-black outline-none py-2"
-                      placeholder="Email Address"
+                      placeholder="Email address"
                     />
-                    {errorMsg.email && (
+                    {emailError.email && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errorMsg.email}
+                        {emailError.email}
                       </p>
                     )}
                   </div>
@@ -185,7 +238,8 @@ const Account = () => {
                       Submit
                     </button>
                     <button
-                      type="submit"
+                      onClick={() => navigate("/account/login")}
+                      type="button"
                       className="uppercase border border-[#EED291] bg-white hover:bg-[#EED291] transition duration-300 cursor-pointer px-8 py-3 rounded-full text-black font-medium"
                     >
                       Cancel
@@ -198,7 +252,7 @@ const Account = () => {
 
           {/* Register Section */}
           <div className="w-full md:w-[60%] p-6 bg-[#F9F9F9]">
-            <h2 className="text-xl mb-6">Register</h2>
+            <h2 className="text-xl mb-6 font-[500]">Register</h2>
 
             <RegisterForm emailMarketing={false} />
           </div>

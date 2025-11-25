@@ -1,4 +1,10 @@
-import { Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
 import BelowHeroSection from "./components/BelowHeroSection";
 import Blogs from "./components/Blogs";
@@ -25,14 +31,21 @@ import FAQs from "./components/FAQs";
 import Collections from "./components/Collections";
 import Register from "./components/authPages/Register";
 import Account from "./components/authPages/Account";
+import Checkout from "./components/payment/Checkout";
+import { useSelector } from "react-redux";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 function App() {
+  const { pathname } = useLocation();
+  const carts = useSelector((state) => state.products.cart);
+  const navigate = useNavigate();
+
   return (
     <>
       {/* For Toast Message */}
       <ToastContainer />
       <MoveOnTop />
-      <Navbar />
+      {pathname !== "/checkout" && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products/:id" element={<ProductDetails />} />
@@ -48,8 +61,20 @@ function App() {
         <Route path="/collections" element={<Collections />} />
         <Route path="/register" element={<Register />} />
         <Route path="/account/:page" element={<Account />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+        {carts.length === 0 ? (
+          <>
+          {/* if Empty Cart, Navigate to the Home Page */}
+            <Route path="/checkout" element={<Navigate to="/" />} />
+          </>
+        ) : (
+          <>
+            <Route path="/checkout" element={<Checkout />} />
+          </>
+        )}
       </Routes>
-      <Footer />
+      {pathname !== "/checkout" && <Footer />}
     </>
   );
 }

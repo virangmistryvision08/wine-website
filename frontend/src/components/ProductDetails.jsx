@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CommonFirstSection from "./CommonFirstSection";
 import bg_image from "/products/product-details-bg.jpg";
-import productImage from "/products/product1.png";
 import alcohol from "/productDetails/alcohol.svg";
 import sugar from "/productDetails/sugar.svg";
 import grapes from "/productDetails/grapes.svg";
@@ -10,9 +9,6 @@ import barrel from "/productDetails/barrel.svg";
 import payment_card from "/productDetails/payment-card.svg";
 import wine_bottles from "/shipping/shipping-wine-bottles.svg";
 import toy_truck from "/shipping/shipping-toy-truck.svg";
-import product1 from "/products/product1.png";
-import product2 from "/products/product2.png";
-import product3 from "/products/product2.png";
 import Product from "./Product";
 import Title from "./Title";
 import { Swiper, SwiperSlide } from "swiper/react";

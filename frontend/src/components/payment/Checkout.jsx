@@ -18,7 +18,7 @@ const Checkout = () => {
   return (
     <>
       {/* Checkout Nav */}
-      <nav className="w-full border-b border-gray-200 font-[Urbanist]">
+      <nav className="w-full font-[Urbanist]">
         <div className="w-full md:w-[70%] mx-auto lg:w-full xl:w-[60%] flex items-center justify-between px-6 lg:px-10 py-6">
           {/* LOGO + TAGLINE */}
           <div className="flex flex-col items-center text-center">
@@ -150,7 +150,10 @@ const Checkout = () => {
             </div>
 
             {/* CONTACT SECTION */}
-            <h3 className="text-lg font-semibold mb-3">Contact</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Contact</h3>
+              <span onClick={() => navigate("/account/login")} className="underline cursor-pointer text-sm">Sign in</span>
+            </div>
             <div className="border border-gray-300 rounded-md overflow-hidden">
               <input
                 type="email"
@@ -160,7 +163,7 @@ const Checkout = () => {
             </div>
 
             <div className="flex items-center mt-2 gap-2">
-              <input type="checkbox" id="news" />
+              <input className="accent-black" type="checkbox" id="news" />
               <label htmlFor="news" className="text-sm text-gray-700">
                 Email me with news and offers
               </label>
@@ -238,6 +241,7 @@ const Checkout = () => {
               <div className="border border-gray-300 rounded-md mb-4">
                 <div className="flex items-center gap-2 p-4">
                   <input
+                  className="accent-black"
                     id="creditCard"
                     type="radio"
                     name="payment"
@@ -278,22 +282,22 @@ const Checkout = () => {
                   />
 
                   <div className="flex items-center mt-3 gap-2">
-                    <input type="checkbox" />
-                    <span className="text-sm text-gray-700">
+                    <input id="useShippingAddress" className="accent-black" type="checkbox" />
+                    <label htmlFor="useShippingAddress" className="text-sm text-gray-700">
                       Use shipping address as billing address
-                    </span>
+                    </label>
                   </div>
                 </div>
               </div>
 
               {/* OTHER PAYMENT OPTIONS */}
               <div className="border border-gray-300 rounded-md px-4 py-3 mb-3 flex items-center gap-3">
-                <input id="paypal" type="radio" name="payment" />
+                <input className="accent-black" id="paypal" type="radio" name="payment" />
                 <label className="text-xs md:text-base" htmlFor="paypal">PayPal</label>
               </div>
 
               <div className="border border-gray-300 rounded-md px-4 py-3 mb-6 flex items-center gap-3">
-                <input id="shopPay" type="radio" name="payment" />
+                <input className="accent-black" id="shopPay" type="radio" name="payment" />
                 <label className="flex items-center gap-8 text-xs md:text-base whitespace-nowrap" htmlFor="shopPay">
                   Shop Pay{" "}
                   <li className="text-gray-500">Pay in full or installments</li>
@@ -304,7 +308,7 @@ const Checkout = () => {
               <div className=" mb-3 space-y-3">
                 <h3 className="text-lg font-semibold">Remember Me</h3>
                 <div className="border border-gray-300 rounded-md px-4 py-3 flex items-center gap-3">
-                  <input type="checkbox" id="checkboxRememberMe" />
+                  <input className="accent-black" type="checkbox" id="checkboxRememberMe" />
                   <label htmlFor="checkboxRememberMe" className="text-xs md:text-base">
                     Save my information for faster checkout
                   </label>
@@ -378,16 +382,16 @@ const Checkout = () => {
               </div>
 
               {/* PAY NOW BUTTON */}
-              <button className="w-full bg-black text-white py-4 rounded-md text-lg font-semibold mt-0 mb-5">
+              <button className="w-full bg-black text-white py-4 rounded-md text-lg font-semibold mt-0 mb-5 cursor-pointer">
                 Pay now
               </button>
 
               <hr className="my-6 border border-gray-200" />
 
               <div className="flex flex-wrap items-center gap-3 text-sm underline text-black mt-6">
-                <a>Refund policy</a>
-                <a>Privacy policy</a>
-                <a>Terms of service</a>
+                <a className=" cursor-pointer">Refund policy</a>
+                <a className=" cursor-pointer">Privacy policy</a>
+                <a className=" cursor-pointer">Terms of service</a>
               </div>
             </div>
           </div>

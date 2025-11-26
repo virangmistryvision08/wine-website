@@ -17,7 +17,6 @@ const Products = () => {
   }, []);
 
   const getProduct = async (e) => {
-    console.log(e.target.name, "value");
     setActiveTab(e.target.name);
 
     const filteredProducts = await products.allProducts.filter(

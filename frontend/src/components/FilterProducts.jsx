@@ -260,6 +260,25 @@ const FilterProducts = () => {
     return filtered;
   };
 
+  //  API HIT
+
+//   const fetchProducts = async () => {
+//   const params = new URLSearchParams();
+
+//   selectedFilters.Grape.forEach(g => params.append("grape", g));
+//   selectedFilters["Product Type"].forEach(t => params.append("productType", t));
+//   selectedFilters.Availability.forEach(a => params.append("availability", a));
+
+//   params.append("minPrice", priceRange[0]);
+//   params.append("maxPrice", priceRange[1]);
+//   params.append("sort", sortOption);
+//   params.append("page", currentPage);
+//   params.append("limit", 9);
+
+//   const res = await fetch(`/get-filtered-products?${params.toString()}`);
+//   const data = await res.json();
+// };
+
   const filteredProducts = applyFilters();
 
   // Auto-reset page if filtered products are fewer than current page
@@ -656,7 +675,6 @@ const FilterProducts = () => {
                             </div>
                           </div>
                         ) : (
-                          // NORMAL FILTER OPTIONS (checkbox / radio)
                           f.options.map((option, i) => (
                             <label
                               key={i}

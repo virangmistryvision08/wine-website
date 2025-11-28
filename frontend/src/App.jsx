@@ -34,6 +34,7 @@ import Account from "./components/authPages/Account";
 import Checkout from "./components/payment/Checkout";
 import { useSelector } from "react-redux";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import Reset_Password from "./components/authPages/Reset_Password";
 
 function App() {
   const { pathname } = useLocation();
@@ -62,6 +63,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/account/:page" element={<Account />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/reset-password/:email" element={<Reset_Password />} />
 
         {carts.length === 0 ? (
           <>

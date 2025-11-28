@@ -22,6 +22,7 @@ import {
   decreaseQty,
   increaseQty,
 } from "../redux/reducers/productReducer";
+import axios from "axios";
 
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -150,6 +151,106 @@ const ProductDetails = () => {
   const openModal = (tab) => {
     setActiveTab(tab.id);
     setShowModal(true);
+  };
+
+  const handleAddToCart = async () => {
+
+    // const token = localStorage.getItem("token");
+    // const token = null;
+    const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
+    const guestId = localStorage.getItem("guestId");
+    const userCartId = localStorage.getItem("userCartId");
+
+    const productId = "6926c04475dea0195975d41a";
+    // const quantity = 3;
+
+    // 1) GUEST USER (No token)
+    if (!token) {
+      if (!guestId && !userCartId) {
+        const res = await axios.post("http://localhost:7000/cart/guest/init", {
+          productId,
+          quantity,
+        });
+
+        localStorage.setItem("guestId", res.data.guestId);
+        // fddc64f8-1442-48d4-b34b-16761d640165
+      } else {
+        await axios.post("http://localhost:7000/cart/add", {
+          guestId,
+          productId,
+          quantity,
+        });
+      }
+
+      return;
+    }
+
+    if (guestId) {
+      const mergeRes = await axios.post(
+        "http://localhost:7000/cart/merge",
+        { guestId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Remove guest ID after merge
+      localStorage.removeItem("guestId");
+
+      // Save user cart ID
+      localStorage.setItem("userCartId", mergeRes.data.cart.userId);
+    }
+
+    const addRes = await axios.post(
+      "http://localhost:7000/cart/add",
+      { productId, quantity },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // Save userCartId in case the user had no existing cart
+    localStorage.setItem("userCartId", addRes.data.cart.userId);
+
+    console.log("Added to user cart:", addRes.data);
+  };
+
+  /* Increment or Decrement Both Together */
+  const updateQuantity = async (productId, type) => {
+    console.log('clicked')
+    // const token = localStorage.getItem("token");
+    // const token = null;
+    const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
+    const guestId = localStorage.getItem("guestId");
+
+    // 🟡 LOGGED-IN USER
+    if (token) {
+      const res = await axios.post(
+        "http://localhost:7000/cart/update-qty",
+        { productId: "6926c04475dea0195975d41a", type },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      return res.data.cart;
+    }
+
+    // 🟢 GUEST USER
+    if (guestId) {
+      const res = await axios.post("http://localhost:7000/cart/update-qty", {
+        guestId,
+        productId: "6926c04475dea0195975d41a",
+        type,
+      });
+
+      return res.data.cart;
+    }
+
+    // ⚪ Guest cart doesn’t exist → create automatically
+    const initRes = await axios.post("http://localhost:7000/cart/guest/init", {
+      productId: "6926c04475dea0195975d41a",
+      quantity: 1,
+    });
+
+    localStorage.setItem("guestId", initRes.data.guestId);
+    return initRes.data.cart;
   };
 
   const closeModal = () => setShowModal(false);
@@ -295,13 +396,15 @@ const ProductDetails = () => {
                     <span className="font-semibold">Quantity</span>
                     <div className="flex items-center border border-[#EED291] w-36 rounded-full overflow-hidden">
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (!cartItem) {
-                            setQuantityState((prev) =>
-                              prev > 1 ? prev - 1 : 1
-                            );
+                            // setQuantityState((prev) =>
+                            //   prev > 1 ? prev - 1 : 1
+                            // );
+                            updateQuantity(product.id, "dec");
                           } else {
-                            dispatch(decreaseQty(product.id));
+                            updateQuantity(product.id, "dec");
+                            // dispatch(decreaseQty(product.id));
                           }
                         }}
                         className="flex-1 text-center py-2 text-xl cursor-pointer"
@@ -312,11 +415,13 @@ const ProductDetails = () => {
                         {quantity}
                       </p>
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (!cartItem) {
-                            setQuantityState((prev) => prev + 1);
+                            // setQuantityState((prev) => prev + 1);
+                            updateQuantity(product.id, "inc");
                           } else {
-                            dispatch(increaseQty(product.id));
+                            updateQuantity(product.id, "inc");
+                            // dispatch(increaseQty(product.id));
                           }
                         }}
                         className="flex-1 text-center py-2 text-xl cursor-pointer"
@@ -330,11 +435,12 @@ const ProductDetails = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 w-full 2xl:w-[85%]">
                       <button
-                        onClick={() => {
-                          dispatch(
-                            addToCart({ product, quantity: quantityState })
-                          );
-                        }}
+                      onClick={handleAddToCart}
+                        // onClick={() => {
+                          // dispatch(
+                          //   addToCart({ product, quantity: quantityState })
+                          // );
+                        // }}
                         className="font-semibold w-full 2xl:w-[80%] bg-[#EED291] py-3 rounded-full hover:bg-[#000000] hover:text-[#EED291] transition duration-300 cursor-pointer uppercase"
                       >
                         Add To Cart

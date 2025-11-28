@@ -266,7 +266,11 @@ function Navbar() {
                 >
                   <i
                     onClick={() => dispatch(toggleCartDrawer())}
-                    className="fa-solid fa-bag-shopping cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200 text-xl"
+                    className={`fa-solid fa-bag-shopping ${
+                      isWhiteBG.startsWith("reset-password") && !isScrolling50
+                        ? "text-[#b9b9b9]"
+                        : "text-white"
+                    } cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200 text-xl`}
                   ></i>
                 </Badge>
               </div>
@@ -286,7 +290,8 @@ function Navbar() {
                     isWhiteBG === "register" ||
                     isWhiteBG === "account/login" ||
                     isWhiteBG === "account/verify-email" ||
-                    isWhiteBG === "privacy-policy") &&
+                    isWhiteBG === "privacy-policy" ||
+                    isWhiteBG.startsWith("reset-password")) &&
                   !isScrolling50
                     ? "text-black"
                     : "text-white"
@@ -899,7 +904,10 @@ function Navbar() {
       )}
 
       {/* User Login Drawer */}
-      <UserLoginDrawer isUserDrawer={isUserDrawer} setIsUserDrawer={setIsUserDrawer} />
+      <UserLoginDrawer
+        isUserDrawer={isUserDrawer}
+        setIsUserDrawer={setIsUserDrawer}
+      />
     </>
   );
 }

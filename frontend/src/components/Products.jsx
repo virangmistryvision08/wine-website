@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Title from "./Title";
 import Product from "./Product";
 import { useSelector } from "react-redux";
+import { get_all_products, getAllproducts } from "../redux/reducers/productReducer";
 
 const Products = () => {
   const [activeTab, setActiveTab] = useState("Bergdolt, Reif & Nett");
@@ -15,6 +16,12 @@ const Products = () => {
     );
     setFilterProducts(veryFirstTime);
   }, []);
+
+  useEffect(() => {
+    get_all_products();
+  }, []);
+
+  console.log(products,'products')
 
   const getProduct = async (e) => {
     setActiveTab(e.target.name);

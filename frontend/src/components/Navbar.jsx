@@ -268,8 +268,8 @@ function Navbar() {
                     onClick={() => dispatch(toggleCartDrawer())}
                     className={`fa-solid fa-bag-shopping ${
                       isWhiteBG.startsWith("reset-password") && !isScrolling50
-                        ? "text-[#b9b9b9]"
-                        : "text-white"
+                        && "text-[#b9b9b9]"
+                        // : "text-white"
                     } cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200 text-xl`}
                   ></i>
                 </Badge>

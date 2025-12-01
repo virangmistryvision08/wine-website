@@ -49,7 +49,7 @@ function App() {
       {pathname !== "/checkout" && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/:slug" element={<ProductDetails />} />
         <Route path="/shop" element={<FilterProducts />} />
         <Route path="/shop/:slug" element={<FilterProducts />} />
         <Route path="/about-us" element={<AboutUs_main />} />

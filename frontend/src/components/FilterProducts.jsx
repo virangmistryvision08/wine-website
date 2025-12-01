@@ -10,19 +10,30 @@ import Matthias_Anton from "/filterProducts/Matthias -Anton.png";
 import KvD_Strauch_Sektmanufaktur from "/aboutUs/kvd/kvd-bg.png";
 import Slider from "@mui/material/Slider";
 import { ChevronFirst, ChevronLast } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { get_all_products } from "../redux/reducers/productReducer";
+import axios from "axios";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [productType, setProductType] = useState("Products");
   const [bgImage, setBgImage] = useState(image);
+  const [filterOptions, setFilterOptions] = useState({
+    Size: [],
+    "Product Type": [],
+    Grape: [],
+    Availability: [],
+    price: [],
+  });
   const [selectedFilters, setSelectedFilters] = useState({
     Size: [],
     Grape: [],
     "Product Type": [],
     Availability: [],
+    price: [],
   });
+  const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,6 +46,21 @@ const FilterProducts = () => {
   const dropdownRef = useRef(null);
   const { products } = useSelector((state) => state);
   const { slug } = useParams();
+  const dispatch = useDispatch();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(1);
+
+  // Convert frontend sort text to backend
+  const sortMapping = {
+    "Alphabetically, A-Z": "A-Z",
+    "Alphabetically, Z-A": "Z-A",
+    "Price: Low to High": "Low-High",
+    "Price: High to Low": "High-Low",
+  };
+
+  useEffect(() => {
+    dispatch(get_all_products());
+  }, []);
 
   const slugifyString = (str) =>
     str
@@ -45,152 +71,314 @@ const FilterProducts = () => {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
-  useEffect(() => {
-    if (!slug) {
-      setSelectedFilters({
-        Size: [],
-        Grape: [],
-        "Product Type": [],
-        Availability: [],
-      });
-      setBgImage(image);
-      setProductType("Products");
-      setCurrentPage(1);
-      return;
+  // Update background image by product type
+  const updateBgImage = (type) => {
+    switch (type) {
+      case "Bergdolt, Reif & Nett":
+        setBgImage(Bergdolt_Reif_Nett);
+        break;
+      case "Lamm Jung":
+        setBgImage(Lamm_Jung);
+        break;
+      case "Château Clos de Boüard":
+        setBgImage(Château_Clos_de_Boüard);
+        break;
+      case "Matthias Anton":
+        setBgImage(Matthias_Anton);
+        break;
+      case "KvD Strauch Sektmanufaktur":
+        setBgImage(KvD_Strauch_Sektmanufaktur);
+        break;
+      default:
+        setBgImage(image);
     }
+    setProductType(type || "Products");
+  };
 
-    // Find a productType from products.allProducts whose slugified value === slug
-    const allTypes = [
-      ...new Set(
-        products.allProducts.map((p) => p.productType).filter(Boolean)
-      ),
-    ];
+  // Fetch products and filter options
+  const fetchFilteredProducts = async () => {
+    try {
+      const params = new URLSearchParams();
 
-    const matchedType = allTypes.find((type) => slugifyString(type) === slug);
+      selectedFilters.Grape.forEach((g) => params.append("grape", g));
+      selectedFilters["Product Type"].forEach((p) => params.append("productType", p));
+      selectedFilters.Availability.forEach((a) => params.append("availability", a));
+
+      params.append("minPrice", appliedPriceRange[0]);
+      params.append("maxPrice", appliedPriceRange[1]);
+      params.append("sort", sortMapping[sortOption]);
+      params.append("page", currentPage);
+      params.append("limit", itemsPerPage);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/product/get-filtered-products?${params.toString()}`
+      );
+      setTotalPages(res.data.pagination.totalPages);
+      setTotalProducts(res.data.pagination.totalProducts);
+      setFilteredProducts([...res.data.data]);
+
+      // Dynamically generate filter options from products
+      // const types = [...new Set(res.data.data.map((p) => p.productType).filter(Boolean))];
+      // const grapes = [...new Set(res.data.data.map((p) => p.verity).filter(Boolean))];
+      // setFilterOptions({ "Product Type": types, Grape: grapes, Availability: ["In Stock", "Out of Stock"] });
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFilteredProducts();
+  }, [selectedFilters, appliedPriceRange, sortOption, currentPage, itemsPerPage]);
+
+  // Handle URL slug
+  useEffect(() => {
+    if (!slug) return;
+
+    const matchedType = filterOptions["Product Type"].find(
+      (type) => slugifyString(type) === slug
+    );
 
     if (matchedType) {
       setSelectedFilters((prev) => ({
         ...prev,
         "Product Type": [matchedType],
       }));
-
-      if (matchedType === "Bergdolt, Reif & Nett") {
-        setBgImage(Bergdolt_Reif_Nett);
-        setProductType("Bergdolt, Reif & Nett");
-      } else if (matchedType === "Lamm Jung") {
-        setBgImage(Lamm_Jung);
-        setProductType("Lamm Jung");
-      } else if (matchedType === "Chateau Clos de Bouard") {
-        setBgImage(Château_Clos_de_Boüard);
-        setProductType("Château Clos de Boüard");
-      } else if (matchedType === "Matthias Anton") {
-        setBgImage(Matthias_Anton);
-        setProductType("Matthias Anton");
-      } else if (matchedType === "KvD Strauch Sektmanufaktur") {
-        setBgImage(KvD_Strauch_Sektmanufaktur);
-        setProductType("KvD Strauch Sektmanufaktur");
-      } else {
-        setBgImage(image);
-        setProductType(matchedType);
-      }
-
-      setCurrentPage(1);
-      setOpenIndex(null);
-      setOpenAccordion(null);
-    } else {
-      setSelectedFilters((prev) => ({
-        ...prev,
-        "Product Type": [],
-      }));
-      setBgImage(image);
-      setProductType("Products");
+      updateBgImage(matchedType);
       setCurrentPage(1);
     }
-  }, [slug, products.allProducts]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenIndex(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1280);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [slug, filterOptions]);
 
   const handleFilterChange = (label, option) => {
-    const isSingle = singleSelectFilters.includes(label);
-
     setSelectedFilters((prev) => {
       const existing = prev[label] || [];
-
-      // -----------------------------
-      // SINGLE SELECT FILTER (Radio)
-      // -----------------------------
-      if (isSingle) {
-        return {
-          ...prev,
-          [label]: [option],
-        };
-      }
-
-      // -----------------------------
-      // MULTI-SELECT LOGIC (Checkbox)
-      // -----------------------------
       let updated;
-
       if (existing.includes(option)) {
         updated = existing.filter((item) => item !== option);
       } else {
         updated = [...existing, option];
       }
 
-      // Update background only for Product Type
       if (label === "Product Type") {
-        if (updated.length === 1) {
-          const selected = updated[0];
-
-          if (selected === "Bergdolt, Reif & Nett") {
-            setBgImage(Bergdolt_Reif_Nett);
-            setProductType("Bergdolt, Reif & Nett");
-          } else if (selected === "Lamm Jung") {
-            setBgImage(Lamm_Jung);
-            setProductType("Lamm Jung");
-          } else if (selected === "Château Clos de Boüard") {
-            setBgImage(Château_Clos_de_Boüard);
-            setProductType("Château Clos de Boüard");
-          } else if (selected === "Matthias Anton") {
-            setBgImage(Matthias_Anton);
-            setProductType("Matthias Anton");
-          } else {
-            setBgImage(KvD_Strauch_Sektmanufaktur);
-            setProductType("KvD Strauch Sektmanufaktur");
-          }
-        } else {
-          // If multiple selected → default background
-          setBgImage(image); // original hero image
-          setProductType("Products");
-        }
+        if (updated.length === 1) updateBgImage(updated[0]);
+        else updateBgImage(null);
       }
 
-      return {
-        ...prev,
-        [label]: updated,
-      };
+      return { ...prev, [label]: updated };
     });
+    setCurrentPage(1);
   };
+
+  // const totalPages = Math.ceil(filteredProducts.length ? filteredProducts.length / itemsPerPage : 1);
+
+  // const goToPage = (page) => {
+  //   if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  // };
+
+  // useEffect(() => {
+  //   dispatch(get_all_products());
+  // }, []);
+
+  // useEffect(() => {
+  //   if (!slug) {
+  //     setSelectedFilters({
+  //       Size: [],
+  //       Grape: [],
+  //       "Product Type": [],
+  //       Availability: [],
+  //     });
+  //     setBgImage(image);
+  //     setProductType("Products");
+  //     setCurrentPage(1);
+  //     return;
+  //   }
+
+  //   useEffect(() => {
+  //     fetchFilteredProducts();
+  //   }, [selectedFilters, appliedPriceRange, sortOption, currentPage]);
+
+  //   const fetchFilteredProducts = async () => {
+  //     const params = new URLSearchParams();
+
+  //     // GRAPE
+  //     selectedFilters.Grape.forEach((g) => params.append("grape", g));
+
+  //     // PRODUCT TYPE
+  //     selectedFilters["Product Type"].forEach((p) =>
+  //       params.append("productType", p)
+  //     );
+
+  //     // AVAILABILITY
+  //     selectedFilters.Availability.forEach((a) =>
+  //       params.append("availability", a)
+  //     );
+
+  //     // PRICE RANGE
+  //     params.append("minPrice", appliedPriceRange[0]);
+  //     params.append("maxPrice", appliedPriceRange[1]);
+
+  //     // SORTING → convert your frontend text to backend value
+  //     const sortMapping = {
+  //       "Alphabetically, A-Z": "A-Z",
+  //       "Alphabetically, Z-A": "Z-A",
+  //       "Price: Low to High": "Low-High",
+  //       "Price: High to Low": "High-Low",
+  //     };
+
+  //     params.append("sort", sortMapping[sortOption]);
+
+  //     // PAGINATION
+  //     params.append("page", currentPage);
+  //     params.append("limit", 6);
+
+  //     // const response = await axios.get(
+  //     //   `/get-filtered-products?${params.toString()}`
+  //     // );
+  //     // const data = await response.json();
+
+  //     axios.get(`${import.meta.env.VITE_BACKEND_URL}/product/get-filtered-products?${params.toString()}`).then((res) => {
+  //       console.log(res.data,'response');
+  //       setFilteredProducts([...res.data.data]);
+  //     }).catch((error) => {
+  //       console.log(error,'error');
+  //     });
+
+  //     // console.log("Filtered API Response:", data);
+  //   };
+
+  //   // Find a productType from products.allProducts whose slugified value === slug
+  //   const allTypes = [
+  //     ...new Set(
+  //       products.allProducts.map((p) => p.productType).filter(Boolean)
+  //     ),
+  //   ];
+
+  //   const matchedType = allTypes.find((type) => slugifyString(type) === slug);
+
+  //   if (matchedType) {
+  //     setSelectedFilters((prev) => ({
+  //       ...prev,
+  //       "Product Type": [matchedType],
+  //     }));
+
+  //     if (matchedType === "Bergdolt, Reif & Nett") {
+  //       setBgImage(Bergdolt_Reif_Nett);
+  //       setProductType("Bergdolt, Reif & Nett");
+  //     } else if (matchedType === "Lamm Jung") {
+  //       setBgImage(Lamm_Jung);
+  //       setProductType("Lamm Jung");
+  //     } else if (matchedType === "Chateau Clos de Bouard") {
+  //       setBgImage(Château_Clos_de_Boüard);
+  //       setProductType("Château Clos de Boüard");
+  //     } else if (matchedType === "Matthias Anton") {
+  //       setBgImage(Matthias_Anton);
+  //       setProductType("Matthias Anton");
+  //     } else if (matchedType === "KvD Strauch Sektmanufaktur") {
+  //       setBgImage(KvD_Strauch_Sektmanufaktur);
+  //       setProductType("KvD Strauch Sektmanufaktur");
+  //     } else {
+  //       setBgImage(image);
+  //       setProductType(matchedType);
+  //     }
+
+  //     setCurrentPage(1);
+  //     setOpenIndex(null);
+  //     setOpenAccordion(null);
+  //   } else {
+  //     setSelectedFilters((prev) => ({
+  //       ...prev,
+  //       "Product Type": [],
+  //     }));
+  //     setBgImage(image);
+  //     setProductType("Products");
+  //     setCurrentPage(1);
+  //   }
+  // }, [slug, products.allProducts]);
+
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  //       setOpenIndex(null);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setIsDesktop(window.innerWidth >= 1280);
+  //   };
+
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+
+  // const handleFilterChange = (label, option) => {
+  //   console.log(label,'label')
+  //   console.log(option,'option')
+  //   const isSingle = singleSelectFilters.includes(label);
+
+  //   setSelectedFilters((prev) => {
+  //     const existing = prev[label] || [];
+
+  //     // -----------------------------
+  //     // SINGLE SELECT FILTER (Radio)
+  //     // -----------------------------
+  //     if (isSingle) {
+  //       return {
+  //         ...prev,
+  //         [label]: [option],
+  //       };
+  //     }
+
+  //     // -----------------------------
+  //     // MULTI-SELECT LOGIC (Checkbox)
+  //     // -----------------------------
+  //     let updated;
+
+  //     if (existing.includes(option)) {
+  //       updated = existing.filter((item) => item !== option);
+  //     } else {
+  //       updated = [...existing, option];
+  //     }
+
+  //     // Update background only for Product Type
+  //     if (label === "Product Type") {
+  //       if (updated.length === 1) {
+  //         const selected = updated[0];
+
+  //         if (selected === "Bergdolt, Reif & Nett") {
+  //           setBgImage(Bergdolt_Reif_Nett);
+  //           setProductType("Bergdolt, Reif & Nett");
+  //         } else if (selected === "Lamm Jung") {
+  //           setBgImage(Lamm_Jung);
+  //           setProductType("Lamm Jung");
+  //         } else if (selected === "Château Clos de Boüard") {
+  //           setBgImage(Château_Clos_de_Boüard);
+  //           setProductType("Château Clos de Boüard");
+  //         } else if (selected === "Matthias Anton") {
+  //           setBgImage(Matthias_Anton);
+  //           setProductType("Matthias Anton");
+  //         } else {
+  //           setBgImage(KvD_Strauch_Sektmanufaktur);
+  //           setProductType("KvD Strauch Sektmanufaktur");
+  //         }
+  //       } else {
+  //         // If multiple selected → default background
+  //         setBgImage(image); // original hero image
+  //         setProductType("Products");
+  //       }
+  //     }
+
+  //     return {
+  //       ...prev,
+  //       [label]: updated,
+  //     };
+  //   });
+  // };
 
   // Add Product Types in Filter Array
   const uniqueProductTypes = [
@@ -213,76 +401,77 @@ const FilterProducts = () => {
     { label: "Availability", options: ["In Stock", "Out of Stock"] },
   ];
 
-  const applyFilters = () => {
-    let filtered = [...products.allProducts];
+  // const applyFilters = () => {
+  //   let filtered = [...products.allProducts];
+  //   console.log(products, "paginatedProducts");
 
-    // Grape filter
-    if (selectedFilters.Grape.length > 0) {
-      filtered = filtered.filter(
-        (p) =>
-          typeof p.wineType === "string" &&
-          selectedFilters.Grape.some((g) =>
-            p.wineType.toLowerCase().includes(g.toLowerCase())
-          )
-      );
-    }
+  //   // Grape filter
+  //   if (selectedFilters.Grape.length > 0) {
+  //     filtered = filtered.filter(
+  //       (p) =>
+  //         typeof p.wineType === "string" &&
+  //         selectedFilters.Grape.some((g) =>
+  //           p.wineType.toLowerCase().includes(g.toLowerCase())
+  //         )
+  //     );
+  //   }
 
-    // Price filter
-    // Price range filtering
-    filtered = filtered.filter(
-      (p) => p.price >= appliedPriceRange[0] && p.price <= appliedPriceRange[1]
-    );
+  //   // Price filter
+  //   // Price range filtering
+  //   filtered = filtered.filter(
+  //     (p) => p.price >= appliedPriceRange[0] && p.price <= appliedPriceRange[1]
+  //   );
 
-    // Product Type filter
-    if (selectedFilters["Product Type"].length > 0) {
-      filtered = filtered.filter((p) =>
-        selectedFilters["Product Type"].includes(p.productType)
-      );
-    }
+  //   // Product Type filter
+  //   if (selectedFilters["Product Type"].length > 0) {
+  //     filtered = filtered.filter((p) =>
+  //       selectedFilters["Product Type"].includes(p.productType)
+  //     );
+  //   }
 
-    // SORTING
-    if (sortOption === "Alphabetically, A-Z") {
-      filtered.sort((a, b) => a.title.localeCompare(b.title));
-    }
+  //   // SORTING
+  //   if (sortOption === "Alphabetically, A-Z") {
+  //     filtered.sort((a, b) => a.title.localeCompare(b.title));
+  //   }
 
-    if (sortOption === "Alphabetically, Z-A") {
-      filtered.sort((a, b) => b.title.localeCompare(a.title));
-    }
+  //   if (sortOption === "Alphabetically, Z-A") {
+  //     filtered.sort((a, b) => b.title.localeCompare(a.title));
+  //   }
 
-    if (sortOption === "Price: Low to High") {
-      filtered.sort((a, b) => a.price - b.price);
-    }
+  //   if (sortOption === "Price: Low to High") {
+  //     filtered.sort((a, b) => a.price - b.price);
+  //   }
 
-    if (sortOption === "Price: High to Low") {
-      filtered.sort((a, b) => b.price - a.price);
-    }
+  //   if (sortOption === "Price: High to Low") {
+  //     filtered.sort((a, b) => b.price - a.price);
+  //   }
 
-    return filtered;
-  };
+  //   return filtered;
+  // };
 
   //  API HIT
 
-//   const fetchProducts = async () => {
-//   const params = new URLSearchParams();
+  //   const fetchProducts = async () => {
+  //   const params = new URLSearchParams();
 
-//   selectedFilters.Grape.forEach(g => params.append("grape", g));
-//   selectedFilters["Product Type"].forEach(t => params.append("productType", t));
-//   selectedFilters.Availability.forEach(a => params.append("availability", a));
+  //   selectedFilters.Grape.forEach(g => params.append("grape", g));
+  //   selectedFilters["Product Type"].forEach(t => params.append("productType", t));
+  //   selectedFilters.Availability.forEach(a => params.append("availability", a));
 
-//   params.append("minPrice", priceRange[0]);
-//   params.append("maxPrice", priceRange[1]);
-//   params.append("sort", sortOption);
-//   params.append("page", currentPage);
-//   params.append("limit", 9);
+  //   params.append("minPrice", priceRange[0]);
+  //   params.append("maxPrice", priceRange[1]);
+  //   params.append("sort", sortOption);
+  //   params.append("page", currentPage);
+  //   params.append("limit", 9);
 
-//   const res = await fetch(`/get-filtered-products?${params.toString()}`);
-//   const data = await res.json();
-// };
+  //   const res = await fetch(`/get-filtered-products?${params.toString()}`);
+  //   const data = await res.json();
+  // };
 
-  const filteredProducts = applyFilters();
+  // const filteredProducts = applyFilters();
 
   // Auto-reset page if filtered products are fewer than current page
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  // const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   if (currentPage > totalPages && totalPages > 0) {
     setCurrentPage(1);
   }
@@ -291,14 +480,12 @@ const FilterProducts = () => {
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
 
-  const paginatedProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
-
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
   // Selected Filters to Show on Desktop and Mobile Drawer
-  const selectedFilter = () => {
+  const selectedFilterTags = () => {
     return (
       <>
         {Object.values(selectedFilters).some((arr) => arr.length > 0) ||
@@ -573,7 +760,7 @@ const FilterProducts = () => {
               </button>
             </div>
 
-            <div className="pb-5">{selectedFilter()}</div>
+            <div className="pb-5">{selectedFilterTags()}</div>
 
             {filters.map((f, idx) => (
               <div key={idx} className="mb-4 border-b pb-3">
@@ -704,7 +891,7 @@ const FilterProducts = () => {
           </div>
 
           <div className="min-h-96">
-            {paginatedProducts.length <= 0 ? (
+            {filteredProducts.length <= 0 ? (
               <>
                 <div className="p-10">
                   <img src={empty_product} alt="empty product" />
@@ -716,10 +903,10 @@ const FilterProducts = () => {
             ) : (
               <>
                 {/* Selected Filters — Appears Only When Filters Are Applied */}
-                {isDesktop && <>{selectedFilter()}</>}
+                {isDesktop && <>{selectedFilterTags()}</>}
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 xl:gap-20">
-                  {paginatedProducts.map((product, index) => {
+                  {filteredProducts.map((product, index) => {
                     return (
                       <Product
                         key={index}
@@ -730,6 +917,7 @@ const FilterProducts = () => {
                         price={product.price}
                         wineType={product.wineType}
                         id={product.id}
+                        slug={product.slug}
                       />
                     );
                   })}
@@ -768,12 +956,12 @@ const FilterProducts = () => {
 
                   {/* Showing text */}
                   <div className="text-sm text-gray-700 max-sm:text-xs">
-                    {filteredProducts.length === 0
+                    {totalProducts === 0
                       ? "0–0 / 0"
                       : `${indexOfFirst + 1}–${Math.min(
                           indexOfLast,
-                          filteredProducts.length
-                        )} / ${filteredProducts.length}`}
+                          totalProducts
+                        )} / ${totalProducts}`}
                   </div>
 
                   {/* First Page */}

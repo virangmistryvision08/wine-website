@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Title from "./Title";
 import Product from "./Product";
-import { useSelector } from "react-redux";
-import { get_all_products, getAllproducts } from "../redux/reducers/productReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { get_all_products } from "../redux/reducers/productReducer";
 
 const Products = () => {
   const [activeTab, setActiveTab] = useState("Bergdolt, Reif & Nett");
   const [filterProducts, setFilterProducts] = useState([]);
   const { products } = useSelector((state) => state);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(get_all_products());
+  }, []);
 
   // First Time Render Show "Bergdolt, Reif & Nett" Products
   useEffect(() => {
@@ -15,13 +20,7 @@ const Products = () => {
       (item) => item.productType === "Bergdolt, Reif & Nett"
     );
     setFilterProducts(veryFirstTime);
-  }, []);
-
-  useEffect(() => {
-    get_all_products();
-  }, []);
-
-  console.log(products,'products')
+  }, [products.allProducts]);
 
   const getProduct = async (e) => {
     setActiveTab(e.target.name);
@@ -30,6 +29,7 @@ const Products = () => {
       (item) => item.productType === e.target.name
     );
     setFilterProducts(filteredProducts);
+    console.log(filteredProducts, "filteredProducts");
   };
 
   return (
@@ -53,7 +53,7 @@ const Products = () => {
                   onClick={getProduct}
                   name={item}
                   className={`lg:text-lg xl:text-xl px-5 xl:px-10 xl:py-3 py-2 border-2 ${
-                    activeTab === item ? "bg-[#EED291]" : "bg-[#fff]"
+                    activeTab === item ? "bg-[#EED291]" : "bg-white"
                   } border-[#EED291] rounded-full hover:bg-[#EED291] font-[Urbanist] font-[500] cursor-pointer`}
                 >
                   {item}
@@ -73,7 +73,8 @@ const Products = () => {
                   isGold={product.isGold}
                   price={product.price}
                   wineType={product.wineType}
-                  id={product.id}
+                  id={product._id}
+                  slug={product.slug}
                 />
               );
             })}

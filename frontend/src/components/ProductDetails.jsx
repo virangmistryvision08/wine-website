@@ -18,6 +18,7 @@ import { Pagination } from "swiper/modules";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
+  add_to_cart,
   addToCart,
   decreaseQty,
   increaseQty,
@@ -28,21 +29,40 @@ const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [showModal, setShowModal] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
-  const { id } = useParams();
+  const { slug } = useParams();
   const { products } = useSelector((state) => state);
   const [quantityState, setQuantityState] = useState(1);
   const dispatch = useDispatch();
-  const product = products.allProducts.find((product) => product.id === +id);
+  const [product, setProduct] = useState({});
+  const [productDetails, setProductDetails] = useState([]);
+  // const product = products.allProducts.find((product) => product._id === id);
 
   const cartItem = useSelector((state) =>
-    state.products.cart.find((c) => c.id === +id)
+    state.products.cart.find((c) => c.slug === slug)
   );
 
   const quantity = cartItem?.quantity || quantityState;
 
   useEffect(() => {
     setQuantityState(1);
-  }, [id]);
+    get_single_product();
+  }, [slug]);
+
+  // Get Single Product
+  const get_single_product = async () => {
+    await axios
+      .get(
+        `${import.meta.env.VITE_BACKEND_URL}/product/get-single-product/${slug}`
+      )
+      .then((res) => {
+        setProduct({ ...res.data.data.product });
+        setProductDetails([...res.data.data.relatedProducts]);
+        return res.data.data;
+      })
+      .catch((error) => {
+        console.log(error, "error");
+      });
+  };
 
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;
@@ -139,82 +159,26 @@ const ProductDetails = () => {
     },
   ];
 
-  // Get Random Three Products
-  const allProducts = products.allProducts;
-
-  const getRandomThree = (arr) => {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
-  };
-  const productDetails = getRandomThree(allProducts);
-
   const openModal = (tab) => {
     setActiveTab(tab.id);
     setShowModal(true);
   };
 
+  // const token = null;
+  // const token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MmQ2ZGI1NTdjNmUxZTVmM2EyZTVmMCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjdAdGVzdC5jb20iLCJpYXQiOjE3NjQ1ODQ4ODUsImV4cCI6MTc2NTE4OTY4NX0.uuMzDCzrrzF0ixweWLK7q5t7XwKMcR6biZu5GT2imA0";
   const handleAddToCart = async () => {
-
-    // const token = localStorage.getItem("token");
-    // const token = null;
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
-    const guestId = localStorage.getItem("guestId");
-    const userCartId = localStorage.getItem("userCartId");
-
-    const productId = "6926c04475dea0195975d41a";
-    // const quantity = 3;
-
-    // 1) GUEST USER (No token)
-    if (!token) {
-      if (!guestId && !userCartId) {
-        const res = await axios.post("http://localhost:7000/cart/guest/init", {
-          productId,
-          quantity,
-        });
-
-        localStorage.setItem("guestId", res.data.guestId);
-        // fddc64f8-1442-48d4-b34b-16761d640165
-      } else {
-        await axios.post("http://localhost:7000/cart/add", {
-          guestId,
-          productId,
-          quantity,
-        });
-      }
-
-      return;
-    }
-
-    if (guestId) {
-      const mergeRes = await axios.post(
-        "http://localhost:7000/cart/merge",
-        { guestId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // Remove guest ID after merge
-      localStorage.removeItem("guestId");
-
-      // Save user cart ID
-      localStorage.setItem("userCartId", mergeRes.data.cart.userId);
-    }
-
-    const addRes = await axios.post(
-      "http://localhost:7000/cart/add",
-      { productId, quantity },
-      { headers: { Authorization: `Bearer ${token}` } }
+    dispatch(
+      add_to_cart({
+        productId: "6926c04475dea0195975d41a",
+        quantity: 3,
+      })
     );
-
-    // Save userCartId in case the user had no existing cart
-    localStorage.setItem("userCartId", addRes.data.cart.userId);
-
-    console.log("Added to user cart:", addRes.data);
   };
 
   /* Increment or Decrement Both Together */
   const updateQuantity = async (productId, type) => {
-    console.log('clicked')
+    console.log("clicked");
     // const token = localStorage.getItem("token");
     // const token = null;
     const token =
@@ -435,11 +399,11 @@ const ProductDetails = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 w-full 2xl:w-[85%]">
                       <button
-                      onClick={handleAddToCart}
+                        onClick={handleAddToCart}
                         // onClick={() => {
-                          // dispatch(
-                          //   addToCart({ product, quantity: quantityState })
-                          // );
+                        // dispatch(
+                        //   addToCart({ product, quantity: quantityState })
+                        // );
                         // }}
                         className="font-semibold w-full 2xl:w-[80%] bg-[#EED291] py-3 rounded-full hover:bg-[#000000] hover:text-[#EED291] transition duration-300 cursor-pointer uppercase"
                       >
@@ -595,7 +559,8 @@ const ProductDetails = () => {
                     isGold={product.isGold}
                     price={product.price}
                     wineType={product.wineType}
-                    id={product.id}
+                    id={product._id}
+                    slug={product.slug}
                   />
                 </SwiperSlide>
               );

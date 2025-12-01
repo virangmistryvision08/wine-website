@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import CommonFirstSection from "./CommonFirstSection";
 import blog_details_bg from "/blogs/blog-details-bg.png";
@@ -10,19 +10,41 @@ import { Navigation, Pagination } from "swiper/modules";
 import Product from "./Product";
 import Title from "./Title";
 import Blog from "./Blog";
+import { get_all_blogs } from "../redux/reducers/blogReducer";
+import axios from "axios";
+import { format } from "date-fns";
 
 const BlogDetailsPage = () => {
   const { slug } = useParams();
   const [activeIndex, setActiveIndex] = useState(0);
   const allBlogs = useSelector((state) => state.blogs.allBlogs);
-  const filteredBlog = allBlogs.filter((blog) => blog.slug === slug);
-  const blog = filteredBlog[0];
+  const [blog, setBlog] = useState({});
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showPagination, setShowPagination] = useState(true);
   const featuredProducts = useSelector(
     (state) => state.products.featuredProducts
   );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(get_all_blogs());    
+  }, []);
+
+  useEffect(() => {
+    get_single_blog();
+  }, [slug]);
+
+  const get_single_blog = () => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/blog/get-single-blog/${slug}`)
+      .then((res) => {
+        setBlog({ ...res.data.data });
+      })
+      .catch((error) => {
+        console.log(error, "error");
+      });
+  };
 
   const updatePagination = (swiper) => {
     const perView = swiper.params.slidesPerView;
@@ -59,10 +81,18 @@ const BlogDetailsPage = () => {
         </h1>
         <h1 className="text-2xl font-semibold mb-3">Categories</h1>
         <hr className="border border-gray-200 mb-2" />
-        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">Red Wine</h4>
-        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">White Wine</h4>
-        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">Rosé Wine</h4>
-        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">Sparkling Wine</h4>
+        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">
+          Red Wine
+        </h4>
+        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">
+          White Wine
+        </h4>
+        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">
+          Rosé Wine
+        </h4>
+        <h4 className="font-semibold text-gray-500 hover:text-black cursor-pointer">
+          Sparkling Wine
+        </h4>
         {/* Recent Post Start */}
         <div className="mb-14">
           <h1 className="text-2xl font-semibold my-3">Recent Post</h1>
@@ -77,7 +107,7 @@ const BlogDetailsPage = () => {
                   >
                     {blog.title}
                   </h2>
-                  <span className="text-gray-500">{blog.createdAt}</span>
+                  <span className="text-gray-500">{blog.createdAt && format(new Date(blog.createdAt), "dd MMMM yyyy")}</span>
                 </div>
               </>
             );
@@ -123,27 +153,31 @@ const BlogDetailsPage = () => {
             <div className="pointer-events-none absolute inset-0 flex items-center justify-between z-[300]">
               {/* PREV */}
               <div
-                className={`prev-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${activeIndex === 0 ? "cursor-default" : "cursor-pointer"
-                  }`}
+                className={`prev-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${
+                  activeIndex === 0 ? "cursor-default" : "cursor-pointer"
+                }`}
               >
                 <i
-                  className={`fa-solid fa-arrow-left-long !text-2xl ${activeIndex === 0 ? "text-gray-300" : "text-gray-800"
-                    }`}
+                  className={`fa-solid fa-arrow-left-long !text-2xl ${
+                    activeIndex === 0 ? "text-gray-300" : "text-gray-800"
+                  }`}
                 ></i>
               </div>
 
               {/* NEXT */}
               <div
-                className={`next-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${activeIndex === featuredProducts.length - 1
+                className={`next-button pointer-events-auto px-3 py-1 rounded-full bg-gray-100/20 ${
+                  activeIndex === featuredProducts.length - 1
                     ? "cursor-default"
                     : "cursor-pointer"
-                  }`}
+                }`}
               >
                 <i
-                  className={`fa-solid fa-arrow-right-long !text-2xl ${activeIndex === featuredProducts.length - 1
+                  className={`fa-solid fa-arrow-right-long !text-2xl ${
+                    activeIndex === featuredProducts.length - 1
                       ? "text-gray-300"
                       : "text-gray-800"
-                    }`}
+                  }`}
                 ></i>
               </div>
             </div>
@@ -162,11 +196,11 @@ const BlogDetailsPage = () => {
         page="News"
         productType={
           blog.title ===
-            "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work"
+          "“How non-alcoholic wine is made without losing the taste” Gentle Dealcoholization: How LTVD and Aroma Recovery Work"
             ? "“How non-alcoholic wine is made without losing the taste”"
             : "The Perfect Non-Alcoholic Wines for Weddings, Brunches, Picnics, Family Celebrations, and Nights Out"
-              ? "The Perfect Non-Alcoholic Wines for Functions"
-              : blog.title
+            ? "The Perfect Non-Alcoholic Wines for Functions"
+            : blog.title
         }
       />
       <section className="w-[96%] mx-auto">
@@ -189,7 +223,7 @@ const BlogDetailsPage = () => {
               <h1 className="text-2xl font-semibold">{blog.title}</h1>
               <div className="my-4">
                 <span className="text-gray-400">
-                  By {blog.by}, {blog.createdAt}
+                  By {blog.by} {blog.createdAt && format(new Date(blog.createdAt), "dd MMM yyyy")}
                 </span>
               </div>
 
@@ -223,7 +257,12 @@ const BlogDetailsPage = () => {
             >
               {allBlogs.map((item, index) => (
                 <SwiperSlide key={item.id} className="overflow-hidden">
-                  <Blog blogImage={item.blogImage} title={item.title} description={item.description} slug={item.slug} />
+                  <Blog
+                    blogImage={item.blogImage}
+                    title={item.title}
+                    description={item.description}
+                    slug={item.slug}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -235,10 +274,11 @@ const BlogDetailsPage = () => {
       {/* Drawer */}
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${isDrawerOpen
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${
+          isDrawerOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-          }`}
+        }`}
         onClick={() => setIsDrawerOpen(false)}
       ></div>
 

@@ -78,23 +78,19 @@ const get_filtered_products = async (req, res) => {
       maxPrice = 10000,
       sort = "A-Z",
       page = 1,
-      limit = 6,
+      limit = 7,
     } = req.query;
 
-    // Convert query params to array if needed
-    grape = Array.isArray(grape) ? grape : grape ? grape.split(",") : [];
+    // Convert query params to arrays safely
+    const toArray = (param) => {
+      if (!param) return [];
+      if (Array.isArray(param)) return param;
+      return [param]; // wrap single string as array
+    };
 
-    productType = Array.isArray(productType)
-      ? productType
-      : productType
-      ? productType.split(",")
-      : [];
-
-    availability = Array.isArray(availability)
-      ? availability
-      : availability
-      ? availability.split(",")
-      : [];
+    grape = toArray(grape);
+    productType = toArray(productType);
+    availability = toArray(availability);
 
     const query = {};
 
@@ -153,14 +149,14 @@ const get_filtered_products = async (req, res) => {
 
 const get_single_product = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Products.findById(id);
+    const { slug } = req.params;
+    const product = await Products.findOne({ slug: slug });
     if (!product) {
       res.status(404).json({ status: false, message: "Product Not Found!" });
     }
 
     let relatedQuery = {
-      _id: { $ne: product._id },
+      slug: { $ne: product.slug },
     };
 
     let relatedProducts = await Products.find(relatedQuery).limit(3);

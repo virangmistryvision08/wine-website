@@ -1,5 +1,5 @@
 const express = require("express");
-const { create_blog, get_all_blogs } = require("../controllers/blogController");
+const { create_blog, get_all_blogs, get_single_blog } = require("../controllers/blogController");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
@@ -17,5 +17,6 @@ const upload = multer({
 
 router.post("/create-blog", upload.single("blogImage"), create_blog);
 router.get("/get-all-blogs", get_all_blogs);
+router.get("/get-single-blog/:slug", get_single_blog);
 
 module.exports = router;

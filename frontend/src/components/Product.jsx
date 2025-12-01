@@ -2,7 +2,7 @@ import React from "react";
 import grapes from "/products/grapes.svg";
 import gold_medal from "/Gold_Medal.webp";
 import { useNavigate } from "react-router-dom";
-import { addToCart } from "../redux/reducers/productReducer";
+import { add_to_cart, addToCart } from "../redux/reducers/productReducer";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import cookie from "js-cookie";
@@ -16,6 +16,7 @@ const Product = ({
   wineType,
   id,
   quantity,
+  slug
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ const Product = ({
     price,
     wineType,
     quantity,
+    slug
   };
 
 
@@ -56,93 +58,103 @@ const Product = ({
 
 const handleAddToCart = async (e) => {
   e.stopPropagation();
+
+  dispatch(add_to_cart({
+    productId: "6926c04475dea0195975d41a",
+    quantity: 3
+  }));
   
   // const token = localStorage.getItem("token");
   // const token = null;
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
-  const guestId = localStorage.getItem("guestId");
-  const userCartId = localStorage.getItem("userCartId");
+  // const token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
+  // let guestId = localStorage.getItem("guestId");
 
-  const productId = "6926c04475dea0195975d41a";
-  const quantity = 3;
+  // const productId = "6926c04475dea0195975d41a";
+  // const quantity = 3;
 
-  // 1) GUEST USER (No token)
-  if (!token) {
-    if (!guestId && !userCartId) {
-      const res = await axios.post("http://localhost:7000/cart/guest/init", {
-        productId,
-        quantity,
-      });
+  // try {
+  //   const payload = { productId, quantity };
 
-      localStorage.setItem("guestId", res.data.guestId);
-      // fddc64f8-1442-48d4-b34b-16761d640165
-    } 
-    else {
-      await axios.post("http://localhost:7000/cart/add", {
-        guestId,
-        productId,
-        quantity,
-      });
-    }
+  //   // Attach guestId if available
+  //   if (guestId) payload.guestId = guestId;
 
-    return;
-  }
+  //   const headers = token
+  //     ? { Authorization: `Bearer ${token}` }
+  //     : {};
 
-  if (guestId) {
-    const mergeRes = await axios.post(
-      "http://localhost:7000/cart/merge",
-      { guestId },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+  //   // -------------------------
+  //   //  ⭐ SINGLE API CALL
+  //   // -------------------------
+  //   const res = await axios.post(
+  //     "http://localhost:7000/cart/add",
+  //     payload,
+  //     { headers }
+  //   );
 
-    // Remove guest ID after merge
-    localStorage.removeItem("guestId");
+  //   const data = res.data;
 
-    // Save user cart ID
-    localStorage.setItem("userCartId", mergeRes.data.cart.userId);
-  }
+  //   // -------------------------
+  //   // 1) HANDLE GUEST USER
+  //   // -------------------------
+  //   if (!token) {
+  //     if (data.guestId) {
+  //       localStorage.setItem("guestId", data.guestId);
+  //     }
+  //     console.log("Guest Cart:", data.cart);
+  //     return;
+  //   }
 
-  const addRes = await axios.post(
-    "http://localhost:7000/cart/add",
-    { productId, quantity },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  //   // -------------------------
+  //   // 2) HANDLE LOGGED-IN USER
+  //   // -------------------------
 
-  // Save userCartId in case the user had no existing cart
-  localStorage.setItem("userCartId", addRes.data.cart.userId);
+  //   // If guest cart was merged or converted -> remove guestId
+  //   if (guestId) {
+  //     localStorage.removeItem("guestId");
+  //   }
 
-  console.log("Added to user cart:", addRes.data);
+  //   // Save user cart ID if returned
+  //   if (data.cart && data.cart.userId) {
+  //     localStorage.setItem("userCartId", data.cart.userId);
+  //   }
+
+  //   console.log("User Cart:", data.cart);
+  // } catch (err) {
+  //   console.error("Cart error:", err?.response?.data || err);
+  // }
 };
 
 
-// const handleLogout = async (e) => {
-//   e.stopPropagation();
 
-//   const userCartId = localStorage.getItem("userCartId");
+const handleLogout = async (e) => {
+  e.stopPropagation();
 
-//   if (userCartId) {
-//     await axios.post("http://localhost:7000/cart/convert-to-guest", {
-//       userCartId,
-//     });
+  const userCartId = localStorage.getItem("userCartId");
 
-//     localStorage.setItem("guestId", userCartId);
-//   }
+  if (userCartId) {
+    await axios.post("http://localhost:7000/cart/convert-to-guest", {
+      userCartId,
+    });
 
-//   // localStorage.removeItem("token");
-//   localStorage.removeItem("userCartId");
-// };
+    localStorage.setItem("guestId", userCartId);
+  }
+
+  // localStorage.removeItem("token");
+  localStorage.removeItem("userCartId");
+};
 
 
 
 
   return (
     <div
-      onClick={() => navigate(`/products/${id}`)}
+      onClick={() => navigate(`/products/${slug}`)}
       className="font-[Urbanist] flex flex-col gap-3 group cursor-pointer"
     > 
       {/* Image container */}
       <div className="relative h-[300px] md:h-[500px] xl:h-[600px] w-full bg-white p-8 flex justify-center items-center rounded-sm overflow-hidden">
+        <div onClick={handleLogout}>Logout</div>
         <img
           className="h-full w-full object-contain rounded-sm"
           src={productImage}

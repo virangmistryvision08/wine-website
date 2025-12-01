@@ -18,6 +18,6 @@ const upload = multer({
 router.post("/create-product", upload.single("productImage"), create_product);
 router.get("/get-all-products", get_all_products);
 router.get("/get-filtered-products", get_filtered_products);
-router.get("/get-single-product/:id", get_single_product);
+router.get("/get-single-product/:slug", get_single_product);
 
 module.exports = router;

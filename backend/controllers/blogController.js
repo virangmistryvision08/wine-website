@@ -46,7 +46,25 @@ const get_all_blogs = async (req, res) => {
   }
 };
 
+const get_single_blog = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const blog = await Blogs.findOne({ slug });
+    if (!blog) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Blog Not Found!" });
+    }
+    return res
+      .status(200)
+      .json({ status: true, data: blog, message: "Get Single Blog Successfully." });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
+
 module.exports = {
   create_blog,
   get_all_blogs,
+  get_single_blog,
 };

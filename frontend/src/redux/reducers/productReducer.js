@@ -20,198 +20,7 @@ import axios from "axios";
 const allPostsSlice = createSlice({
   name: "allCourses",
   initialState: {
-    allProducts: [
-      {
-        id: 1,
-        productImage: product1,
-        title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
-        verity: "Grape Verity",
-        isGold: true,
-        price: 29.76,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Merlot",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 2,
-        productImage: product2,
-        title: "Bergdolt, Reif & Nett Breakaway Pinot NoirDealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 29.38,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Pinot Noir",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 3,
-        productImage: product3,
-        title:
-          "Bergdolt, Reif & Nett Reverse Sauvignon Blanc(vegan) Dealalcoolized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.76,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Sauvignon Blanc",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 4,
-        productImage: product4,
-        title: "Bergdolt, Reif & Nett Reverse Gewurztraminer Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 29.38,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Gewurztraminer",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 5,
-        productImage: product5,
-        title: "Bergdolt, Reif & Nett Reverse Rose (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.76,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Rose",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 6,
-        productImage: product6,
-        title: "Bergdolt, Reif & Nett Reverse Riesling (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 27.16,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Riesling",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 7,
-        productImage: product7,
-        title: "Lamm-Jung Riesling Dealcoholized (Vegan)",
-        verity: "Grape Verity",
-        isGold: true,
-        price: 26.97,
-        productType: "Lamm Jung",
-        wineType: "Riesling",
-        quantity: 1,
-        slug: "lamm-jung",
-      },
-      {
-        id: 8,
-        productImage: product8,
-        title:
-          "KvD Strauch Sektmanufaktur GmbH Rouge Pur Alkoholfrei Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 26.97,
-        productType: "KvD Strauch Sektmanufaktur",
-        wineType: "rouge Pur",
-        quantity: 1,
-        slug: "kvd-strauch-sektmanufaktur",
-      },
-      {
-        id: 9,
-        productImage: product9,
-        title: "Chateau Clos de Bouard Eden dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 33.61,
-        productType: "Chateau Clos de Bouard",
-        wineType: "Sauvignon Blanc",
-        quantity: 1,
-        slug: "chateau-clos-de-bouard",
-      },
-      {
-        id: 10,
-        productImage: product10,
-        title: "Chateau Clos de Bouard Prince Oscar dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 32.67,
-        productType: "Chateau Clos de Bouard",
-        wineType: "80 % Merlot,",
-        quantity: 1,
-        slug: "chateau-clos-de-bouard",
-        // wineType: (
-        // quantity:0
-        //   <>
-        //     <p>80 % Merlot,</p>
-        //     <p>15 % Cabernet Franc,</p>
-        //     <p>5 % Cabernet Sauvignon</p>
-        //   </>
-        // ),
-      },
-      {
-        id: 11,
-        productImage: product11,
-        title: "Matthias Anton Blanc de Blancs sparkling (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 27.19,
-        productType: "Matthias Anton",
-        wineType: "Riesling",
-        quantity: 1,
-        slug: "matthias-anton",
-      },
-      {
-        id: 12,
-        productImage: product12,
-        title: "Matthias Anton Pinot Grigio (vegan) – Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.61,
-        productType: "Matthias Anton",
-        wineType: "Pinot Grigio",
-        quantity: 1,
-        slug: "matthias-anton",
-      },
-      {
-        id: 13,
-        productImage: product13,
-        title: "Matthias Anton Rosé (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.61,
-        productType: "Matthias Anton",
-        wineType: "Pinot Noir",
-        quantity: 1,
-        slug: "matthias-anton",
-      },
-      {
-        id: 14,
-        productImage: product14,
-        title: "Matthias Anton Rosé Sparkling (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 28.19,
-        productType: "Matthias Anton",
-        wineType: "Pinot Noir",
-        quantity: 1,
-        slug: "matthias-anton",
-      },
-      {
-        id: 15,
-        productImage: product15,
-        title: "Matthias Anton Sauvignon Blanc (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.61,
-        productType: "Matthias Anton",
-        wineType: "Sauvignon Blanc",
-        quantity: 1,
-        slug: "matthias-anton",
-      },
-    ],
+    allProducts: [],
     cart: [],
     isCartOpen: false,
     featuredProducts: [
@@ -247,18 +56,20 @@ const allPostsSlice = createSlice({
       state.allProducts = action.payload;
     },
     addToCart: (state, action) => {
-      const { product, quantity } = action.payload;
-      toast.success("Product Added!");
+      state.cart = action.payload;
+      state.isCartOpen = true;
+      // const { product, quantity } = action.payload;
+      // toast.success("Product Added!");
 
-      const existingItem = state.cart.find((item) => item.id === product.id);
+      // const existingItem = state.cart.find((item) => item.id === product.id);
 
-      if (existingItem) {
-        existingItem.quantity += 1;
-        state.isCartOpen = true;
-      } else {
-        state.cart.push({ ...product, quantity: quantity ? quantity : 1 });
-        state.isCartOpen = true;
-      }
+      // if (existingItem) {
+      //   existingItem.quantity += 1;
+      //   state.isCartOpen = true;
+      // } else {
+      //   state.cart.push({ ...product, quantity: quantity ? quantity : 1 });
+      //   state.isCartOpen = true;
+      // }
     },
 
     removeFromCart: (state, action) => {
@@ -298,10 +109,62 @@ export const get_all_products = createAsyncThunk(
   "get_all_products",
   (data, { dispatch }) => {
     axios
-      .post("http://localhost:7000/product/get-all-products")
-      .then(async (res) => {
-        await dispatch(getAllproducts(res.data.data));
+      .get(`${import.meta.env.VITE_BACKEND_URL}/product/get-all-products`)
+      .then((res) => {
+        dispatch(getAllproducts(res.data.data));
       });
+  }
+);
+
+export const add_to_cart = createAsyncThunk(
+  "add_to_cart",
+  async ({ productId, quantity }, { dispatch }) => {
+    try {
+      // const token = localStorage.getItem("token");
+      // const token = null;
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
+      let guestId = localStorage.getItem("guestId");
+
+      const payload = { productId, quantity };
+      if (guestId) payload.guestId = guestId;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/cart/add`,
+        payload,
+        { headers }
+      );
+
+      const data = res.data;
+
+      // ---------------------------
+      // ⭐ UPDATE LOCAL STORAGE
+      // ---------------------------
+
+      if (!token && data.guestId) {
+        localStorage.setItem("guestId", data.guestId);
+      }
+
+      if (token && guestId) {
+        localStorage.removeItem("guestId");
+      }
+
+      if (data.cart?.userId) {
+        localStorage.setItem("userCartId", data.cart.userId);
+      }
+
+      // ---------------------------
+      // PUSH cart to redux
+      // ---------------------------
+      dispatch(addToCart(data.cart.items));
+
+      return data.cart.items;
+    } catch (err) {
+      console.log("Add-to-cart error:", err.response?.data || err);
+      throw err;
+    }
   }
 );
 

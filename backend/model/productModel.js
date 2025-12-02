@@ -9,8 +9,8 @@ const productSchema = new mongoose.Schema(
     price: { type: Number },
     productType: { type: String },
     wineType: { type: String },
-    quantity: { type: Number, default: 1 },
     slug: { type: String },
+    isFeatured: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

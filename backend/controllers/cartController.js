@@ -173,17 +173,17 @@ const add_to_cart = async (req, res) => {
     if (tokenUser) {
       userCart = await Carts.findOne({ userId: tokenUser.id });
 
-      // ⚠️ FIX: If user is logged-in but no guestId → DO NOT create new guestId
-      // Only load guestCart IF guestId was provided
       if (guestId) {
         guestCart = await Carts.findOne({ guestId });
       }
 
-      // CASE A
+      // CASE A — convert guestCart → userCart
       if (!userCart && guestCart) {
         guestCart.userId = tokenUser.id;
         guestCart.guestId = null;
         userCart = await guestCart.save();
+
+        await userCart.populate("items.productId");
 
         return res.status(200).json({
           status: true,
@@ -192,12 +192,14 @@ const add_to_cart = async (req, res) => {
         });
       }
 
-      // CASE B
+      // CASE B — create new user cart
       if (!userCart && !guestCart) {
         userCart = await Carts.create({
           userId: tokenUser.id,
           items: productId ? [{ productId, quantity }] : [],
         });
+
+        await userCart.populate("items.productId");
 
         return res.status(200).json({
           status: true,
@@ -206,7 +208,7 @@ const add_to_cart = async (req, res) => {
         });
       }
 
-      // CASE C
+      // CASE C — merge guest into user
       if (userCart && guestCart) {
         guestCart.items.forEach((g) => {
           const index = userCart.items.findIndex(
@@ -218,8 +220,6 @@ const add_to_cart = async (req, res) => {
         });
 
         await userCart.save();
-        // await Carts.deleteOne({ guestId });
-
         guestId = null;
       }
 
@@ -235,6 +235,8 @@ const add_to_cart = async (req, res) => {
         await userCart.save();
       }
 
+      await userCart.populate("items.productId");
+
       return res.status(200).json({
         status: true,
         message: "User cart updated",
@@ -245,17 +247,18 @@ const add_to_cart = async (req, res) => {
     // ------------------------------------------
     // 2) GUEST FLOW
     // ------------------------------------------
-
-    // ⚠️ FIX: Only generate guestId if user is NOT logged-in
     if (!guestId) guestId = uuidv4();
 
     guestCart = await Carts.findOne({ guestId });
 
+    // NEW GUEST CART
     if (!guestCart) {
       guestCart = await Carts.create({
         guestId,
         items: productId ? [{ productId, quantity }] : [],
       });
+
+      await guestCart.populate("items.productId");
 
       return res.status(200).json({
         status: true,
@@ -277,19 +280,18 @@ const add_to_cart = async (req, res) => {
       await guestCart.save();
     }
 
+    await guestCart.populate("items.productId");
+
     return res.status(200).json({
       status: true,
       message: "Guest cart updated",
       guestId,
       cart: guestCart,
     });
-
   } catch (err) {
     return res.status(500).json({ status: false, message: err.message });
   }
 };
-
-
 
 const convertToGuestCart = async (req, res) => {
   try {
@@ -388,10 +390,154 @@ const updateQuantity = async (req, res) => {
   }
 };
 
+const get_carts = async (req, res) => {
+  try {
+    const tokenUser = req.user;
+    let { guestId } = req.query;
+
+    let cart = null;
+
+    // ------------------------------------------
+    // 1) USER LOGGED IN → RETURN USER CART
+    // ------------------------------------------
+    if (tokenUser) {
+      cart = await Carts.findOne({ userId: tokenUser.id })
+        .populate("items.productId");
+
+      if (!cart) {
+        return res.status(200).json({
+          status: true,
+          type: "user",
+          cart: { items: [] }
+        });
+      }
+
+      return res.status(200).json({
+        status: true,
+        type: "user",
+        cart
+      });
+    }
+
+    // ------------------------------------------
+    // 2) GUEST → MUST RECEIVE guestId
+    // ------------------------------------------
+    if (!guestId) {
+      return res.status(400).json({
+        status: false,
+        message: "guestId required for guest cart"
+      });
+    }
+
+    cart = await Carts.findOne({ guestId })
+      .populate("items.productId");
+
+    if (!cart) {
+      return res.status(200).json({
+        status: true,
+        type: "guest",
+        cart: { items: [] }
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      type: "guest",
+      cart
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message
+    });
+  }
+};
+
+
+const remove_from_cart = async (req, res) => {
+  try {
+    const tokenUser = req.user;
+    const { guestId, productId } = req.body;
+
+    let cart;
+
+    // ------------------------------------------
+    // 1) FIND CART (USER OR GUEST)
+    // ------------------------------------------
+    if (tokenUser) {
+      cart = await Carts.findOne({ userId: tokenUser.id });
+    } else if (guestId) {
+      cart = await Carts.findOne({ guestId });
+    } else {
+      return res.status(400).json({
+        status: false,
+        message: "guestId or token required",
+      });
+    }
+
+    if (!cart) {
+      return res.status(404).json({
+        status: false,
+        message: "Cart not found",
+      });
+    }
+
+    // ------------------------------------------
+    // 2) REMOVE PRODUCT FROM CART ITEMS
+    // ------------------------------------------
+    const prevLength = cart.items.length;
+
+    cart.items = cart.items.filter(
+      (item) => item.productId.toString() !== productId
+    );
+
+    // product not found
+    if (cart.items.length === prevLength) {
+      return res.status(404).json({
+        status: false,
+        message: "Product not found in cart",
+      });
+    }
+
+    // ------------------------------------------
+    // 3) HANDLE EMPTY CART → DELETE CART
+    // ------------------------------------------
+    if (cart.items.length === 0) {
+      await Carts.deleteOne({ _id: cart._id });
+
+      return res.status(200).json({
+        status: true,
+        message: "Product removed. Cart is empty and deleted.",
+        cart: null,
+      });
+    }
+
+    // ------------------------------------------
+    // 4) SAVE UPDATED CART
+    // ------------------------------------------
+    await cart.save();
+    await cart.populate("items.productId");
+
+    return res.status(200).json({
+      status: true,
+      message: "Product removed from cart",
+      cart,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message,
+    });
+  }
+};
+
 module.exports = {
   // initGuestCart,
   add_to_cart,
   // mergeGuestCart,
   convertToGuestCart,
   updateQuantity,
+  get_carts,
+  remove_from_cart,
 };

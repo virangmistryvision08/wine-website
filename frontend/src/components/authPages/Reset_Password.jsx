@@ -1,11 +1,17 @@
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+import axios from "axios";
 import React from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Reset_Password = () => {
   const [passwords, setPasswords] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
   const { email } = useParams();
+  const [spinner, setSpinner] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +64,25 @@ const Reset_Password = () => {
     setErrorMsg({ ...error });
 
     if (Object.keys(error).length !== 0) return;
-    console.log(passwords, "passwords");
+    setSpinner(true);
+
+    // Reset Password API
+    axios
+      .post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/reset-password/${email}`,
+        passwords
+      )
+      .then((res) => {
+        navigate("/account/login");
+        toast.success(res.data.message);
+        setSpinner(false);
+      })
+      .catch((error) => {
+        setSpinner(false);
+        toast.error(
+          error.response ? error.response.data.message : error.message
+        );
+      });
     setPasswords({});
   };
 
@@ -109,7 +133,14 @@ const Reset_Password = () => {
             type="submit"
             className="w-full mt-4 border border-black py-3 rounded-full text-black hover:bg-black hover:text-white transition duration-500 font-semibold cursor-pointer"
           >
-            Reset Password
+            {spinner ? (
+              <Spin
+                indicator={<LoadingOutlined spin={spinner} />}
+                size="large"
+              />
+            ) : (
+              "Reset Password"
+            )}
           </button>
         </form>
       </div>

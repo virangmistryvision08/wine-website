@@ -1,18 +1,24 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import logo from "/footer/footer-logo.png";
 import { useNavigate } from "react-router-dom";
 import visa_card from "/checkout/visa-card.svg";
 import master_card from "/checkout/master-card.svg";
 import amex_card from "/checkout/amex-card.svg";
+import { get_all_carts } from "../../redux/reducers/productReducer";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const carts = useSelector((state) => state.products.cart);
   const [open, setOpen] = React.useState(false);
+  const dispatch = useDispatch();
+
+useEffect(() => {
+  dispatch(get_all_carts());
+}, []);
 
   const subtotal = carts?.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + item.productId.price * item.quantity,
     0
   );
   return (
@@ -69,12 +75,12 @@ const Checkout = () => {
               {carts.map((cart) => (
                 <div
                   className="flex items-start justify-between gap-4 mb-6"
-                  key={cart.id}
+                  key={cart._id}
                 >
                   <div className="flex items-center gap-6">
                     <div className="relative bg-white rounded-lg w-16 h-16 flex items-center justify-center">
                       <img
-                        src={cart.productImage}
+                        src={cart.productId.productImage}
                         alt="product"
                         className="w-14 h-14 object-contain"
                       />
@@ -84,10 +90,10 @@ const Checkout = () => {
                       </span>
                     </div>
                     <p className="text-sm font-medium line-clamp-3">
-                      {cart.title}
+                      {cart.productId.title}
                     </p>
                   </div>
-                  <p className="text-sm mt-1">${cart.price.toFixed(2)}</p>
+                  <p className="text-sm mt-1">${cart.productId.price.toFixed(2)}</p>
                 </div>
               ))}
 
@@ -315,7 +321,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-1">
-                    <i class="fa-solid fa-lock text-xs text-gray-500"></i>
+                    <i className="fa-solid fa-lock text-xs text-gray-500"></i>
                     <span className="text-xs text-gray-500">
                       Secure and encrypted
                     </span>
@@ -332,12 +338,12 @@ const Checkout = () => {
                       <>
                         <div
                           className="flex items-start justify-between gap-4 mb-6"
-                          key={cart.id}
+                          key={cart._id}
                         >
                           <div className="flex items-center gap-6">
                             <div className="relative bg-white border border-gray-300 rounded-lg w-16 h-16 flex items-center justify-center">
                               <img
-                                src={cart.productImage}
+                                src={cart.productId.productImage}
                                 alt="product"
                                 className="w-14 h-14 object-contain"
                               />
@@ -347,11 +353,11 @@ const Checkout = () => {
                               </span>
                             </div>
                             <p className="text-sm font-medium line-clamp-3">
-                              {cart.title}
+                              {cart.productId.title}
                             </p>
                           </div>
                           <p className="text-sm font-semibold mt-1">
-                            ${cart.price.toFixed(2)}
+                            ${cart.productId.price.toFixed(2)}
                           </p>
                         </div>
                       </>
@@ -405,12 +411,12 @@ const Checkout = () => {
                 <>
                   <div
                     className="flex items-center justify-between gap-4 mb-6"
-                    key={cart.id}
+                    key={cart._id}
                   >
                     <div className="flex items-center gap-6">
                       <div className="relative bg-white rounded-lg w-16 h-16 flex items-center justify-center">
                         <img
-                          src={cart.productImage}
+                          src={cart.productId.productImage}
                           alt="product"
                           className="w-14 h-14 object-contain"
                         />
@@ -420,10 +426,10 @@ const Checkout = () => {
                         </span>
                       </div>
                       <p className="text-sm font-medium line-clamp-3">
-                        {cart.title}
+                        {cart.productId.title}
                       </p>
                     </div>
-                    <p className="text-sm">${cart.price.toFixed(2)}</p>
+                    <p className="text-sm">${cart.productId.price.toFixed(2)}</p>
                   </div>
                 </>
               );

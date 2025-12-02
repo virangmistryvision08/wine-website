@@ -1,12 +1,12 @@
 const express = require("express");
-const { add_to_cart, initGuestCart, mergeGuestCart, convertToGuestCart, updateQuantity } = require("../controllers/cartController");
+const { add_to_cart, initGuestCart, mergeGuestCart, convertToGuestCart, updateQuantity, get_carts, remove_from_cart } = require("../controllers/cartController");
 const authorize = require("../authorization/authorize");
 const router = express.Router();
 
-// router.post("/guest/init", initGuestCart);
 router.post("/add", authorize, add_to_cart);
-// router.post("/merge", authorize, mergeGuestCart);
 router.post("/convert-to-guest", convertToGuestCart);
-router.post("/update-qty", authorize, updateQuantity);
+router.post("/update-quantity", authorize, updateQuantity);
+router.get("/get-carts", authorize, get_carts);
+router.delete("/remove-cart", authorize, express.json(), remove_from_cart);
 
 module.exports = router;

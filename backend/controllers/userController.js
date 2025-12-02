@@ -80,8 +80,20 @@ const login = async (req, res) => {
       });
     }
 
+    const token = jwt.sign(
+      {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
+
     return res.status(200).json({
       status: true,
+      token,
       message: "Login Successfully.",
     });
   } catch (error) {

@@ -13,6 +13,7 @@ import Blog from "./Blog";
 import { get_all_blogs } from "../redux/reducers/blogReducer";
 import axios from "axios";
 import { format } from "date-fns";
+import { get_featured_products } from "../redux/reducers/productReducer";
 
 const BlogDetailsPage = () => {
   const { slug } = useParams();
@@ -28,7 +29,8 @@ const BlogDetailsPage = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(get_all_blogs());    
+    dispatch(get_all_blogs());  
+    dispatch(get_featured_products());  
   }, []);
 
   useEffect(() => {
@@ -137,7 +139,7 @@ const BlogDetailsPage = () => {
           >
             {featuredProducts.map((product) => {
               return (
-                <SwiperSlide key={product.id}>
+                <SwiperSlide key={product._id}>
                   <Product
                     productImage={product.productImage}
                     title={product.title}
@@ -145,7 +147,8 @@ const BlogDetailsPage = () => {
                     isGold={product.isGold}
                     price={product.price}
                     wineType={product.wineType}
-                    id={product.id}
+                    id={product._id}
+                    slug={product.slug}
                   />
                 </SwiperSlide>
               );

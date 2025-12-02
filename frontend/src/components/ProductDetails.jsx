@@ -19,9 +19,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   add_to_cart,
-  addToCart,
-  decreaseQty,
-  increaseQty,
+  decrement_quantity,
+  increment_quantity,
 } from "../redux/reducers/productReducer";
 import axios from "axios";
 
@@ -38,15 +37,20 @@ const ProductDetails = () => {
   // const product = products.allProducts.find((product) => product._id === id);
 
   const cartItem = useSelector((state) =>
-    state.products.cart.find((c) => c.slug === slug)
+    state.products.cart?.find((c) => c.productId?.slug === slug)
   );
 
-  const quantity = cartItem?.quantity || quantityState;
+  const productQuantity =
+    products.cart?.find(
+      (cartItem) => cartItem.productId.slug === slug
+    )?.quantity || 0;
+
+  const quantity = productQuantity || quantityState;
 
   useEffect(() => {
     setQuantityState(1);
     get_single_product();
-  }, [slug]);
+  }, [slug, cartItem]);
 
   // Get Single Product
   const get_single_product = async () => {
@@ -170,51 +174,10 @@ const ProductDetails = () => {
   const handleAddToCart = async () => {
     dispatch(
       add_to_cart({
-        productId: "6926c04475dea0195975d41a",
-        quantity: 3,
+        productId: product._id,
+        quantity: quantityState,
       })
     );
-  };
-
-  /* Increment or Decrement Both Together */
-  const updateQuantity = async (productId, type) => {
-    console.log("clicked");
-    // const token = localStorage.getItem("token");
-    // const token = null;
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
-    const guestId = localStorage.getItem("guestId");
-
-    // 🟡 LOGGED-IN USER
-    if (token) {
-      const res = await axios.post(
-        "http://localhost:7000/cart/update-qty",
-        { productId: "6926c04475dea0195975d41a", type },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      return res.data.cart;
-    }
-
-    // 🟢 GUEST USER
-    if (guestId) {
-      const res = await axios.post("http://localhost:7000/cart/update-qty", {
-        guestId,
-        productId: "6926c04475dea0195975d41a",
-        type,
-      });
-
-      return res.data.cart;
-    }
-
-    // ⚪ Guest cart doesn’t exist → create automatically
-    const initRes = await axios.post("http://localhost:7000/cart/guest/init", {
-      productId: "6926c04475dea0195975d41a",
-      quantity: 1,
-    });
-
-    localStorage.setItem("guestId", initRes.data.guestId);
-    return initRes.data.cart;
   };
 
   const closeModal = () => setShowModal(false);
@@ -362,12 +325,15 @@ const ProductDetails = () => {
                       <button
                         onClick={async () => {
                           if (!cartItem) {
-                            // setQuantityState((prev) =>
-                            //   prev > 1 ? prev - 1 : 1
-                            // );
-                            updateQuantity(product.id, "dec");
+                            setQuantityState((prev) =>
+                              prev > 1 ? prev - 1 : 1
+                            );
+                            // dispatch(decrement_quantity({productId: product._id}))
                           } else {
-                            updateQuantity(product.id, "dec");
+                            // updateQuantity(product.id, "dec");
+                            dispatch(
+                              decrement_quantity({ productId: product._id })
+                            );
                             // dispatch(decreaseQty(product.id));
                           }
                         }}
@@ -381,10 +347,13 @@ const ProductDetails = () => {
                       <button
                         onClick={async () => {
                           if (!cartItem) {
-                            // setQuantityState((prev) => prev + 1);
-                            updateQuantity(product.id, "inc");
+                            setQuantityState((prev) => prev + 1);
+                            // dispatch(increment_quantity({productId: product._id}))
                           } else {
-                            updateQuantity(product.id, "inc");
+                            // updateQuantity(product.id, "inc");
+                            dispatch(
+                              increment_quantity({ productId: product._id })
+                            );
                             // dispatch(increaseQty(product.id));
                           }
                         }}

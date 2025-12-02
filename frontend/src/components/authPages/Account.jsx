@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import RegisterForm from "./RegisterForm";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Account = () => {
   const { page } = useParams();
@@ -12,6 +16,8 @@ const Account = () => {
   const [emailError, setEmailError] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
   const navigate = useNavigate();
+  const [spinner, setSpinner] = useState(false);
+  const [successEmailMessage, setSuccessEmailMessage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,8 +75,23 @@ const Account = () => {
     setErrorMsg({ ...errors });
 
     if (Object.keys(errors).length !== 0) return;
+    setSpinner(true);
 
-    console.log(data, "data");
+    // Login API
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, data)
+      .then((res) => {
+        localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
+        navigate("/");
+        toast.success(res.data.message);
+        setSpinner(false);
+      })
+      .catch((error) => {
+        setSpinner(false);
+        toast.error(
+          error.response ? error.response.data.message : error.message
+        );
+      });
   };
 
   const handleEmail = (e) => {
@@ -114,8 +135,23 @@ const Account = () => {
     setEmailError({ ...err });
 
     if (Object.keys(err).length !== 0) return;
+    setSpinner(true);
 
-    console.log(email, "email");
+    // Verify Email API
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email`, email)
+      .then((res) => {
+        console.log(res.data, "response");
+        setSuccessEmailMessage(res.data.message);
+        navigate("/account/login");
+        setSpinner(false);
+      })
+      .catch((error) => {
+        setSpinner(false);
+        toast.error(
+          error.response ? error.response.data.message : error.message
+        );
+      });
   };
   return (
     <>
@@ -144,10 +180,20 @@ const Account = () => {
               {/* Login Section */}
               <div className="w-full md:w-[40%] py-6 lg:py-10">
                 <h2 className="text-xl mb-3 font-[500]">Login</h2>
-                <p className=" font-[500] text-lg mb-10">
+                <p
+                  className={` font-[500] text-lg ${
+                    successEmailMessage ? "mb-0" : "mb-10"
+                  }`}
+                >
                   Please enter your email and password below to access your
                   account
                 </p>
+
+                {successEmailMessage && (
+                  <h1 className="my-10 p-3 text-center bg-green-200">
+                    {successEmailMessage}
+                  </h1>
+                )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                   {/* Email */}
@@ -187,7 +233,14 @@ const Account = () => {
                       type="submit"
                       className="border border-[#EED291] bg-[#EED291] hover:bg-white transition duration-300 cursor-pointer px-8 py-3 rounded-full text-black font-medium"
                     >
-                      SIGN IN
+                      {spinner ? (
+                        <Spin
+                          indicator={<LoadingOutlined spin={spinner} />}
+                          size="large"
+                        />
+                      ) : (
+                        "SIGN IN"
+                      )}
                     </button>
                     <Link
                       to="/account/verify-email"
@@ -235,7 +288,14 @@ const Account = () => {
                       type="submit"
                       className="uppercase border border-[#EED291] bg-[#EED291] hover:bg-white transition duration-300 cursor-pointer px-8 py-3 rounded-full text-black font-medium"
                     >
-                      Submit
+                      {spinner ? (
+                        <Spin
+                          indicator={<LoadingOutlined spin={spinner} />}
+                          size="large"
+                        />
+                      ) : (
+                        "Submit"
+                      )}
                     </button>
                     <button
                       onClick={() => navigate("/account/login")}

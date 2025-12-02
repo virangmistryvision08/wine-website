@@ -11,6 +11,7 @@ const create_product = async (req, res) => {
       wineType,
       quantity,
       slug,
+      isFeatured
     } = req.body;
 
     if (!req.file) {
@@ -44,6 +45,7 @@ const create_product = async (req, res) => {
       wineType,
       quantity,
       slug,
+      isFeatured
     });
     res.status(201).json({ status: true, message: "Product Created!" });
   } catch (error) {
@@ -174,9 +176,38 @@ const get_single_product = async (req, res) => {
   }
 };
 
+const get_featured_products = async (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 3;
+
+    const featuredProducts = await Products.find({ isFeatured: true })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    if (featuredProducts.length === 0) {
+      return res.status(200).json({
+        status: true,
+        data: [],
+        message: "No featured products found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: featuredProducts,
+      message: "Featured products fetched successfully.",
+    });
+
+  } catch (error) {
+    res.status(500).json({ status: false, message: error.message });
+  }
+};
+
+
 module.exports = {
   create_product,
   get_all_products,
   get_filtered_products,
   get_single_product,
+  get_featured_products,
 };

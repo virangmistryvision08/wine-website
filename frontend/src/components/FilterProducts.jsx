@@ -916,7 +916,7 @@ const FilterProducts = () => {
                         isGold={product.isGold}
                         price={product.price}
                         wineType={product.wineType}
-                        id={product.id}
+                        id={product._id}
                         slug={product.slug}
                       />
                     );

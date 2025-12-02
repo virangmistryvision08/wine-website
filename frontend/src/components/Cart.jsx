@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  increaseQty,
-  decreaseQty,
   removeFromCart,
+  get_all_carts,
+  decrement_quantity,
+  increment_quantity,
 } from "../redux/reducers/productReducer";
 import Title from "./Title";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -31,9 +32,14 @@ const Cart = () => {
   const [showPagination, setShowPagination] = useState(true);
 
   const subtotal = products.cart?.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + item.productId.price * item.quantity,
     0
-  );
+  ); 
+
+  useEffect(() => {
+    dispatch(get_all_carts());
+  }, []);
+  console.log(carts,'carts')
 
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;
@@ -148,17 +154,17 @@ const Cart = () => {
                           </TableHead>
 
                           {/* TABLE BODY */}
-                          {carts.map((cart) => {
+                          {carts && carts?.map((cart) => {
                             return (
                               <>
-                                <TableBody key={cart.id}>
+                                <TableBody key={cart.productId._id}>
                                   {/* SINGLE PRODUCT ROW */}
                                   <TableRow className="align-top">
                                     {/* Remove Button */}
                                     <TableCell size="small" className="">
                                       <i
                                         onClick={() =>
-                                          dispatch(removeFromCart(cart.id))
+                                          dispatch(removeFromCart(cart.productId._id))
                                         }
                                         className="fa-solid fa-xmark text-black text-[18px] cursor-pointer !flex !justify-center !items-center !h-8 !w-8 !border-2 !border-black !rounded-full hover:!bg-gray-200"
                                       ></i>
@@ -169,9 +175,9 @@ const Cart = () => {
                                         {/* Product Image */}
                                         <img
                                           onClick={() => {
-                                            navigate(`/products/${cart.id}`);
+                                            navigate(`/products/${cart.productId._id}`);
                                           }}
-                                          src={cart.productImage}
+                                          src={cart.productId.productImage}
                                           alt="wine"
                                           className="!w-28 !h-28 object-contain border border-gray-300 p-2 flex-shrink-0 cursor-pointer"
                                         />
@@ -179,17 +185,17 @@ const Cart = () => {
                                         {/* Title */}
                                         <div
                                           onClick={() => {
-                                            navigate(`/products/${cart.id}`);
+                                            navigate(`/products/${cart.productId._id}`);
                                           }}
                                          className="font-bold whitespace-nowrap cursor-pointer hover:underline">
-                                          {cart.title}
+                                          {cart.productId.title}
                                         </div>
                                       </div>
                                     </TableCell>
 
                                     {/* PRICE */}
                                     <TableCell className="!text-[15px] text-start !font-bold !font-[Urbanist] whitespace-nowrap">
-                                      $ {cart.price.toFixed(2)}
+                                      $ {cart.productId.price?.toFixed(2)}
                                     </TableCell>
 
                                     {/* QUANTITY BOX */}
@@ -198,7 +204,7 @@ const Cart = () => {
                                         <button
                                           className="cursor-pointer"
                                           onClick={() =>
-                                            dispatch(decreaseQty(cart.id))
+                                            dispatch(decrement_quantity({productId: cart.productId._id}))
                                           }
                                         >
                                           –
@@ -207,7 +213,7 @@ const Cart = () => {
                                         <button
                                           className="cursor-pointer"
                                           onClick={() =>
-                                            dispatch(increaseQty(cart.id))
+                                            dispatch(increment_quantity({productId: cart.productId._id}))
                                           }
                                         >
                                           +
@@ -218,7 +224,7 @@ const Cart = () => {
                                     {/* TOTAL */}
                                     <TableCell className="!text-[15px] !font-bold !font-[Urbanist] whitespace-nowrap">
                                       ${" "}
-                                      {(cart.price * cart.quantity).toFixed(2)}
+                                      {(cart.productId.price * cart.quantity).toFixed(2)}
                                     </TableCell>
                                   </TableRow>
                                 </TableBody>
@@ -234,7 +240,7 @@ const Cart = () => {
                         <span className="text-gray-700">
                           DO YOU WANT A GIFT WRAP? ONLY FOR $10.00
                         </span>
-                        <button className="font-semibold underline text-black hover:text-gray-700">
+                        <button className="font-semibold underline text-black hover:text-gray-700 cursor-pointer">
                           ADD
                         </button>
                       </div>

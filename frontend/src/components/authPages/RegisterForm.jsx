@@ -1,4 +1,10 @@
+import axios from "axios";
 import React, { useState } from "react";
+import Cookie from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Flex, Spin } from "antd";
 
 const RegisterForm = ({ emailMarketing }) => {
   const [data, setData] = useState({
@@ -8,6 +14,8 @@ const RegisterForm = ({ emailMarketing }) => {
     password: "",
   });
   const [errorMsg, setErrorMsg] = useState({});
+  const navigate = useNavigate();
+  const [spinner, setSpinner] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,8 +91,23 @@ const RegisterForm = ({ emailMarketing }) => {
 
     setErrorMsg(errors);
     if (Object.keys(errors).length !== 0) return;
+    setSpinner(true);
 
-    console.log("FORM DATA: ", data);
+    // Register API
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, data)
+      .then((res) => {
+        localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
+        navigate("/");
+        toast.success(res.data.message);
+        setSpinner(false);
+      })
+      .catch((error) => {
+        setSpinner(false);
+        toast.error(
+          error.response ? error.response.data.message : error.message
+        );
+      });
   };
   return (
     <>
@@ -175,7 +198,14 @@ const RegisterForm = ({ emailMarketing }) => {
             type="submit"
             className="w-full xl:min-w-[500px] xl:w-fit border border-[#EED291] bg-[#EED291] hover:bg-white text-black rounded-full py-3 text-base mt-0 hover:opacity-90 transition duration-300 font-[600] cursor-pointer"
           >
-            CREATE AN ACCOUNT
+            {spinner ? (
+              <Spin
+                indicator={<LoadingOutlined spin={spinner} />}
+                size="large"
+              />
+            ) : (
+              "CREATE AN ACCOUNT"
+            )}
           </button>
         </div>
       </form>

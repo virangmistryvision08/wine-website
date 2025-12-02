@@ -60,8 +60,8 @@ const handleAddToCart = async (e) => {
   e.stopPropagation();
 
   dispatch(add_to_cart({
-    productId: "6926c04475dea0195975d41a",
-    quantity: 3
+    productId: id,
+    quantity: quantity ? quantity : 1
   }));
   
   // const token = localStorage.getItem("token");
@@ -154,7 +154,7 @@ const handleLogout = async (e) => {
     > 
       {/* Image container */}
       <div className="relative h-[300px] md:h-[500px] xl:h-[600px] w-full bg-white p-8 flex justify-center items-center rounded-sm overflow-hidden">
-        <div onClick={handleLogout}>Logout</div>
+        {/* <div onClick={handleLogout}>Logout</div> */}
         <img
           className="h-full w-full object-contain rounded-sm"
           src={productImage}

@@ -65,7 +65,7 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/reset-password/:email" element={<Reset_Password />} />
 
-        {carts.length === 0 ? (
+        {carts?.length === 0 && carts[0]?.items.length === 0 ? (
           <>
           {/* if Empty Cart, Navigate to the Home Page */}
             <Route path="/checkout" element={<Navigate to="/" />} />

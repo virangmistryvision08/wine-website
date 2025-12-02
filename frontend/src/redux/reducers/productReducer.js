@@ -24,30 +24,7 @@ const allPostsSlice = createSlice({
     cart: [],
     isCartOpen: false,
     featuredProducts: [
-      {
-        id: 1,
-        productImage: product1,
-        title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
-        verity: "Grape Verity",
-        isGold: true,
-        price: 29.76,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Merlot",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
-      {
-        id: 5,
-        productImage: product5,
-        title: "Bergdolt, Reif & Nett Reverse Rose (vegan) Dealcoholized",
-        verity: "Grape Verity",
-        isGold: false,
-        price: 25.76,
-        productType: "Bergdolt, Reif & Nett",
-        wineType: "Rose",
-        quantity: 1,
-        slug: "bergdolt,-reif-&-nett",
-      },
+      
     ],
   },
 
@@ -55,49 +32,18 @@ const allPostsSlice = createSlice({
     getAllproducts: (state, action) => {
       state.allProducts = action.payload;
     },
-    addToCart: (state, action) => {
+    getAllCarts: (state, action) => {
       state.cart = action.payload;
-      state.isCartOpen = true;
-      // const { product, quantity } = action.payload;
-      // toast.success("Product Added!");
-
-      // const existingItem = state.cart.find((item) => item.id === product.id);
-
-      // if (existingItem) {
-      //   existingItem.quantity += 1;
-      //   state.isCartOpen = true;
-      // } else {
-      //   state.cart.push({ ...product, quantity: quantity ? quantity : 1 });
-      //   state.isCartOpen = true;
-      // }
+    },
+    getFeaturedProducts: (state, action) => {
+      state.featuredProducts = action.payload;
     },
 
-    removeFromCart: (state, action) => {
-      toast.success("Product Removed!");
-      const id = action.payload;
-      state.cart = state.cart.filter((item) => item.id !== id);
-    },
-
-    increaseQty: (state, action) => {
-      toast.success("Increment Quantity!");
-      const id = action.payload;
-      const item = state.cart.find((item) => item.id === id);
-      if (item) {
-        item.quantity += 1;
-      }
-    },
-
-    decreaseQty: (state, action) => {
-      toast.success("Decrement Quantity!");
-      const id = action.payload;
-      const item = state.cart.find((item) => item.id === id);
-
-      if (item && item.quantity > 1) {
-        item.quantity -= 1;
-      } else {
-        state.cart = state.cart.filter((item) => item.id !== id);
-      }
-    },
+    // removeFromCart: (state, action) => {
+    //   toast.success("Product Removed!");
+    //   const id = action.payload;
+    //   state.cart = state.cart.filter((item) => item.id !== id);
+    // },
 
     toggleCartDrawer: (state) => {
       state.isCartOpen = !state.isCartOpen;
@@ -116,14 +62,49 @@ export const get_all_products = createAsyncThunk(
   }
 );
 
+export const get_featured_products = createAsyncThunk(
+  "get_all_products",
+  (data, { dispatch }) => {
+    const limit = 2;
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/product/get-featured-products?limit=${limit}`)
+      .then((res) => {
+        dispatch(getFeaturedProducts(res.data.data));
+      });
+  }
+);
+
+export const get_all_carts = createAsyncThunk(
+  "get_all_carts",
+  async (_, { dispatch }) => {
+    try {
+      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
+      const guestId = localStorage.getItem("guestId");
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/cart/get-carts`,
+        {
+          params: { guestId },
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        }
+      );
+
+      dispatch(getAllCarts(res.data.cart.items));
+
+      return res.data.cart.items;
+
+    } catch (err) {
+      console.log("Get carts error:", err.response?.data || err);
+      throw err;
+    }
+  }
+);
+
 export const add_to_cart = createAsyncThunk(
   "add_to_cart",
   async ({ productId, quantity }, { dispatch }) => {
     try {
-      // const token = localStorage.getItem("token");
-      // const token = null;
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
+      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
       let guestId = localStorage.getItem("guestId");
 
       const payload = { productId, quantity };
@@ -139,9 +120,7 @@ export const add_to_cart = createAsyncThunk(
 
       const data = res.data;
 
-      // ---------------------------
-      // ⭐ UPDATE LOCAL STORAGE
-      // ---------------------------
+      // UPDATE LOCAL STORAGE
 
       if (!token && data.guestId) {
         localStorage.setItem("guestId", data.guestId);
@@ -155,10 +134,8 @@ export const add_to_cart = createAsyncThunk(
         localStorage.setItem("userCartId", data.cart.userId);
       }
 
-      // ---------------------------
-      // PUSH cart to redux
-      // ---------------------------
-      dispatch(addToCart(data.cart.items));
+      dispatch(toggleCartDrawer());
+      dispatch(get_all_carts());
 
       return data.cart.items;
     } catch (err) {
@@ -168,12 +145,120 @@ export const add_to_cart = createAsyncThunk(
   }
 );
 
+export const remove_from_cart = createAsyncThunk(
+  "remove_from_cart",
+  async ({ productId }, { dispatch }) => {
+    try {
+      const payload = { productId };
+      const guestId = localStorage.getItem("guestId");
+      const token = localStorage.getItem(
+        import.meta.env.VITE_WINE_TOKEN || null
+      );
+
+      if (!token && guestId) payload.guestId = guestId;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      // CALL REAL REMOVE API
+      const res = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/cart/remove-cart`,
+        {
+          data: payload,
+          headers,
+        }
+      );
+
+      const data = res.data;
+
+      // If cart deleted completely → remove guestId
+      if (data.cart === null) {
+        localStorage.removeItem("guestId");
+      }
+
+      // FETCH UPDATED CARTS
+      dispatch(get_all_carts());
+      dispatch(get_all_products());
+
+      toast.success("Product removed!");
+
+      return data.cart;
+    } catch (err) {
+      console.log("Remove-from-cart error:", err.response?.data || err);
+      throw err;
+    }
+  }
+);
+
+export const increment_quantity = createAsyncThunk(
+  "increment_quantity",
+  async ({ productId }, { dispatch }) => {
+    try {
+      const token = localStorage.getItem(
+        import.meta.env.VITE_WINE_TOKEN || null
+      );
+      const guestId = localStorage.getItem("guestId");
+
+      const payload = { productId, type: "inc" };
+      if (!token && guestId) payload.guestId = guestId;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
+        payload,
+        { headers }
+      );
+
+      dispatch(get_all_carts());
+      return res.data.cart;
+    } catch (err) {
+      console.log("Increment error:", err.response?.data || err);
+      throw err;
+    }
+  }
+);
+
+export const decrement_quantity = createAsyncThunk(
+  "decrement_quantity",
+  async ({ productId }, { dispatch }) => {
+    try {
+      const token = localStorage.getItem(
+        import.meta.env.VITE_WINE_TOKEN || null
+      );
+      const guestId = localStorage.getItem("guestId");
+
+      const payload = { productId, type: "dec" };
+      if (!token && guestId) payload.guestId = guestId;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
+        payload,
+        { headers }
+      );
+
+      // if cart becomes empty → backend returns empty items
+      // if guest is empty, delete guestId
+      if (res.data.cart?.items?.length === 0) {
+        localStorage.removeItem("guestId");
+      }
+
+      dispatch(get_all_carts());
+      return res.data.cart;
+    } catch (err) {
+      console.log("Decrement error:", err.response?.data || err);
+      throw err;
+    }
+  }
+);
+
 export const {
   getAllproducts,
+  getFeaturedProducts,
+  getAllCarts,
   addToCart,
   removeFromCart,
-  increaseQty,
-  decreaseQty,
   toggleCartDrawer,
 } = allPostsSlice.actions;
 

@@ -8,9 +8,11 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import close_image from "/close-image.png";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  decreaseQty,
-  increaseQty,
-  removeFromCart,
+  decrement_quantity,
+  get_all_carts,
+  get_all_products,
+  increment_quantity,
+  remove_from_cart,
   toggleCartDrawer,
 } from "../redux/reducers/productReducer";
 import { Badge } from "@mui/material";
@@ -40,11 +42,17 @@ function Navbar() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isUserDrawer, setIsUserDrawer] = useState(false);
+  // const cart = carts?.[1] || null;
+  // const items = cart?.items || [];
 
-  const subtotal = carts?.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const subtotal =
+    carts &&
+    carts?.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
+
+  useEffect(() => {
+    dispatch(get_all_carts());
+    dispatch(get_all_products());
+  }, []);
 
   // Cart Drawer State From Redux
   const cartOpen = products.isCartOpen;
@@ -250,7 +258,7 @@ function Navbar() {
                   className="fa-regular fa-user cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200"
                 ></i>
                 <Badge
-                  badgeContent={carts.length}
+                  badgeContent={carts && carts?.length}
                   overlap="circular"
                   anchorOrigin={{
                     vertical: "top",
@@ -267,9 +275,10 @@ function Navbar() {
                   <i
                     onClick={() => dispatch(toggleCartDrawer())}
                     className={`fa-solid fa-bag-shopping ${
-                      isWhiteBG.startsWith("reset-password") && !isScrolling50
-                        && "text-[#b9b9b9]"
-                        // : "text-white"
+                      isWhiteBG.startsWith("reset-password") &&
+                      !isScrolling50 &&
+                      "text-[#b9b9b9]"
+                      // : "text-white"
                     } cursor-pointer hover:text-[#EED291] transform hover:scale-110 transition-all duration-200 text-xl`}
                   ></i>
                 </Badge>
@@ -506,8 +515,8 @@ function Navbar() {
 
           {/* TOP PROGRESS BAR */}
           <div className="mt-4 flex flex-col gap-2">
-            <span className="text-gray-600">{carts.length} Item</span>
-            {carts.length === 0 ? (
+            <span className="text-gray-600">{carts?.length || 0} Item</span>
+            {carts?.length === 0 ? (
               <>
                 {/* Free Shipping */}
                 <div className="flex flex-col items-center mt-2 space-y-3">
@@ -541,21 +550,21 @@ function Navbar() {
             )}
           </div>
         </div>
-        {carts.length !== 0 && (
+        {carts?.length !== 0 && (
           <>
             {/* CART CONTENT */}
             <div className="px-5 overflow-y-auto flex-1">
               {/* CART ITEM */}
-              {carts.map((cart) => {
+              {carts?.map((cart) => {
                 return (
                   <>
                     <div className="flex items-center justify-center gap-7">
                       <img
                         onClick={() => {
                           dispatch(toggleCartDrawer());
-                          navigate(`/products/${cart.id}`);
+                          navigate(`/products/${cart.productId.slug}`);
                         }}
-                        src={cart.productImage}
+                        src={cart.productId?.productImage}
                         className="h-36 p-3 w-28 border border-gray-100 object-contain cursor-pointer"
                       />
 
@@ -563,13 +572,15 @@ function Navbar() {
                         <p
                           onClick={() => {
                             dispatch(toggleCartDrawer());
-                            navigate(`/products/${cart.id}`);
+                            navigate(`/products/${cart.productId.slug}`);
                           }}
                           className="text-base hover:underline cursor-pointer font-semibold"
                         >
-                          {cart.title}
+                          {cart.productId?.title}
                         </p>
-                        <p className="font-semibold">${cart.price}</p>
+                        <p className="font-semibold">
+                          ${cart.productId?.price}
+                        </p>
                         <p className="font-semibold">
                           Bottle Size{" "}
                           <span className="text-gray-500">0.75L / 25.4 oz</span>
@@ -580,21 +591,39 @@ function Navbar() {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center justify-between gap-5 font-bold border border-[#EED291] px-4 py-1 rounded-full w-fit text-base">
                             <button
-                              onClick={() => dispatch(decreaseQty(cart.id))}
+                              onClick={() =>
+                                dispatch(
+                                  decrement_quantity({
+                                    productId: cart.productId._id,
+                                  })
+                                )
+                              }
                               className="cursor-pointer"
                             >
                               -
                             </button>
                             <span>{cart.quantity}</span>
                             <button
-                              onClick={() => dispatch(increaseQty(cart.id))}
+                              onClick={() =>
+                                dispatch(
+                                  increment_quantity({
+                                    productId: cart.productId._id,
+                                  })
+                                )
+                              }
                               className="cursor-pointer"
                             >
                               +
                             </button>
                           </div>
                           <i
-                            onClick={() => dispatch(removeFromCart(cart.id))}
+                            onClick={() =>
+                              dispatch(
+                                remove_from_cart({
+                                  productId: cart.productId._id,
+                                })
+                              )
+                            }
                             className="fa-solid fa-circle-xmark text-xl cursor-pointer"
                           ></i>
                         </div>

@@ -23,9 +23,7 @@ const allPostsSlice = createSlice({
     allProducts: [],
     cart: [],
     isCartOpen: false,
-    featuredProducts: [
-      
-    ],
+    featuredProducts: [],
   },
 
   reducers: {
@@ -64,10 +62,13 @@ export const get_all_products = createAsyncThunk(
 
 export const get_featured_products = createAsyncThunk(
   "get_all_products",
-  (data, { dispatch }) => {
-    const limit = 2;
+  (limit, { dispatch }) => {
     axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/product/get-featured-products?limit=${limit}`)
+      .get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/product/get-featured-products?limit=${limit}`
+      )
       .then((res) => {
         dispatch(getFeaturedProducts(res.data.data));
       });
@@ -85,14 +86,13 @@ export const get_all_carts = createAsyncThunk(
         `${import.meta.env.VITE_BACKEND_URL}/cart/get-carts`,
         {
           params: { guestId },
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       );
 
       dispatch(getAllCarts(res.data.cart.items));
 
       return res.data.cart.items;
-
     } catch (err) {
       console.log("Get carts error:", err.response?.data || err);
       throw err;
@@ -139,7 +139,7 @@ export const add_to_cart = createAsyncThunk(
 
       return data.cart.items;
     } catch (err) {
-      console.log("Add-to-cart error:", err.response?.data || err);
+      toast.error(err.response ? err.response.data.message : err.message);
       throw err;
     }
   }
@@ -171,9 +171,9 @@ export const remove_from_cart = createAsyncThunk(
       const data = res.data;
 
       // If cart deleted completely → remove guestId
-      if (data.cart === null) {
-        localStorage.removeItem("guestId");
-      }
+      // if (data.cart === null) {
+        // localStorage.removeItem("guestId");
+      // }
 
       // FETCH UPDATED CARTS
       dispatch(get_all_carts());
@@ -212,7 +212,7 @@ export const increment_quantity = createAsyncThunk(
       dispatch(get_all_carts());
       return res.data.cart;
     } catch (err) {
-      console.log("Increment error:", err.response?.data || err);
+      toast.error(err.response ? err.response.data.message : err.message);
       throw err;
     }
   }
@@ -240,9 +240,9 @@ export const decrement_quantity = createAsyncThunk(
 
       // if cart becomes empty → backend returns empty items
       // if guest is empty, delete guestId
-      if (res.data.cart?.items?.length === 0) {
-        localStorage.removeItem("guestId");
-      }
+      // if (res.data.cart?.items?.length === 0) {
+      //   localStorage.removeItem("guestId");
+      // }
 
       dispatch(get_all_carts());
       return res.data.cart;
@@ -253,12 +253,25 @@ export const decrement_quantity = createAsyncThunk(
   }
 );
 
+export const handleLogout = createAsyncThunk("handleLogout", (_, { dispatch }) => {
+  const userCartId = localStorage.getItem("userCartId");
+
+  if (userCartId) {
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/cart/convert-to-guest`, {
+      userCartId,
+    });
+
+    // localStorage.setItem("guestId", userCartId);
+  }
+
+  localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
+  localStorage.removeItem("userCartId");
+});
+
 export const {
   getAllproducts,
   getFeaturedProducts,
   getAllCarts,
-  addToCart,
-  removeFromCart,
   toggleCartDrawer,
 } = allPostsSlice.actions;
 

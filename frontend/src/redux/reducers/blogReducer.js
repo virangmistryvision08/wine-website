@@ -18,8 +18,9 @@ const blogReducer = createSlice({
 export const get_all_blogs = createAsyncThunk(
   "get_all_blogs",
   (data, { dispatch }) => {
+    const limit = 3;
     axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/blog/get-all-blogs`)
+      .get(`${import.meta.env.VITE_BACKEND_URL}/blog/get-all-blogs?limit=${limit}`)
       .then((res) => {
         dispatch(getAllBlogs(res.data.data));
       })

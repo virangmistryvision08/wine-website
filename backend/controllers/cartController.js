@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const Carts = require("../model/cartModel");
 const { v4: uuidv4 } = require("uuid");
+const Products = require("../model/productModel");
 
 // // 1) INIT GUEST CART
 // const initGuestCart = async (req, res) => {
@@ -159,10 +160,41 @@ const { v4: uuidv4 } = require("uuid");
 //   }
 // };
 
+// Commont Function for Checking Products Availability
+
+const checkProductAvailable = async (productId, quantity = 1) => {
+  const product = await Products.findById(productId);
+
+  if (!product) return { ok: false, message: "Product not found" };
+
+  // If availability (enum) exists
+  if (product.availability && product.availability !== "in_stock") {
+    return { ok: false, message: "Product is out of stock" };
+  }
+
+  // If using stock number
+  if (product.stock !== undefined && product.stock < quantity) {
+    return { ok: false, message: "Not enough stock available" };
+  }
+
+  return { ok: true, product };
+};
+
 const add_to_cart = async (req, res) => {
   try {
     const tokenUser = req.user;
     let { guestId, productId, quantity } = req.body;
+
+    // Block adding out-of-stock products
+    if (productId) {
+      const check = await checkProductAvailable(productId, quantity);
+      if (!check.ok) {
+        return res.status(400).json({
+          status: false,
+          message: check.message,
+        });
+      }
+    }
 
     let userCart = null;
     let guestCart = null;
@@ -363,7 +395,21 @@ const updateQuantity = async (req, res) => {
     }
 
     // INCREMENT OR DECREMENT
+    // if (type === "inc") {
+    //   cart.items[index].quantity += 1;
+    // }
     if (type === "inc") {
+      const check = await checkProductAvailable(
+        productId,
+        cart.items[index].quantity + 1
+      );
+      if (!check.ok) {
+        return res.status(400).json({
+          status: false,
+          message: check.message,
+        });
+      }
+
       cart.items[index].quantity += 1;
     }
 
@@ -401,21 +447,22 @@ const get_carts = async (req, res) => {
     // 1) USER LOGGED IN → RETURN USER CART
     // ------------------------------------------
     if (tokenUser) {
-      cart = await Carts.findOne({ userId: tokenUser.id })
-        .populate("items.productId");
+      cart = await Carts.findOne({ userId: tokenUser.id }).populate(
+        "items.productId"
+      );
 
       if (!cart) {
         return res.status(200).json({
           status: true,
           type: "user",
-          cart: { items: [] }
+          cart: { items: [] },
         });
       }
 
       return res.status(200).json({
         status: true,
         type: "user",
-        cart
+        cart,
       });
     }
 
@@ -425,35 +472,32 @@ const get_carts = async (req, res) => {
     if (!guestId) {
       return res.status(400).json({
         status: false,
-        message: "guestId required for guest cart"
+        message: "guestId required for guest cart",
       });
     }
 
-    cart = await Carts.findOne({ guestId })
-      .populate("items.productId");
+    cart = await Carts.findOne({ guestId }).populate("items.productId");
 
     if (!cart) {
       return res.status(200).json({
         status: true,
         type: "guest",
-        cart: { items: [] }
+        cart: { items: [] },
       });
     }
 
     return res.status(200).json({
       status: true,
       type: "guest",
-      cart
+      cart,
     });
-
   } catch (err) {
     return res.status(500).json({
       status: false,
-      message: err.message
+      message: err.message,
     });
   }
 };
-
 
 const remove_from_cart = async (req, res) => {
   try {

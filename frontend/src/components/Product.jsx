@@ -2,10 +2,8 @@ import React from "react";
 import grapes from "/products/grapes.svg";
 import gold_medal from "/Gold_Medal.webp";
 import { useNavigate } from "react-router-dom";
-import { add_to_cart, addToCart } from "../redux/reducers/productReducer";
+import { add_to_cart } from "../redux/reducers/productReducer";
 import { useDispatch } from "react-redux";
-import axios from "axios";
-import cookie from "js-cookie";
 
 const Product = ({
   productImage,
@@ -16,7 +14,7 @@ const Product = ({
   wineType,
   id,
   quantity,
-  slug
+  slug,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -30,128 +28,14 @@ const Product = ({
     price,
     wineType,
     quantity,
-    slug
+    slug,
   };
-
-
-  /* Get Carts */
-
-//   const getCart = async () => {
-//   const guestId = localStorage.getItem("guestId");
-//   const token = localStorage.getItem("token");
-
-//   if (token) {
-//     const res = await axios.get("/cart", {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//     return res.data.cart;
-//   }
-
-//   if (guestId) {
-//     const res = await axios.get(`/cart?guestId=${guestId}`);
-//     return res.data.cart;
-//   }
-
-//   return [];
-// };
-
-
-const handleAddToCart = async (e) => {
-  e.stopPropagation();
-
-  dispatch(add_to_cart({
-    productId: id,
-    quantity: quantity ? quantity : 1
-  }));
-  
-  // const token = localStorage.getItem("token");
-  // const token = null;
-  // const token =
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5Mjk2N2VlYzAyMTQ0NTM1N2QyMDNiZCIsImZpcnN0TmFtZSI6IlZpc2lvbiIsImxhc3ROYW1lIjoiSW5mb3RlY2giLCJlbWFpbCI6InZpc2lvbjZAdGVzdC5jb20iLCJpYXQiOjE3NjQzMjEyNjIsImV4cCI6MTc2NDkyNjA2Mn0.BEjsVrBx7Nqkg0dboYNW-LGm37EW3xtAjEZUur3skdk";
-  // let guestId = localStorage.getItem("guestId");
-
-  // const productId = "6926c04475dea0195975d41a";
-  // const quantity = 3;
-
-  // try {
-  //   const payload = { productId, quantity };
-
-  //   // Attach guestId if available
-  //   if (guestId) payload.guestId = guestId;
-
-  //   const headers = token
-  //     ? { Authorization: `Bearer ${token}` }
-  //     : {};
-
-  //   // -------------------------
-  //   //  ⭐ SINGLE API CALL
-  //   // -------------------------
-  //   const res = await axios.post(
-  //     "http://localhost:7000/cart/add",
-  //     payload,
-  //     { headers }
-  //   );
-
-  //   const data = res.data;
-
-  //   // -------------------------
-  //   // 1) HANDLE GUEST USER
-  //   // -------------------------
-  //   if (!token) {
-  //     if (data.guestId) {
-  //       localStorage.setItem("guestId", data.guestId);
-  //     }
-  //     console.log("Guest Cart:", data.cart);
-  //     return;
-  //   }
-
-  //   // -------------------------
-  //   // 2) HANDLE LOGGED-IN USER
-  //   // -------------------------
-
-  //   // If guest cart was merged or converted -> remove guestId
-  //   if (guestId) {
-  //     localStorage.removeItem("guestId");
-  //   }
-
-  //   // Save user cart ID if returned
-  //   if (data.cart && data.cart.userId) {
-  //     localStorage.setItem("userCartId", data.cart.userId);
-  //   }
-
-  //   console.log("User Cart:", data.cart);
-  // } catch (err) {
-  //   console.error("Cart error:", err?.response?.data || err);
-  // }
-};
-
-
-
-const handleLogout = async (e) => {
-  e.stopPropagation();
-
-  const userCartId = localStorage.getItem("userCartId");
-
-  if (userCartId) {
-    await axios.post("http://localhost:7000/cart/convert-to-guest", {
-      userCartId,
-    });
-
-    localStorage.setItem("guestId", userCartId);
-  }
-
-  // localStorage.removeItem("token");
-  localStorage.removeItem("userCartId");
-};
-
-
-
 
   return (
     <div
       onClick={() => navigate(`/products/${slug}`)}
       className="font-[Urbanist] flex flex-col gap-3 group cursor-pointer"
-    > 
+    >
       {/* Image container */}
       <div className="relative h-[300px] md:h-[500px] xl:h-[600px] w-full bg-white p-8 flex justify-center items-center rounded-sm overflow-hidden">
         {/* <div onClick={handleLogout}>Logout</div> */}
@@ -161,13 +45,17 @@ const handleLogout = async (e) => {
           alt={wineType}
         />
 
-        {/* Hover button (initially hidden, slides up) */}
         <button
-          onClick={handleAddToCart}
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   // dispatch(addToCart({product: productData, quantity: 1}));
-          // }}
+          onClick={(e) => {
+            e.stopPropagation();
+
+            dispatch(
+              add_to_cart({
+                productId: id,
+                quantity: quantity ? quantity : 1,
+              })
+            );
+          }}
           className="
         absolute bottom-[-100px] left-1/2 -translate-x-1/2
         bg-[#EED291] text-black font-bold px-6 py-4 rounded-full

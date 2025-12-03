@@ -11,7 +11,9 @@ const create_product = async (req, res) => {
       wineType,
       quantity,
       slug,
-      isFeatured
+      isFeatured,
+      stock,
+      availability,
     } = req.body;
 
     if (!req.file) {
@@ -45,7 +47,9 @@ const create_product = async (req, res) => {
       wineType,
       quantity,
       slug,
-      isFeatured
+      isFeatured,
+      stock,
+      availability,
     });
     res.status(201).json({ status: true, message: "Product Created!" });
   } catch (error) {
@@ -197,12 +201,10 @@ const get_featured_products = async (req, res) => {
       data: featuredProducts,
       message: "Featured products fetched successfully.",
     });
-
   } catch (error) {
     res.status(500).json({ status: false, message: error.message });
   }
 };
-
 
 module.exports = {
   create_product,

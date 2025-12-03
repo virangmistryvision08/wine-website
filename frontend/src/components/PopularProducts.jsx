@@ -102,7 +102,7 @@ const PopularProducts = () => {
             {productDetails.map((product, index) => (
               <SwiperSlide key={index}>
                 <Product
-                  id={product.id}
+                  id={product._id}
                   productImage={product.productImage}
                   title={product.title}
                   verity={product.verity}

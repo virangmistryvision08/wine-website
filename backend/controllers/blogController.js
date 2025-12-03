@@ -32,7 +32,9 @@ const create_blog = async (req, res) => {
 
 const get_all_blogs = async (req, res) => {
   try {
-    const blogs = await Blogs.find();
+    let { limit } = req.query;
+    limit = limit ? +limit : 3;
+    const blogs = await Blogs.find().sort({ createdAt: -1 }).limit(limit);
     if (blogs.length === 0) {
       return res.status(400).json({ status: false, message: "Empty Blog!" });
     }
@@ -49,15 +51,27 @@ const get_all_blogs = async (req, res) => {
 const get_single_blog = async (req, res) => {
   try {
     const { slug } = req.params;
+
+    // 1) Find current blog
     const blog = await Blogs.findOne({ slug });
+
     if (!blog) {
       return res
         .status(404)
         .json({ status: false, message: "Blog Not Found!" });
     }
-    return res
-      .status(200)
-      .json({ status: true, data: blog, message: "Get Single Blog Successfully." });
+
+    // 2) Fetch other blogs excluding the current one (max 3)
+    const relatedBlogs = await Blogs.find({ slug: { $ne: slug } })
+      .sort({ createdAt: -1 }) // latest first (change if needed)
+      .limit(3);
+
+    return res.status(200).json({
+      status: true,
+      data: blog,
+      relatedBlogs,
+      message: "Get Single Blog Successfully.",
+    });
   } catch (error) {
     return res.status(500).json({ status: false, message: error.message });
   }

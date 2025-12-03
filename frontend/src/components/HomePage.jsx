@@ -15,7 +15,7 @@ const HomePage = () => {
         <BelowHeroSection />
         <Products />
         <ShippingSection />
-        <PopularProducts />
+        {/* <PopularProducts /> */}
         <SwiperSection />
         <Blogs />
     </div>

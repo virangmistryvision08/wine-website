@@ -27,10 +27,11 @@ const BlogDetailsPage = () => {
     (state) => state.products.featuredProducts
   );
   const dispatch = useDispatch();
+  const [relatedBlogs, setRelatedBlogs] = useState([]);
 
   useEffect(() => {
-    dispatch(get_all_blogs());  
-    dispatch(get_featured_products());  
+    dispatch(get_all_blogs());
+    dispatch(get_featured_products(2));
   }, []);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ const BlogDetailsPage = () => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/blog/get-single-blog/${slug}`)
       .then((res) => {
+        setRelatedBlogs([...res.data.relatedBlogs]);
         setBlog({ ...res.data.data });
       })
       .catch((error) => {
@@ -51,7 +53,7 @@ const BlogDetailsPage = () => {
   const updatePagination = (swiper) => {
     const perView = swiper.params.slidesPerView;
 
-    if (allBlogs.length <= perView) {
+    if (relatedBlogs.length <= perView) {
       setShowPagination(false);
     } else {
       setShowPagination(true);
@@ -98,7 +100,7 @@ const BlogDetailsPage = () => {
         {/* Recent Post Start */}
         <div className="mb-14">
           <h1 className="text-2xl font-semibold my-3">Recent Post</h1>
-          {allBlogs.map((blog) => {
+          {relatedBlogs.map((blog) => {
             return (
               <>
                 <hr className="border border-gray-200" />
@@ -109,7 +111,10 @@ const BlogDetailsPage = () => {
                   >
                     {blog.title}
                   </h2>
-                  <span className="text-gray-500">{blog.createdAt && format(new Date(blog.createdAt), "dd MMMM yyyy")}</span>
+                  <span className="text-gray-500">
+                    {blog.createdAt &&
+                      format(new Date(blog.createdAt), "dd MMMM yyyy")}
+                  </span>
                 </div>
               </>
             );
@@ -226,7 +231,9 @@ const BlogDetailsPage = () => {
               <h1 className="text-2xl font-semibold">{blog.title}</h1>
               <div className="my-4">
                 <span className="text-gray-400">
-                  By {blog.by} {blog.createdAt && format(new Date(blog.createdAt), "dd MMM yyyy")}
+                  By {blog.by}{" "}
+                  {blog.createdAt &&
+                    format(new Date(blog.createdAt), "dd MMM yyyy")}
                 </span>
               </div>
 
@@ -258,7 +265,7 @@ const BlogDetailsPage = () => {
               modules={[Pagination]}
               className="mySwiper !pb-0"
             >
-              {allBlogs.map((item, index) => (
+              {relatedBlogs.map((item, index) => (
                 <SwiperSlide key={item.id} className="overflow-hidden">
                   <Blog
                     blogImage={item.blogImage}

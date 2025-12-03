@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  removeFromCart,
   get_all_carts,
   decrement_quantity,
   increment_quantity,
+  remove_from_cart,
 } from "../redux/reducers/productReducer";
 import Title from "./Title";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -164,7 +164,7 @@ const Cart = () => {
                                     <TableCell size="small" className="">
                                       <i
                                         onClick={() =>
-                                          dispatch(removeFromCart(cart.productId._id))
+                                          dispatch(remove_from_cart({productId: cart.productId._id}))
                                         }
                                         className="fa-solid fa-xmark text-black text-[18px] cursor-pointer !flex !justify-center !items-center !h-8 !w-8 !border-2 !border-black !rounded-full hover:!bg-gray-200"
                                       ></i>

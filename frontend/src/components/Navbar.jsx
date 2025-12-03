@@ -11,6 +11,7 @@ import {
   decrement_quantity,
   get_all_carts,
   get_all_products,
+  get_featured_products,
   increment_quantity,
   remove_from_cart,
   toggleCartDrawer,
@@ -42,8 +43,8 @@ function Navbar() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1280);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isUserDrawer, setIsUserDrawer] = useState(false);
-  // const cart = carts?.[1] || null;
-  // const items = cart?.items || [];
+  const featuredProducts = products.featuredProducts;
+  const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
 
   const subtotal =
     carts &&
@@ -51,7 +52,11 @@ function Navbar() {
 
   useEffect(() => {
     dispatch(get_all_carts());
+  }, [token]);
+
+  useEffect(() => {
     dispatch(get_all_products());
+    dispatch(get_featured_products(3));
   }, []);
 
   // Cart Drawer State From Redux
@@ -106,15 +111,6 @@ function Navbar() {
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-
-  // Get Random Three Products
-  const allProducts = products.allProducts;
-
-  const getRandomThree = (arr) => {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
-  };
-  const productDetails = getRandomThree(allProducts);
 
   return (
     <>
@@ -654,14 +650,14 @@ function Navbar() {
                   modules={[Navigation, Pagination]}
                   className="mySwiper !pb-10"
                 >
-                  {productDetails.map((product) => {
+                  {featuredProducts.map((product) => {
                     return (
                       <SwiperSlide className="overflow-hidden">
                         <div className="flex items-start justify-center gap-7">
                           <img
                             onClick={() => {
                               dispatch(toggleCartDrawer());
-                              navigate(`/products/${product.id}`);
+                              navigate(`/products/${product.slug}`);
                             }}
                             src={product.productImage}
                             className="h-36 p-3 w-28 border border-gray-100 object-contain cursor-pointer"
@@ -671,7 +667,7 @@ function Navbar() {
                             <p
                               onClick={() => {
                                 dispatch(toggleCartDrawer());
-                                navigate(`/products/${product.id}`);
+                                navigate(`/products/${product.slug}`);
                               }}
                               className="text-base font-semibold line-clamp-2 cursor-pointer hover:underline"
                             >
@@ -698,7 +694,7 @@ function Navbar() {
                     <i
                       className={`fa-solid fa-arrow-right-long custom-next 
     ${
-      activeIndex === productDetails.length - 1
+      activeIndex === featuredProducts.length - 1
         ? "text-gray-300 cursor-default"
         : "text-gray-800 cursor-pointer"
     }`}

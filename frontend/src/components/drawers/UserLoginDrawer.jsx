@@ -1,76 +1,115 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { handleLogout } from "../../redux/reducers/productReducer";
 
-const UserLoginDrawer = ({isUserDrawer, setIsUserDrawer}) => {
+const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
   const [userLogin, setUserLogin] = useState({
     email: "",
     password: "",
   });
   const [errorMsg, setErrorMsg] = useState({});
   const navigate = useNavigate();
+  const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
+  const [spinner, setSpinner] = useState(false);
+  let decoded = null;
+  const dispatch = useDispatch();
 
-    const handleChangeUserLogin = (e) => {
-        const { name, value } = e.target;
-    
-        setUserLogin((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-    
-        let error = "";
-    
-        // Email Validation
-        if (name === "email") {
-          if (value.trim() === "") {
-            error = "Email address is required!";
-          } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) error = "Invalid email format!";
-          }
-        }
-    
-        // Password Validation
-        if (name === "password") {
-          if (value.trim() === "") {
-            error = "Password is required!";
-          } else if (value.length < 6) {
-            error = "Password must be at least 6 characters!";
-          }
-        }
-    
-        // update error message
-        setErrorMsg((prev) => ({
-          ...prev,
-          [name]: error,
-        }));
-      };
-    
-      const handleSubmitLoginCreadential = (e) => {
-        e.preventDefault();
-    
-        const error = {};
-    
-        // Email Validation
-        if (!userLogin.email.trim()) {
-          error.email = "Email address is required!";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userLogin.email)) {
-          error.email = "Invalid email format!";
-        }
-    
-        // Password Validation
-        if (!userLogin.password.trim()) {
-          error.password = "Password is required!";
-        } else if (userLogin.password.length < 6) {
-          error.password = "Password must be at least 6 characters!";
-        }
-        setErrorMsg({ ...error });
-    
-        if (Object.keys(error).length !== 0) return;
-    
-        setUserLogin({ email: "", password: "" });
+  if (token) {
+    try {
+      decoded = jwtDecode(token);
+    } catch (err) {
+      console.error("Invalid JWT:", err);
+    }
+  }
+
+  const handleChangeUserLogin = (e) => {
+    const { name, value } = e.target;
+
+    setUserLogin((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    let error = "";
+
+    // Email Validation
+    if (name === "email") {
+      if (value.trim() === "") {
+        error = "Email address is required!";
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) error = "Invalid email format!";
+      }
+    }
+
+    // Password Validation
+    if (name === "password") {
+      if (value.trim() === "") {
+        error = "Password is required!";
+      } else if (value.length < 6) {
+        error = "Password must be at least 6 characters!";
+      }
+    }
+
+    // update error message
+    setErrorMsg((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSubmitLoginCreadential = (e) => {
+    e.preventDefault();
+
+    const error = {};
+
+    // Email Validation
+    if (!userLogin.email.trim()) {
+      error.email = "Email address is required!";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userLogin.email)) {
+      error.email = "Invalid email format!";
+    }
+
+    // Password Validation
+    if (!userLogin.password.trim()) {
+      error.password = "Password is required!";
+    } else if (userLogin.password.length < 6) {
+      error.password = "Password must be at least 6 characters!";
+    }
+    setErrorMsg({ ...error });
+
+    if (Object.keys(error).length !== 0) return;
+    setSpinner(true);
+    const guestId = localStorage.getItem("guestId");
+
+    // Login API
+    axios
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, userLogin)
+      .then((res) => {
+        localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
+        navigate("/");
+        toast.success(res.data.message);
+        setSpinner(false);
         setIsUserDrawer(false);
-        console.log(userLogin, "userlogin");
-      };
+        setUserLogin({ email: "", password: "" });
+        if (guestId) {
+          localStorage.setItem()
+          localStorage.removeItem("guestId");
+        }
+      })
+      .catch((error) => {
+        setSpinner(false);
+        toast.error(
+          error.response ? error.response.data.message : error.message
+        );
+      });
+  };
 
   return (
     <>
@@ -79,7 +118,10 @@ const UserLoginDrawer = ({isUserDrawer, setIsUserDrawer}) => {
         className={`fixed inset-0 bg-black/70 z-50 transition-opacity duration-300 ${
           isUserDrawer ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
-        onClick={() => setIsUserDrawer(false)}
+        onClick={() => {
+          setIsUserDrawer(false);
+          setUserLogin({ email: "", password: "" });
+        }}
       ></div>
 
       {/* Drawer Panel */}
@@ -90,7 +132,11 @@ const UserLoginDrawer = ({isUserDrawer, setIsUserDrawer}) => {
       >
         {/* Close Button */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Login</h2>
+          <h2 className="text-xl font-semibold">
+            {!token
+              ? "Login"
+              : `Hi, ${decoded?.firstName} ${decoded?.lastName}`}
+          </h2>
           <button
             className="cursor-pointer"
             onClick={() => setIsUserDrawer(false)}
@@ -99,66 +145,110 @@ const UserLoginDrawer = ({isUserDrawer, setIsUserDrawer}) => {
           </button>
         </div>
 
-        {/* Login Content */}
-        <form onSubmit={handleSubmitLoginCreadential} action="">
-          {/* Email */}
-          <div className="mb-4">
-            <label className="text-base font-medium">Email Address *</label>
-            <input
-              onChange={handleChangeUserLogin}
-              type="email"
-              name="email"
-              value={userLogin.email || ""}
-              placeholder="Email Address"
-              className="w-full border border-gray-300 rounded-full px-4 py-3 mt-2"
-            />
-            <p className="text-red-500">{errorMsg.email}</p>
-          </div>
+        {!token ? (
+          <>
+            {/* Login Content */}
+            <form onSubmit={handleSubmitLoginCreadential} action="">
+              {/* Email */}
+              <div className="mb-4">
+                <label className="text-base font-medium">Email Address *</label>
+                <input
+                  onChange={handleChangeUserLogin}
+                  type="email"
+                  name="email"
+                  value={userLogin.email || ""}
+                  placeholder="Email Address"
+                  className="w-full border border-gray-300 rounded-full px-4 py-3 mt-2"
+                />
+                <p className="text-red-500">{errorMsg.email}</p>
+              </div>
 
-          {/* Password */}
-          <div className="mb-6">
-            <label className="text-base font-medium">Password *</label>
-            <input
-              onChange={handleChangeUserLogin}
-              type="password"
-              name="password"
-              value={userLogin.password || ""}
-              placeholder="Password"
-              className="w-full border border-gray-300 rounded-full px-4 py-3 mt-2"
-            />
-            <p className="text-red-500">{errorMsg.password}</p>
-          </div>
+              {/* Password */}
+              <div className="mb-6">
+                <label className="text-base font-medium">Password *</label>
+                <input
+                  onChange={handleChangeUserLogin}
+                  type="password"
+                  name="password"
+                  value={userLogin.password || ""}
+                  placeholder="Password"
+                  className="w-full border border-gray-300 rounded-full px-4 py-3 mt-2"
+                />
+                <p className="text-red-500">{errorMsg.password}</p>
+              </div>
 
-          <button
-            type="submit"
-            className="w-full cursor-pointer bg-[#EED291] hover:bg-white border border-[#EED291] transition duration-300 py-3 rounded-full text-black font-semibold"
-          >
-            Log In
-          </button>
-        </form>
+              <button
+                type="submit"
+                className="w-full cursor-pointer bg-[#EED291] hover:bg-white border border-[#EED291] transition duration-300 py-3 rounded-full text-black font-semibold"
+              >
+                {spinner ? (
+                  <Spin
+                    indicator={<LoadingOutlined spin={spinner} />}
+                    size="large"
+                  />
+                ) : (
+                  "Log In"
+                )}
+              </button>
+            </form>
 
-        <p
-          onClick={() => {
-            navigate("/account/verify-email");
-            setIsUserDrawer(false);
-          }}
-          className="text-base underline mt-3 cursor-pointer w-fit mx-auto hover:text-[#EED291] transition duration-300"
-        >
-          Forgot your password?
-        </p>
+            <p
+              onClick={() => {
+                navigate("/account/verify-email");
+                setIsUserDrawer(false);
+              }}
+              className="text-base underline mt-3 cursor-pointer w-fit mx-auto hover:text-[#EED291] transition duration-300"
+            >
+              Forgot your password?
+            </p>
 
-        <button
-          onClick={() => {
-            navigate("/register");
-            setIsUserDrawer(false);
-          }}
-          className="w-full cursor-pointer border border-[#EED291] hover:border-black hover:bg-black hover:text-white transition duration-500 py-3 mt-6 rounded-full font-semibold"
-        >
-          Create Account
-        </button>
+            <button
+              onClick={() => {
+                navigate("/register");
+                setIsUserDrawer(false);
+              }}
+              className="w-full cursor-pointer border border-[#EED291] hover:border-black hover:bg-black hover:text-white transition duration-500 py-3 mt-6 rounded-full font-semibold"
+            >
+              Create Account
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Menu List */}
+            <div className="flex flex-col mt-3">
+              <button className="text-base py-3 border-b text-left text-gray-600 hover:text-black transition duration-300 cursor-pointer">
+                Account Details
+              </button>
+
+              <button className="text-base py-3 border-b text-left text-gray-600 hover:text-black transition duration-300 cursor-pointer">
+                Addresses
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsUserDrawer(false);
+                  navigate("/account/verify-email");
+                }}
+                className="text-base py-3 border-b text-left text-gray-600 hover:text-black transition duration-300 cursor-pointer"
+              >
+                Reset Your Password
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsUserDrawer(false);
+                  dispatch(handleLogout());
+                }}
+                className="text-base py-3 text-left text-gray-600 hover:text-black transition duration-300 cursor-pointer"
+              >
+                Log Out
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default UserLoginDrawer
+export default UserLoginDrawer;

@@ -58,6 +58,26 @@ const FilterProducts = () => {
     "Price: High to Low": "High-Low",
   };
 
+  const availabilityMap = {
+    "In Stock": "in_stock",
+    "Out of Stock": "out_of_stock",
+  };
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setOpenIndex(null); // Close any open dropdown
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+
   useEffect(() => {
     dispatch(get_all_products());
   }, []);
@@ -101,8 +121,15 @@ const FilterProducts = () => {
       const params = new URLSearchParams();
 
       selectedFilters.Grape.forEach((g) => params.append("grape", g));
-      selectedFilters["Product Type"].forEach((p) => params.append("productType", p));
-      selectedFilters.Availability.forEach((a) => params.append("availability", a));
+      selectedFilters["Product Type"].forEach((p) =>
+        params.append("productType", p)
+      );
+      // selectedFilters.Availability.forEach((a) =>
+      //   params.append("availability", a)
+      // );
+      selectedFilters.Availability.forEach((a) =>
+        params.append("availability", availabilityMap[a])
+      );
 
       params.append("minPrice", appliedPriceRange[0]);
       params.append("maxPrice", appliedPriceRange[1]);
@@ -111,7 +138,9 @@ const FilterProducts = () => {
       params.append("limit", itemsPerPage);
 
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/product/get-filtered-products?${params.toString()}`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/product/get-filtered-products?${params.toString()}`
       );
       setTotalPages(res.data.pagination.totalPages);
       setTotalProducts(res.data.pagination.totalProducts);
@@ -128,7 +157,13 @@ const FilterProducts = () => {
 
   useEffect(() => {
     fetchFilteredProducts();
-  }, [selectedFilters, appliedPriceRange, sortOption, currentPage, itemsPerPage]);
+  }, [
+    selectedFilters,
+    appliedPriceRange,
+    sortOption,
+    currentPage,
+    itemsPerPage,
+  ]);
 
   // Handle URL slug
   useEffect(() => {
@@ -168,218 +203,6 @@ const FilterProducts = () => {
     setCurrentPage(1);
   };
 
-  // const totalPages = Math.ceil(filteredProducts.length ? filteredProducts.length / itemsPerPage : 1);
-
-  // const goToPage = (page) => {
-  //   if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  // };
-
-  // useEffect(() => {
-  //   dispatch(get_all_products());
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!slug) {
-  //     setSelectedFilters({
-  //       Size: [],
-  //       Grape: [],
-  //       "Product Type": [],
-  //       Availability: [],
-  //     });
-  //     setBgImage(image);
-  //     setProductType("Products");
-  //     setCurrentPage(1);
-  //     return;
-  //   }
-
-  //   useEffect(() => {
-  //     fetchFilteredProducts();
-  //   }, [selectedFilters, appliedPriceRange, sortOption, currentPage]);
-
-  //   const fetchFilteredProducts = async () => {
-  //     const params = new URLSearchParams();
-
-  //     // GRAPE
-  //     selectedFilters.Grape.forEach((g) => params.append("grape", g));
-
-  //     // PRODUCT TYPE
-  //     selectedFilters["Product Type"].forEach((p) =>
-  //       params.append("productType", p)
-  //     );
-
-  //     // AVAILABILITY
-  //     selectedFilters.Availability.forEach((a) =>
-  //       params.append("availability", a)
-  //     );
-
-  //     // PRICE RANGE
-  //     params.append("minPrice", appliedPriceRange[0]);
-  //     params.append("maxPrice", appliedPriceRange[1]);
-
-  //     // SORTING → convert your frontend text to backend value
-  //     const sortMapping = {
-  //       "Alphabetically, A-Z": "A-Z",
-  //       "Alphabetically, Z-A": "Z-A",
-  //       "Price: Low to High": "Low-High",
-  //       "Price: High to Low": "High-Low",
-  //     };
-
-  //     params.append("sort", sortMapping[sortOption]);
-
-  //     // PAGINATION
-  //     params.append("page", currentPage);
-  //     params.append("limit", 6);
-
-  //     // const response = await axios.get(
-  //     //   `/get-filtered-products?${params.toString()}`
-  //     // );
-  //     // const data = await response.json();
-
-  //     axios.get(`${import.meta.env.VITE_BACKEND_URL}/product/get-filtered-products?${params.toString()}`).then((res) => {
-  //       console.log(res.data,'response');
-  //       setFilteredProducts([...res.data.data]);
-  //     }).catch((error) => {
-  //       console.log(error,'error');
-  //     });
-
-  //     // console.log("Filtered API Response:", data);
-  //   };
-
-  //   // Find a productType from products.allProducts whose slugified value === slug
-  //   const allTypes = [
-  //     ...new Set(
-  //       products.allProducts.map((p) => p.productType).filter(Boolean)
-  //     ),
-  //   ];
-
-  //   const matchedType = allTypes.find((type) => slugifyString(type) === slug);
-
-  //   if (matchedType) {
-  //     setSelectedFilters((prev) => ({
-  //       ...prev,
-  //       "Product Type": [matchedType],
-  //     }));
-
-  //     if (matchedType === "Bergdolt, Reif & Nett") {
-  //       setBgImage(Bergdolt_Reif_Nett);
-  //       setProductType("Bergdolt, Reif & Nett");
-  //     } else if (matchedType === "Lamm Jung") {
-  //       setBgImage(Lamm_Jung);
-  //       setProductType("Lamm Jung");
-  //     } else if (matchedType === "Chateau Clos de Bouard") {
-  //       setBgImage(Château_Clos_de_Boüard);
-  //       setProductType("Château Clos de Boüard");
-  //     } else if (matchedType === "Matthias Anton") {
-  //       setBgImage(Matthias_Anton);
-  //       setProductType("Matthias Anton");
-  //     } else if (matchedType === "KvD Strauch Sektmanufaktur") {
-  //       setBgImage(KvD_Strauch_Sektmanufaktur);
-  //       setProductType("KvD Strauch Sektmanufaktur");
-  //     } else {
-  //       setBgImage(image);
-  //       setProductType(matchedType);
-  //     }
-
-  //     setCurrentPage(1);
-  //     setOpenIndex(null);
-  //     setOpenAccordion(null);
-  //   } else {
-  //     setSelectedFilters((prev) => ({
-  //       ...prev,
-  //       "Product Type": [],
-  //     }));
-  //     setBgImage(image);
-  //     setProductType("Products");
-  //     setCurrentPage(1);
-  //   }
-  // }, [slug, products.allProducts]);
-
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-  //       setOpenIndex(null);
-  //     }
-  //   };
-  //   document.addEventListener("mousedown", handleClickOutside);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setIsDesktop(window.innerWidth >= 1280);
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
-
-  // const handleFilterChange = (label, option) => {
-  //   console.log(label,'label')
-  //   console.log(option,'option')
-  //   const isSingle = singleSelectFilters.includes(label);
-
-  //   setSelectedFilters((prev) => {
-  //     const existing = prev[label] || [];
-
-  //     // -----------------------------
-  //     // SINGLE SELECT FILTER (Radio)
-  //     // -----------------------------
-  //     if (isSingle) {
-  //       return {
-  //         ...prev,
-  //         [label]: [option],
-  //       };
-  //     }
-
-  //     // -----------------------------
-  //     // MULTI-SELECT LOGIC (Checkbox)
-  //     // -----------------------------
-  //     let updated;
-
-  //     if (existing.includes(option)) {
-  //       updated = existing.filter((item) => item !== option);
-  //     } else {
-  //       updated = [...existing, option];
-  //     }
-
-  //     // Update background only for Product Type
-  //     if (label === "Product Type") {
-  //       if (updated.length === 1) {
-  //         const selected = updated[0];
-
-  //         if (selected === "Bergdolt, Reif & Nett") {
-  //           setBgImage(Bergdolt_Reif_Nett);
-  //           setProductType("Bergdolt, Reif & Nett");
-  //         } else if (selected === "Lamm Jung") {
-  //           setBgImage(Lamm_Jung);
-  //           setProductType("Lamm Jung");
-  //         } else if (selected === "Château Clos de Boüard") {
-  //           setBgImage(Château_Clos_de_Boüard);
-  //           setProductType("Château Clos de Boüard");
-  //         } else if (selected === "Matthias Anton") {
-  //           setBgImage(Matthias_Anton);
-  //           setProductType("Matthias Anton");
-  //         } else {
-  //           setBgImage(KvD_Strauch_Sektmanufaktur);
-  //           setProductType("KvD Strauch Sektmanufaktur");
-  //         }
-  //       } else {
-  //         // If multiple selected → default background
-  //         setBgImage(image); // original hero image
-  //         setProductType("Products");
-  //       }
-  //     }
-
-  //     return {
-  //       ...prev,
-  //       [label]: updated,
-  //     };
-  //   });
-  // };
-
   // Add Product Types in Filter Array
   const uniqueProductTypes = [
     ...new Set(products.allProducts.map((p) => p.productType)),
@@ -398,77 +221,9 @@ const FilterProducts = () => {
     { label: "Price", options: [] },
     { label: "Grape", options: uniqueGrapes },
     { label: "Product Type", options: uniqueProductTypes },
-    { label: "Availability", options: ["In Stock", "Out of Stock"] },
+    // { label: "Availability", options: ["In Stock", "Out of Stock"] },
+    { label: "Availability", options: Object.keys(availabilityMap) },
   ];
-
-  // const applyFilters = () => {
-  //   let filtered = [...products.allProducts];
-  //   console.log(products, "paginatedProducts");
-
-  //   // Grape filter
-  //   if (selectedFilters.Grape.length > 0) {
-  //     filtered = filtered.filter(
-  //       (p) =>
-  //         typeof p.wineType === "string" &&
-  //         selectedFilters.Grape.some((g) =>
-  //           p.wineType.toLowerCase().includes(g.toLowerCase())
-  //         )
-  //     );
-  //   }
-
-  //   // Price filter
-  //   // Price range filtering
-  //   filtered = filtered.filter(
-  //     (p) => p.price >= appliedPriceRange[0] && p.price <= appliedPriceRange[1]
-  //   );
-
-  //   // Product Type filter
-  //   if (selectedFilters["Product Type"].length > 0) {
-  //     filtered = filtered.filter((p) =>
-  //       selectedFilters["Product Type"].includes(p.productType)
-  //     );
-  //   }
-
-  //   // SORTING
-  //   if (sortOption === "Alphabetically, A-Z") {
-  //     filtered.sort((a, b) => a.title.localeCompare(b.title));
-  //   }
-
-  //   if (sortOption === "Alphabetically, Z-A") {
-  //     filtered.sort((a, b) => b.title.localeCompare(a.title));
-  //   }
-
-  //   if (sortOption === "Price: Low to High") {
-  //     filtered.sort((a, b) => a.price - b.price);
-  //   }
-
-  //   if (sortOption === "Price: High to Low") {
-  //     filtered.sort((a, b) => b.price - a.price);
-  //   }
-
-  //   return filtered;
-  // };
-
-  //  API HIT
-
-  //   const fetchProducts = async () => {
-  //   const params = new URLSearchParams();
-
-  //   selectedFilters.Grape.forEach(g => params.append("grape", g));
-  //   selectedFilters["Product Type"].forEach(t => params.append("productType", t));
-  //   selectedFilters.Availability.forEach(a => params.append("availability", a));
-
-  //   params.append("minPrice", priceRange[0]);
-  //   params.append("maxPrice", priceRange[1]);
-  //   params.append("sort", sortOption);
-  //   params.append("page", currentPage);
-  //   params.append("limit", 9);
-
-  //   const res = await fetch(`/get-filtered-products?${params.toString()}`);
-  //   const data = await res.json();
-  // };
-
-  // const filteredProducts = applyFilters();
 
   // Auto-reset page if filtered products are fewer than current page
   // const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -493,7 +248,7 @@ const FilterProducts = () => {
         appliedPriceRange[1] !== 100 ? (
           <div className="flex flex-wrap items-center gap-2 mt-4">
             {/* Clear All */}
-            <div className="flex justify-between w-full items-center">
+            <div className="flex justify-between xl:justify-start gap-5 w-full items-center">
               <h3 className="block xl:hidden">Filters</h3>
               <button
                 onClick={() => {
@@ -509,47 +264,90 @@ const FilterProducts = () => {
                   setBgImage(image);
                   setProductType("Products");
                 }}
-                className="text-sm underlinetext-gray-700hover:text-black cursor-pointer underline"
+                className="text-sm underline text-gray-700 hover:text-black cursor-pointer"
               >
                 Clear All
               </button>
+
+              <div className="hidden xl:flex flex-wrap gap-2">
+                {/* Price Range Tag */}
+                {(appliedPriceRange[0] !== 0 ||
+                  appliedPriceRange[1] !== 100) && (
+                  <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
+                    ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
+                    <button
+                      onClick={() => setAppliedPriceRange([0, 100])}
+                      className="font-bold cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+
+                {/* Loop through all selected filters */}
+                {Object.entries(selectedFilters).map(([label, values]) =>
+                  values.map((value) => (
+                    <span
+                      key={label + value}
+                      className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2 text-black"
+                    >
+                      {value}
+                      <button
+                        onClick={() => {
+                          setSelectedFilters((prev) => ({
+                            ...prev,
+                            [label]: prev[label].filter(
+                              (item) => item !== value
+                            ),
+                          }));
+                        }}
+                        className="font-bold cursor-pointer"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
             </div>
 
-            {/* Price Range Tag */}
-            {(appliedPriceRange[0] !== 0 || appliedPriceRange[1] !== 100) && (
-              <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
-                ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
-                <button
-                  onClick={() => setAppliedPriceRange([0, 100])}
-                  className="font-bold cursor-pointer"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-
-            {/* Loop through all selected filters */}
-            {Object.entries(selectedFilters).map(([label, values]) =>
-              values.map((value) => (
-                <span
-                  key={label + value}
-                  className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2 text-black"
-                >
-                  {value}
+            <div className="flex gap-2 flex-wrap xl:hidden">
+              {/* Price Range Tag */}
+              {(appliedPriceRange[0] !== 0 || appliedPriceRange[1] !== 100) && (
+                <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
+                  ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
                   <button
-                    onClick={() => {
-                      setSelectedFilters((prev) => ({
-                        ...prev,
-                        [label]: prev[label].filter((item) => item !== value),
-                      }));
-                    }}
+                    onClick={() => setAppliedPriceRange([0, 100])}
                     className="font-bold cursor-pointer"
                   >
                     ×
                   </button>
                 </span>
-              ))
-            )}
+              )}
+
+              {/* Loop through all selected filters */}
+              {Object.entries(selectedFilters).map(([label, values]) =>
+                values.map((value) => (
+                  <span
+                    key={label + value}
+                    className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2 text-black"
+                  >
+                    {value}
+                    <button
+                      onClick={() => {
+                        setSelectedFilters((prev) => ({
+                          ...prev,
+                          [label]: prev[label].filter((item) => item !== value),
+                        }));
+                      }}
+                      className="font-bold cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              )}
+            </div>
           </div>
         ) : null}
       </>
@@ -649,31 +447,45 @@ const FilterProducts = () => {
                           </button>
                         </div>
                       ) : (
-                        f.options.map((option, i) => {
-                          const isSingle = singleSelectFilters.includes(
-                            f.label
-                          );
-                          const isChecked =
-                            selectedFilters[f.label]?.includes(option);
+                        <>
+                          {f.options.map((option, i) => {
+                            const isSingle = singleSelectFilters.includes(
+                              f.label
+                            );
+                            const isChecked =
+                              selectedFilters[f.label]?.includes(option);
 
-                          return (
-                            <label
-                              key={i}
-                              className="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
-                            >
-                              <input
-                                type={isSingle ? "radio" : "checkbox"}
-                                name={f.label}
-                                checked={isChecked}
-                                onChange={() =>
-                                  handleFilterChange(f.label, option)
-                                }
-                                className="accent-[#EED291] cursor-pointer"
-                              />
-                              <span>{option}</span>
-                            </label>
-                          );
-                        })
+                            return (
+                              <label
+                                key={i}
+                                className="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm"
+                              >
+                                <input
+                                  type={isSingle ? "radio" : "checkbox"}
+                                  name={f.label}
+                                  checked={isChecked}
+                                  onChange={() =>
+                                    handleFilterChange(f.label, option)
+                                  }
+                                  className="accent-[#EED291] cursor-pointer"
+                                />
+                                <span>{option}</span>
+                              </label>
+                            );
+                          })}
+                          <span
+                            onClick={() => {
+                              setSelectedFilters((prev) => ({
+                                ...prev,
+                                [f.label]: [],
+                              }));
+                              setOpenIndex(null);
+                            }}
+                            className="text-center text-[#6A0D23] mt-5 px-2 cursor-pointer underline"
+                          >
+                            Clear All
+                          </span>
+                        </>
                       )}
                     </div>
                   )}
@@ -890,21 +702,22 @@ const FilterProducts = () => {
             ))}
           </div>
 
-          <div className="min-h-96">
+          <div className="min-h-52 xl:min-h-96">
+            {/* Selected Filters — Appears Only When Filters Are Applied */}
+            {isDesktop && <>{selectedFilterTags()}</>}
             {filteredProducts.length <= 0 ? (
               <>
-                <div className="p-10">
-                  <img src={empty_product} alt="empty product" />
-                  <h1 className="text-2xl font-semibold">
-                    Product Not Matched!
-                  </h1>
+                <div className="flex justify-center items-center">
+                  <div className="py-10">
+                    <img src={empty_product} alt="empty product" />
+                    <h1 className="text-2xl font-semibold">
+                      Product Not Matched!
+                    </h1>
+                  </div>
                 </div>
               </>
             ) : (
               <>
-                {/* Selected Filters — Appears Only When Filters Are Applied */}
-                {isDesktop && <>{selectedFilterTags()}</>}
-
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-5 xl:gap-20">
                   {filteredProducts.map((product, index) => {
                     return (

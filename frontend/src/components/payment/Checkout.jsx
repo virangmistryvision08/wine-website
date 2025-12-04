@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import logo from "/footer/footer-logo.png";
 import { useNavigate } from "react-router-dom";
@@ -6,21 +6,232 @@ import visa_card from "/checkout/visa-card.svg";
 import master_card from "/checkout/master-card.svg";
 import amex_card from "/checkout/amex-card.svg";
 import { get_all_carts } from "../../redux/reducers/productReducer";
+import {
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const carts = useSelector((state) => state.products.cart);
   const [open, setOpen] = React.useState(false);
   const dispatch = useDispatch();
+  const [data, setData] = React.useState({
+    // email: "",
+    country: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
+  });
+  const [errorMsg, setErrorMsg] = React.useState({});
+  const stripe = useStripe();
+  const elements = useElements();
+  const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
+  const decode = jwtDecode(token);
+  const [spinner, setSpinner] = useState(false);
 
-useEffect(() => {
-  dispatch(get_all_carts());
-}, []);
+  const countryWithCurrency = [
+    { label: "India", currency: "IN" },
+    { label: "United States", currency: "US" },
+    { label: "Canada", currency: "CA" },
+    { label: "Australia", currency: "AU" },
+    { label: "United Kingdom", currency: "UK" },
+  ];
+
+  const statesByCountry = {
+    IN: ["Gujarat", "Maharashtra", "Rajasthan", "Delhi", "Punjab"],
+    US: ["California", "Texas", "Florida", "New York"],
+    CA: ["Ontario", "Quebec", "British Columbia"],
+    AU: ["New South Wales", "Victoria", "Queensland"],
+    UK: ["England", "Scotland", "Wales", "Northern Ireland"],
+  };
+
+  useEffect(() => {
+    dispatch(get_all_carts());
+  }, []);
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    // if (!data.email) newErrors.email = "Email is required";
+    // else if (!/\S+@\S+\.\S+/.test(data.email))
+    //   newErrors.email = "Enter a valid email";
+
+    if (!data.country) newErrors.country = "Please select Country!";
+    if (!data.firstName) newErrors.firstName = "First name required";
+    if (!data.lastName) newErrors.lastName = "Last name required";
+    if (!data.address) newErrors.address = "Address is required";
+
+    if (!data.city) newErrors.city = "City is required";
+    if (!data.state) newErrors.state = "Please select State!";
+
+    if (!data.zip) newErrors.zip = "ZIP code required";
+    else if (!/^\d{5}$/.test(data.zip))
+      newErrors.zip = "Enter a valid 5-digit ZIP";
+
+    if (!data.phone) newErrors.phone = "Phone number is required";
+    else if (!/^[0-9]{10}$/.test(data.phone))
+      newErrors.phone = "Phone must be 10 digits";
+
+    setErrorMsg(newErrors);
+
+    return Object.keys(newErrors).length === 0; // true if no errors
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    // update data
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    let msg = "";
+
+    switch (name) {
+      // case "email":
+      //   if (!value.trim()) msg = "Email is required";
+      //   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+      //     msg = "Invalid email format";
+      //   break;
+
+      case "country":
+        if (!value.trim()) msg = "Please select Country!";
+        break;
+
+      case "firstName":
+        if (!value.trim()) msg = "First name is required";
+        break;
+
+      case "lastName":
+        if (!value.trim()) msg = "Last name is required";
+        break;
+
+      case "address":
+        if (!value.trim()) msg = "Address is required";
+        break;
+
+      case "city":
+        if (!value.trim()) msg = "City is required";
+        break;
+
+      case "state":
+        if (!value.trim()) msg = "Please select State!";
+        break;
+
+      case "zip":
+        if (!value.trim()) msg = "ZIP is required";
+        else if (!/^\d{5}$/.test(value)) msg = "Enter a valid 5-digit ZIP";
+        break;
+
+      case "phone":
+        if (!value.trim()) msg = "Phone is required";
+        else if (!/^\d{10}$/.test(value)) msg = "Phone must be 10 digits";
+        break;
+    }
+
+    // update error message
+    setErrorMsg((prev) => ({
+      ...prev,
+      [name]: msg,
+    }));
+  };
 
   const subtotal = carts?.reduce(
     (acc, item) => acc + item.productId.price * item.quantity,
     0
   );
+
+  const handlePaymentSubmit = async () => {
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    if (!stripe || !elements) {
+      toast.error("Stripe has not loaded yet");
+      return;
+    }
+
+    try {
+      setSpinner(true);
+      const selectedCurrency =
+        countryWithCurrency.find((c) => c.label === data.country)?.currency ||
+        "usd";
+
+      // 1) Create PaymentIntent from backend
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/checkout/create-payment-intent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: decode.id,
+            email: decode.email,
+            amount: subtotal.toFixed(2),
+            currency: selectedCurrency,
+            deliveryDetails: data, // sending full user form data
+            cartProducts: carts, // Send Carts Products
+          }),
+        }
+      );
+
+      const { clientSecret } = await response.json();
+
+      // 2) Confirm card payment
+      const cardElement = elements.getElement(CardNumberElement);
+
+      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+
+          // Billing details shown in Stripe dashboard
+          billing_details: {
+            name: `${data.firstName} ${data.lastName}`,
+            email: data.email,
+            phone: data.phone,
+            address: {
+              line1: data.address,
+              city: data.city,
+              state: data.state,
+              postal_code: data.zip,
+              country: data.country,
+            },
+          },
+        },
+      });
+
+      if (paymentResult.error) {
+        setErrorMsg((prev) => ({
+          ...prev,
+          stripe: paymentResult.error.message,
+        }));
+
+        setSpinner(false);
+        navigate("/order-failed");
+        return;
+      }
+
+      if (paymentResult.paymentIntent.status === "succeeded") {
+        setSpinner(false);
+        navigate("/order-success");
+      }
+    } catch (err) {
+      setSpinner(false);
+      navigate("/order-failed");
+      toast.error(err.response ? err.response.data.message : err.message);
+    }
+  };
+
   return (
     <>
       {/* Checkout Nav */}
@@ -93,7 +304,9 @@ useEffect(() => {
                       {cart.productId.title}
                     </p>
                   </div>
-                  <p className="text-sm mt-1">${cart.productId.price.toFixed(2)}</p>
+                  <p className="text-sm mt-1">
+                    ${cart.productId.price.toFixed(2)}
+                  </p>
                 </div>
               ))}
 
@@ -158,15 +371,26 @@ useEffect(() => {
             {/* CONTACT SECTION */}
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Contact</h3>
-              <span onClick={() => navigate("/account/login")} className="underline cursor-pointer text-sm">Sign in</span>
+              <span
+                onClick={() => navigate("/account/login")}
+                className="underline cursor-pointer text-sm"
+              >
+                Sign in
+              </span>
             </div>
             <div className="border border-gray-300 rounded-md overflow-hidden">
               <input
                 type="email"
+                name="email"
                 placeholder="Email"
                 className="w-full px-4 py-3 outline-none"
+                // value={form.email}
+                onChange={handleChange}
               />
             </div>
+            {errorMsg.email && (
+              <p className="text-red-500 text-sm mt-1">{errorMsg.email}</p>
+            )}
 
             <div className="flex items-center mt-2 gap-2">
               <input className="accent-black" type="checkbox" id="news" />
@@ -178,54 +402,145 @@ useEffect(() => {
             {/* DELIVERY SECTION */}
             <h3 className="text-lg font-semibold mt-10 mb-3">Delivery</h3>
 
-            <div className="grid grid-cols-1">
-              <select className="border border-gray-300 rounded-md px-3 py-3 mb-4">
-                <option>United States</option>
+            <div className="grid grid-cols-1 mb-4">
+              <select
+                onChange={handleChange}
+                name="country"
+                className="border border-gray-300 rounded-md px-3 py-3 text-gray-500"
+              >
+                <option value="">Select Country</option>
+                {countryWithCurrency.map((country, index) => {
+                  return (
+                    <option value={country.currency}>{country.label}</option>
+                  );
+                })}
               </select>
+              {errorMsg.country && (
+                <p className="text-red-500 text-sm mt-1">{errorMsg.country}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="First name"
-                className="border border-gray-300 rounded-md px-3 py-3"
-              />
-              <input
-                type="text"
-                placeholder="Last name"
-                className="border border-gray-300 rounded-md px-3 py-3"
-              />
+              {/* First Name */}
+              <div className="flex flex-col">
+                <input
+                  type="text"
+                  placeholder="First name"
+                  name="firstName"
+                  className="border border-gray-300 rounded-md px-3 py-3"
+                  // value={form.firstName || ""}
+                  onChange={handleChange}
+                />
+                {errorMsg.firstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errorMsg.firstName}
+                  </p>
+                )}
+              </div>
+
+              {/* Last Name */}
+              <div className="flex flex-col">
+                <input
+                  type="text"
+                  placeholder="Last name"
+                  name="lastName"
+                  className="border border-gray-300 rounded-md px-3 py-3"
+                  // value={form.lastName}
+                  onChange={handleChange}
+                />
+                {errorMsg.lastName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errorMsg.lastName}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <input
-              type="text"
-              placeholder="Address"
-              className="border border-gray-300 rounded-md px-3 py-3 mt-4 w-full"
-            />
+            <div>
+              <input
+                type="text"
+                placeholder="Address"
+                name="address"
+                className="border border-gray-300 rounded-md px-3 py-3 mt-4 w-full"
+                // value={form.address}
+                onChange={handleChange}
+              />
+              {errorMsg.address && (
+                <p className="text-red-500 text-sm">{errorMsg.address}</p>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <input
-                type="text"
-                placeholder="City"
-                className="border border-gray-300 rounded-md px-3 py-3"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                className="border border-gray-300 rounded-md px-3 py-3"
-              />
-              <input
-                type="text"
-                placeholder="ZIP code"
-                className="border border-gray-300 rounded-md px-3 py-3"
-              />
+              <div className="flex flex-col">
+                <input
+                  type="text"
+                  placeholder="City"
+                  name="city"
+                  className="border border-gray-300 rounded-md px-3 py-3"
+                  // value={form.city}
+                  onChange={handleChange}
+                />
+                {errorMsg.city && (
+                  <p className="text-red-500 text-sm">{errorMsg.city}</p>
+                )}
+              </div>
+              <div className="flex flex-col mb-4">
+                {/* <input
+                  type="text"
+                  placeholder="State"
+                  name="state"
+                  className="border border-gray-300 rounded-md px-3 py-3"
+                  // value={form.state}
+                  onChange={handleChange}
+                /> */}
+                <select
+                  name="state"
+                  value={data.state}
+                  onChange={handleChange}
+                  className="border border-gray-300 rounded-md px-3 py-3 text-gray-500"
+                  disabled={!data.country} // disable until country selected
+                >
+                  <option value="">Select State</option>
+
+                  {data.country &&
+                    statesByCountry[data.country]?.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                </select>
+                {errorMsg.state && (
+                  <p className="text-red-500 text-sm">{errorMsg.state}</p>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <input
+                  type="text"
+                  placeholder="ZIP code"
+                  name="zip"
+                  className="border border-gray-300 rounded-md px-3 py-3"
+                  // value={form.zip}
+                  onChange={handleChange}
+                />
+                {errorMsg.zip && (
+                  <p className="text-red-500 text-sm">{errorMsg.zip}</p>
+                )}
+              </div>
             </div>
 
-            <input
-              type="text"
-              placeholder="Phone"
-              className="border border-gray-300 rounded-md px-3 py-3 mt-4 w-full"
-            />
+            <div>
+              <input
+                type="text"
+                placeholder="Phone"
+                name="phone"
+                className="border border-gray-300 rounded-md px-3 py-3 mt-4 w-full"
+                // value={form.phone}
+                onChange={handleChange}
+              />
+              {errorMsg.phone && (
+                <p className="text-red-500 text-sm">{errorMsg.phone}</p>
+              )}
+            </div>
 
             {/* SHIPPING METHOD */}
             <div className="mt-10">
@@ -247,7 +562,7 @@ useEffect(() => {
               <div className="border border-gray-300 rounded-md mb-4">
                 <div className="flex items-center gap-2 p-4">
                   <input
-                  className="accent-black"
+                    className="accent-black"
                     id="creditCard"
                     type="radio"
                     name="payment"
@@ -262,23 +577,17 @@ useEffect(() => {
                 </div>
 
                 <div className="bg-[#F4F4F4] p-4">
-                  <input
-                    type="text"
-                    placeholder="Card number"
-                    className="border border-gray-300 rounded-md px-3 py-3 w-full mb-3"
-                  />
+                  <div className="border border-gray-300 rounded-md px-3 py-3 w-full mb-3">
+                    <CardNumberElement />
+                  </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-3">
-                    <input
-                      type="text"
-                      placeholder="Expiration date (MM/YY)"
-                      className="border border-gray-300 rounded-md px-3 py-3"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Security code"
-                      className="border border-gray-300 rounded-md px-3 py-3"
-                    />
+                    <div className="border border-gray-300 rounded-md px-3 py-3">
+                      <CardExpiryElement />
+                    </div>
+                    <div className="border border-gray-300 rounded-md px-3 py-3">
+                      <CardCvcElement />
+                    </div>
                   </div>
 
                   <input
@@ -288,23 +597,50 @@ useEffect(() => {
                   />
 
                   <div className="flex items-center mt-3 gap-2">
-                    <input id="useShippingAddress" className="accent-black" type="checkbox" />
-                    <label htmlFor="useShippingAddress" className="text-sm text-gray-700">
+                    <input
+                      id="useShippingAddress"
+                      className="accent-black"
+                      type="checkbox"
+                    />
+                    <label
+                      htmlFor="useShippingAddress"
+                      className="text-sm text-gray-700"
+                    >
                       Use shipping address as billing address
                     </label>
                   </div>
+                  {errorMsg.stripe && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errorMsg.stripe}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* OTHER PAYMENT OPTIONS */}
               <div className="border border-gray-300 rounded-md px-4 py-3 mb-3 flex items-center gap-3">
-                <input className="accent-black" id="paypal" type="radio" name="payment" />
-                <label className="text-xs md:text-base" htmlFor="paypal">PayPal</label>
+                <input
+                  className="accent-black"
+                  id="paypal"
+                  type="radio"
+                  name="payment"
+                />
+                <label className="text-xs md:text-base" htmlFor="paypal">
+                  PayPal
+                </label>
               </div>
 
               <div className="border border-gray-300 rounded-md px-4 py-3 mb-6 flex items-center gap-3">
-                <input className="accent-black" id="shopPay" type="radio" name="payment" />
-                <label className="flex items-center gap-8 text-xs md:text-base whitespace-nowrap" htmlFor="shopPay">
+                <input
+                  className="accent-black"
+                  id="shopPay"
+                  type="radio"
+                  name="payment"
+                />
+                <label
+                  className="flex items-center gap-8 text-xs md:text-base whitespace-nowrap"
+                  htmlFor="shopPay"
+                >
                   Shop Pay{" "}
                   <li className="text-gray-500">Pay in full or installments</li>
                 </label>
@@ -314,8 +650,15 @@ useEffect(() => {
               <div className=" mb-3 space-y-3">
                 <h3 className="text-lg font-semibold">Remember Me</h3>
                 <div className="border border-gray-300 rounded-md px-4 py-3 flex items-center gap-3">
-                  <input className="accent-black" type="checkbox" id="checkboxRememberMe" />
-                  <label htmlFor="checkboxRememberMe" className="text-xs md:text-base">
+                  <input
+                    className="accent-black"
+                    type="checkbox"
+                    id="checkboxRememberMe"
+                  />
+                  <label
+                    htmlFor="checkboxRememberMe"
+                    className="text-xs md:text-base"
+                  >
                     Save my information for faster checkout
                   </label>
                 </div>
@@ -388,8 +731,18 @@ useEffect(() => {
               </div>
 
               {/* PAY NOW BUTTON */}
-              <button className="w-full bg-black text-white py-4 rounded-md text-lg font-semibold mt-0 mb-5 cursor-pointer">
-                Pay now
+              <button
+                onClick={handlePaymentSubmit}
+                className="w-full bg-black text-white py-4 rounded-md text-lg font-semibold mt-0 mb-5 cursor-pointer"
+              >
+                {spinner ? (
+                  <Spin
+                    indicator={<LoadingOutlined spin={spinner} />}
+                    size="default"
+                  />
+                ) : (
+                  "Pay now"
+                )}
               </button>
 
               <hr className="my-6 border border-gray-200" />
@@ -429,7 +782,9 @@ useEffect(() => {
                         {cart.productId.title}
                       </p>
                     </div>
-                    <p className="text-sm">${cart.productId.price.toFixed(2)}</p>
+                    <p className="text-sm">
+                      ${cart.productId.price.toFixed(2)}
+                    </p>
                   </div>
                 </>
               );

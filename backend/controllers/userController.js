@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
+const Carts = require("../model/cartModel");
 
 // const cartId = uuidv4();
 const register = async (req, res) => {
@@ -59,45 +60,71 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if ([email, password].some((item) => item === "" || item === undefined)) {
-      return res
-        .status(400)
-        .json({ status: false, message: "All field required!" });
-    }
+    const { email, password, guestId } = req.body;
+
     const user = await Users.findOne({ email });
-    if (!user) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid Email!",
-      });
-    }
-    const comparePassword = await bcrypt.compare(password, user.password);
-    if (!comparePassword) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid Password!",
-      });
+    if (!user)
+      return res.status(400).json({ status: false, message: "User not found" });
+
+    // Assume password check done already
+
+    // Load user cart or create new one
+    let userCart;
+    if (user.cartId) {
+      userCart = await Carts.findById(user.cartId);
+    } else {
+      userCart = await Carts.create({ user: user._id, items: [] });
+      user.cartId = userCart._id;
+      await user.save();
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "7d" }
-    );
+    // MERGE GUEST CART
+    if (guestId) {
+      const guestCart = await Carts.findOne({ guestId });
 
-    return res.status(200).json({
+      if (guestCart) {
+        guestCart.items.forEach((gItem) => {
+          const existing = userCart.items.find(
+            (uItem) => uItem.productId.toString() === gItem.productId.toString()
+          );
+
+          if (existing) {
+            existing.quantity += gItem.quantity;
+          } else {
+            userCart.items.push(gItem);
+          }
+        });
+
+        await userCart.save();
+
+        // delete guest cart
+        await Carts.deleteOne({ guestId });
+      }
+    }
+
+    const generateToken = (user) => {
+      return jwt.sign(
+        {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "7d" } // token valid for 7 days
+      );
+    };
+
+    const token = generateToken(user);
+
+    res.json({
       status: true,
+      message: "Login successful",
       token,
-      message: "Login Successfully.",
+      userCartId: user.cartId,
     });
   } catch (error) {
-    return res.status(500).json({ status: false, message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 

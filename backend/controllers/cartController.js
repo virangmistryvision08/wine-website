@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const Carts = require("../model/cartModel");
 const { v4: uuidv4 } = require("uuid");
 const Products = require("../model/productModel");
+const Users = require("../model/userModel");
 
 // // 1) INIT GUEST CART
 // const initGuestCart = async (req, res) => {
@@ -182,148 +183,71 @@ const checkProductAvailable = async (productId, quantity = 1) => {
 
 const add_to_cart = async (req, res) => {
   try {
-    const tokenUser = req.user;
-    let { guestId, productId, quantity } = req.body;
+    const { productId, quantity, guestId } = req.body;
+    const userId = req.user ? req.user.id : null;
 
-    // Block adding out-of-stock products
-    if (productId) {
-      const check = await checkProductAvailable(productId, quantity);
-      if (!check.ok) {
-        return res.status(400).json({
-          status: false,
-          message: check.message,
-        });
+    let cart;
+
+    // ------------------------------------------
+    // CASE 1: USER LOGGED IN
+    // ------------------------------------------
+    if (userId) {
+      const user = await Users.findById(userId);
+
+      // If user already has a cart → load it
+      if (user.cartId) {
+        cart = await Carts.findById(user.cartId);
+      } else {
+        // If no cart → create new cart & attach to user
+        cart = await Carts.create({ userId, items: [] });
+
+        user.cartId = cart._id;
+        await user.save();
       }
     }
 
-    let userCart = null;
-    let guestCart = null;
-
     // ------------------------------------------
-    // 1) USER LOGGED IN → HANDLE USER CART FIRST
+    // CASE 2: GUEST USER
     // ------------------------------------------
-    if (tokenUser) {
-      userCart = await Carts.findOne({ userId: tokenUser.id });
-
+    if (!userId) {
       if (guestId) {
-        guestCart = await Carts.findOne({ guestId });
+        cart = await Carts.findOne({ guestId });
       }
 
-      // CASE A — convert guestCart → userCart
-      if (!userCart && guestCart) {
-        guestCart.userId = tokenUser.id;
-        guestCart.guestId = null;
-        userCart = await guestCart.save();
-
-        await userCart.populate("items.productId");
-
-        return res.status(200).json({
-          status: true,
-          message: "Guest cart converted to user cart",
-          cart: userCart,
-        });
+      if (!cart) {
+        const newGuestId = guestId || Math.random().toString(36).substring(2, 12);
+        cart = await Carts.create({ guestId: newGuestId, items: [] });
       }
-
-      // CASE B — create new user cart
-      if (!userCart && !guestCart) {
-        userCart = await Carts.create({
-          userId: tokenUser.id,
-          items: productId ? [{ productId, quantity }] : [],
-        });
-
-        await userCart.populate("items.productId");
-
-        return res.status(200).json({
-          status: true,
-          message: "New user cart created",
-          cart: userCart,
-        });
-      }
-
-      // CASE C — merge guest into user
-      if (userCart && guestCart) {
-        guestCart.items.forEach((g) => {
-          const index = userCart.items.findIndex(
-            (u) => u.productId.toString() === g.productId.toString()
-          );
-
-          if (index >= 0) userCart.items[index].quantity += g.quantity;
-          else userCart.items.push(g);
-        });
-
-        await userCart.save();
-        guestId = null;
-      }
-
-      // ADD ITEM TO USER CART
-      if (productId) {
-        const index = userCart.items.findIndex(
-          (item) => item.productId.toString() === productId
-        );
-
-        if (index >= 0) userCart.items[index].quantity += quantity;
-        else userCart.items.push({ productId, quantity });
-
-        await userCart.save();
-      }
-
-      await userCart.populate("items.productId");
-
-      return res.status(200).json({
-        status: true,
-        message: "User cart updated",
-        cart: userCart,
-      });
     }
 
     // ------------------------------------------
-    // 2) GUEST FLOW
+    // UPDATE CART ITEMS
     // ------------------------------------------
-    if (!guestId) guestId = uuidv4();
 
-    guestCart = await Carts.findOne({ guestId });
+    const existingItem = cart.items.find((item) =>
+      item.productId.toString() === productId
+    );
 
-    // NEW GUEST CART
-    if (!guestCart) {
-      guestCart = await Carts.create({
-        guestId,
-        items: productId ? [{ productId, quantity }] : [],
-      });
-
-      await guestCart.populate("items.productId");
-
-      return res.status(200).json({
-        status: true,
-        message: "New guest cart created",
-        guestId,
-        cart: guestCart,
-      });
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      cart.items.push({ productId, quantity });
     }
 
-    // EXISTING GUEST CART
-    if (productId) {
-      const index = guestCart.items.findIndex(
-        (item) => item.productId.toString() === productId
-      );
+    await cart.save();
 
-      if (index >= 0) guestCart.items[index].quantity += quantity;
-      else guestCart.items.push({ productId, quantity });
-
-      await guestCart.save();
-    }
-
-    await guestCart.populate("items.productId");
-
-    return res.status(200).json({
+    res.json({
       status: true,
-      message: "Guest cart updated",
-      guestId,
-      cart: guestCart,
+      message: "Cart updated",
+      cart,
+      assignedGuestId: cart.guestId || null,
     });
-  } catch (err) {
-    return res.status(500).json({ status: false, message: err.message });
+
+  } catch (error) {
+    res.status(500).json({ status: false, message: error.message });
   }
 };
+
 
 const convertToGuestCart = async (req, res) => {
   try {
@@ -363,7 +287,7 @@ const updateQuantity = async (req, res) => {
 
     // USER CART
     if (tokenUser) {
-      cart = await Carts.findOne({ userId: tokenUser.id });
+      cart = await Carts.findOne({ userId: new mongoose.Types.ObjectId(tokenUser.id) });
     }
     // GUEST CART
     else if (guestId) {
@@ -438,64 +362,25 @@ const updateQuantity = async (req, res) => {
 
 const get_carts = async (req, res) => {
   try {
-    const tokenUser = req.user;
-    let { guestId } = req.query;
+    const userId = req.user ? req.user.id : null;
+    const guestId = req.query.guestId;
 
-    let cart = null;
+    let cart;
 
-    // ------------------------------------------
-    // 1) USER LOGGED IN → RETURN USER CART
-    // ------------------------------------------
-    if (tokenUser) {
-      cart = await Carts.findOne({ userId: tokenUser.id }).populate(
-        "items.productId"
-      );
-
-      if (!cart) {
-        return res.status(200).json({
-          status: true,
-          type: "user",
-          cart: { items: [] },
-        });
-      }
-
-      return res.status(200).json({
-        status: true,
-        type: "user",
-        cart,
-      });
+    if (userId) {
+      const user = await Users.findById(userId);
+      cart = await Carts.findById(user.cartId).populate("items.productId");
+    } else if (guestId) {
+      cart = await Carts.findOne({ guestId }).populate("items.productId");
     }
 
-    // ------------------------------------------
-    // 2) GUEST → MUST RECEIVE guestId
-    // ------------------------------------------
-    if (!guestId) {
-      return res.status(400).json({
-        status: false,
-        message: "guestId required for guest cart",
-      });
-    }
-
-    cart = await Carts.findOne({ guestId }).populate("items.productId");
-
-    if (!cart) {
-      return res.status(200).json({
-        status: true,
-        type: "guest",
-        cart: { items: [] },
-      });
-    }
-
-    return res.status(200).json({
+    res.json({
       status: true,
-      type: "guest",
-      cart,
+      cart: cart || [],
     });
+
   } catch (err) {
-    return res.status(500).json({
-      status: false,
-      message: err.message,
-    });
+    res.status(500).json({ status: false, message: err.message });
   }
 };
 

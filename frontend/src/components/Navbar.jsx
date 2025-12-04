@@ -50,6 +50,8 @@ function Navbar() {
     carts &&
     carts?.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
 
+    console.log(carts,'carts')
+
   useEffect(() => {
     dispatch(get_all_carts());
   }, [token]);

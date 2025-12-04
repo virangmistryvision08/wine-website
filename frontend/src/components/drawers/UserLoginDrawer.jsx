@@ -6,7 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
-import { handleLogout } from "../../redux/reducers/productReducer";
+import {
+  get_all_carts,
+  getAllCarts,
+} from "../../redux/reducers/productReducer";
 
 const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
   const [userLogin, setUserLogin] = useState({
@@ -88,20 +91,24 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
     setSpinner(true);
     const guestId = localStorage.getItem("guestId");
 
-    // Login API
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, userLogin)
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
+        ...userLogin,
+        guestId: guestId || null,
+      })
       .then((res) => {
+        // Save token
         localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
-        navigate("/");
+
+        // Remove guestId because backend merges it
+        if (guestId) localStorage.removeItem("guestId");
+
         toast.success(res.data.message);
+        navigate("/");
         setSpinner(false);
-        setIsUserDrawer(false);
-        setUserLogin({ email: "", password: "" });
-        if (guestId) {
-          localStorage.setItem()
-          localStorage.removeItem("guestId");
-        }
+
+        // Fetch updated user cart
+        dispatch(get_all_carts());
       })
       .catch((error) => {
         setSpinner(false);
@@ -237,7 +244,15 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
               <button
                 onClick={() => {
                   setIsUserDrawer(false);
-                  dispatch(handleLogout());
+                  localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
+
+                  // REMOVE ALL USER DATA
+                  dispatch(getAllCarts([]));
+
+                  // GENERATE NEW GUEST ID
+                  localStorage.setItem("guestId", crypto.randomUUID());
+
+                  navigate("/");
                 }}
                 className="text-base py-3 text-left text-gray-600 hover:text-black transition duration-300 cursor-pointer"
               >

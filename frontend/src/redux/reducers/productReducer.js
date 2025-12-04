@@ -1,19 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import product1 from "/products/product1.png";
-import product2 from "/products/product2.png";
-import product3 from "/products/product3.png";
-import product4 from "/products/product4.png";
-import product5 from "/products/product5.png";
-import product6 from "/products/product6.png";
-import product7 from "/products/product7.png";
-import product8 from "/products/product8.png";
-import product9 from "/products/product9.png";
-import product10 from "/products/product10.png";
-import product11 from "/products/product11.png";
-import product12 from "/products/product12.png";
-import product13 from "/products/product13.png";
-import product14 from "/products/product14.png";
-import product15 from "/products/product15.png";
+// import product1 from "/products/product1.png";
+// import product2 from "/products/product2.png";
+// import product3 from "/products/product3.png";
+// import product4 from "/products/product4.png";
+// import product5 from "/products/product5.png";
+// import product6 from "/products/product6.png";
+// import product7 from "/products/product7.png";
+// import product8 from "/products/product8.png";
+// import product9 from "/products/product9.png";
+// import product10 from "/products/product10.png";
+// import product11 from "/products/product11.png";
+// import product12 from "/products/product12.png";
+// import product13 from "/products/product13.png";
+// import product14 from "/products/product14.png";
+// import product15 from "/products/product15.png";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -75,8 +75,9 @@ export const get_featured_products = createAsyncThunk(
   }
 );
 
+/* GET ALL CARTS                                */
 export const get_all_carts = createAsyncThunk(
-  "get_all_carts",
+  "cart/get_all_carts",
   async (_, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -85,188 +86,157 @@ export const get_all_carts = createAsyncThunk(
       const res = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/cart/get-carts`,
         {
-          params: { guestId },
+          params: token ? {} : { guestId },
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       );
 
-      dispatch(getAllCarts(res.data.cart.items));
-
+      dispatch(getAllCarts(res.data.cart.items || []));
       return res.data.cart.items;
     } catch (err) {
-      console.log("Get carts error:", err.response?.data || err);
-      throw err;
+      console.log("Cart Load Error:", err);
     }
   }
 );
 
+/* -------------------------------------------- */
+/* ADD TO CART: USER + GUEST                    */
+/* -------------------------------------------- */
 export const add_to_cart = createAsyncThunk(
-  "add_to_cart",
+  "cart/add",
   async ({ productId, quantity }, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
       let guestId = localStorage.getItem("guestId");
 
       const payload = { productId, quantity };
-      if (guestId) payload.guestId = guestId;
-
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      if (!token && guestId) payload.guestId = guestId;
 
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/cart/add`,
         payload,
-        { headers }
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
       );
 
-      const data = res.data;
-
-      // UPDATE LOCAL STORAGE
-
-      if (!token && data.guestId) {
-        localStorage.setItem("guestId", data.guestId);
-      }
-
-      if (token && guestId) {
-        localStorage.removeItem("guestId");
-      }
-
-      if (data.cart?.userId) {
-        localStorage.setItem("userCartId", data.cart.userId);
+      // If backend assigns new guestId
+      if (res.data.assignedGuestId) {
+        localStorage.setItem("guestId", res.data.assignedGuestId);
       }
 
       dispatch(toggleCartDrawer());
       dispatch(get_all_carts());
-
-      return data.cart.items;
     } catch (err) {
-      toast.error(err.response ? err.response.data.message : err.message);
+      toast.error(err.response?.data?.message || err.message);
       throw err;
     }
   }
 );
 
+/* -------------------------------------------- */
+/* REMOVE FROM CART                             */
+/* -------------------------------------------- */
 export const remove_from_cart = createAsyncThunk(
-  "remove_from_cart",
+  "cart/remove",
   async ({ productId }, { dispatch }) => {
     try {
-      const payload = { productId };
+      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
       const guestId = localStorage.getItem("guestId");
-      const token = localStorage.getItem(
-        import.meta.env.VITE_WINE_TOKEN || null
-      );
 
+      const payload = { productId };
       if (!token && guestId) payload.guestId = guestId;
 
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      // CALL REAL REMOVE API
-      const res = await axios.delete(
+      await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/cart/remove-cart`,
         {
           data: payload,
-          headers,
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       );
 
-      const data = res.data;
-
-      // If cart deleted completely → remove guestId
-      // if (data.cart === null) {
-        // localStorage.removeItem("guestId");
-      // }
-
-      // FETCH UPDATED CARTS
       dispatch(get_all_carts());
-      dispatch(get_all_products());
-
       toast.success("Product removed!");
-
-      return data.cart;
     } catch (err) {
-      console.log("Remove-from-cart error:", err.response?.data || err);
+      console.log("Remove error:", err);
       throw err;
     }
   }
 );
 
+/* INCREMENT QTY */
 export const increment_quantity = createAsyncThunk(
-  "increment_quantity",
+  "cart/inc",
   async ({ productId }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(
-        import.meta.env.VITE_WINE_TOKEN || null
-      );
+      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
       const guestId = localStorage.getItem("guestId");
 
       const payload = { productId, type: "inc" };
       if (!token && guestId) payload.guestId = guestId;
 
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const res = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
         payload,
-        { headers }
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
       );
 
       dispatch(get_all_carts());
-      return res.data.cart;
     } catch (err) {
-      toast.error(err.response ? err.response.data.message : err.message);
+      toast.error(err.response?.data?.message || err.message);
       throw err;
     }
   }
 );
 
+/* -------------------------------------------- */
+/* DECREMENT QTY                                */
+/* -------------------------------------------- */
 export const decrement_quantity = createAsyncThunk(
-  "decrement_quantity",
+  "cart/dec",
   async ({ productId }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(
-        import.meta.env.VITE_WINE_TOKEN || null
-      );
+      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
       const guestId = localStorage.getItem("guestId");
 
       const payload = { productId, type: "dec" };
       if (!token && guestId) payload.guestId = guestId;
 
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const res = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
         payload,
-        { headers }
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
       );
 
-      // if cart becomes empty → backend returns empty items
-      // if guest is empty, delete guestId
-      // if (res.data.cart?.items?.length === 0) {
-      //   localStorage.removeItem("guestId");
-      // }
-
       dispatch(get_all_carts());
-      return res.data.cart;
     } catch (err) {
-      console.log("Decrement error:", err.response?.data || err);
+      console.log("Dec error:", err);
       throw err;
     }
   }
 );
 
-export const handleLogout = createAsyncThunk("handleLogout", (_, { dispatch }) => {
-  const userCartId = localStorage.getItem("userCartId");
+export const handleLogout = createAsyncThunk(
+  "handleLogout",
+  (_, { dispatch }) => {
+    const userCartId = localStorage.getItem("userCartId");
 
-  if (userCartId) {
-    axios.post(`${import.meta.env.VITE_BACKEND_URL}/cart/convert-to-guest`, {
-      userCartId,
-    });
+    if (userCartId) {
+      axios.post(`${import.meta.env.VITE_BACKEND_URL}/cart/convert-to-guest`, {
+        userCartId,
+      });
 
-    // localStorage.setItem("guestId", userCartId);
+      // localStorage.setItem("guestId", userCartId);
+      localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
+      localStorage.removeItem("userCartId");
+      dispatch(getAllCarts());
+    }
   }
-
-  localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
-  localStorage.removeItem("userCartId");
-});
+);
 
 export const {
   getAllproducts,

@@ -35,18 +35,28 @@ import Checkout from "./components/payment/Checkout";
 import { useSelector } from "react-redux";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import Reset_Password from "./components/authPages/Reset_Password";
+import PaymentSuccess from "./components/payment/PaymentSuccess";
+import PaymentFailed from "./components/payment/PaymentFailed";
 
 function App() {
   const { pathname } = useLocation();
   const carts = useSelector((state) => state.products.cart);
+  const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
   const navigate = useNavigate();
+
+  const hideLayout =
+    pathname === "/checkout" ||
+    pathname === "/order-success" ||
+    pathname === "/order-failed";
+
+    const canAccessCheckout = token && carts?.length > 0;
 
   return (
     <>
       {/* For Toast Message */}
       <ToastContainer />
       <MoveOnTop />
-      {pathname !== "/checkout" && <Navbar />}
+      {!hideLayout && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products/:slug" element={<ProductDetails />} />
@@ -64,8 +74,10 @@ function App() {
         <Route path="/account/:page" element={<Account />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/reset-password/:email" element={<Reset_Password />} />
+        <Route path="/order-success" element={<PaymentSuccess />} />
+        <Route path="/order-failed" element={<PaymentFailed />} />
 
-        {carts?.length === 0 && carts[0]?.items.length === 0 ? (
+        {!canAccessCheckout ? (
           <>
           {/* if Empty Cart, Navigate to the Home Page */}
             <Route path="/checkout" element={<Navigate to="/" />} />
@@ -76,7 +88,7 @@ function App() {
           </>
         )}
       </Routes>
-      {pathname !== "/checkout" && <Footer />}
+      {!hideLayout && <Footer />}
     </>
   );
 }

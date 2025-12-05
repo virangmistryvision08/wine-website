@@ -29,7 +29,6 @@ const Products = () => {
       (item) => item.productType === e.target.name
     );
     setFilterProducts(filteredProducts);
-    console.log(filteredProducts, "filteredProducts");
   };
 
   return (
@@ -47,9 +46,10 @@ const Products = () => {
               "KvD Strauch Sektmanufaktur",
               "Chateau Clos de Bouard",
               "Matthias Anton",
-            ].map((item) => {
+            ].map((item, index) => {
               return (
                 <button
+                  key={index}
                   onClick={getProduct}
                   name={item}
                   className={`lg:text-lg xl:text-xl px-5 xl:px-10 xl:py-3 py-2 border-2 ${

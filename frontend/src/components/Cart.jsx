@@ -39,7 +39,6 @@ const Cart = () => {
   useEffect(() => {
     dispatch(get_all_carts());
   }, []);
-  console.log(carts,'carts')
 
   const handleSwiperInit = (swiper) => {
     const slidesPerView = swiper.params.slidesPerView;

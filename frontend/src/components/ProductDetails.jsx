@@ -34,7 +34,6 @@ const ProductDetails = () => {
   const dispatch = useDispatch();
   const [product, setProduct] = useState({});
   const [productDetails, setProductDetails] = useState([]);
-  // const product = products.allProducts.find((product) => product._id === id);
 
   const cartItem = useSelector((state) =>
     state.products.cart?.find((c) => c.productId?.slug === slug)
@@ -328,13 +327,10 @@ const ProductDetails = () => {
                             setQuantityState((prev) =>
                               prev > 1 ? prev - 1 : 1
                             );
-                            // dispatch(decrement_quantity({productId: product._id}))
                           } else {
-                            // updateQuantity(product.id, "dec");
                             dispatch(
                               decrement_quantity({ productId: product._id })
                             );
-                            // dispatch(decreaseQty(product.id));
                           }
                         }}
                         className="flex-1 text-center py-2 text-xl cursor-pointer"
@@ -348,13 +344,10 @@ const ProductDetails = () => {
                         onClick={async () => {
                           if (!cartItem) {
                             setQuantityState((prev) => prev + 1);
-                            // dispatch(increment_quantity({productId: product._id}))
                           } else {
-                            // updateQuantity(product.id, "inc");
                             dispatch(
                               increment_quantity({ productId: product._id })
                             );
-                            // dispatch(increaseQty(product.id));
                           }
                         }}
                         className="flex-1 text-center py-2 text-xl cursor-pointer"

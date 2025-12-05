@@ -8,13 +8,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-payment-intent", async (req, res) => {
   try {
-    const { userId, email, amount, currency, deliveryDetails, cartProducts } = req.body;
+    const { email, amount, currency, deliveryDetails, cartProducts } = req.body;
+    const user = req.user;
 
-    if (!userId) return res.status(400).json({ message: "Please Login!" });
+    if (!user) return res.status(400).json({ status: false, message: "Please Login!" });
 
     // Create a temporary order record in MongoDB (unpaid)
     const newOrder = await Orders.create({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId: new mongoose.Types.ObjectId(user.userId),
       email: email || "",
       deliveryDetails,
       cartProducts,

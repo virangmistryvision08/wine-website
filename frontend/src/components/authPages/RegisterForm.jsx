@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Flex, Spin } from "antd";
+import { get_all_carts } from "../../redux/reducers/productReducer";
+import { useDispatch } from "react-redux";
 
 const RegisterForm = ({ emailMarketing }) => {
   const [data, setData] = useState({
@@ -16,6 +18,7 @@ const RegisterForm = ({ emailMarketing }) => {
   const [errorMsg, setErrorMsg] = useState({});
   const navigate = useNavigate();
   const [spinner, setSpinner] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,15 +95,26 @@ const RegisterForm = ({ emailMarketing }) => {
     setErrorMsg(errors);
     if (Object.keys(errors).length !== 0) return;
     setSpinner(true);
+    const guestId = localStorage.getItem("guestId");
 
     // Register API
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, data)
+      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, {
+        ...data,
+        guestId: guestId || null,
+      })
       .then((res) => {
         localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
+
+        // Remove guestId because backend merges it
+        if (guestId) localStorage.removeItem("guestId");
+
         navigate("/");
         toast.success(res.data.message);
         setSpinner(false);
+
+        // Fetch updated user cart
+        dispatch(get_all_carts());
       })
       .catch((error) => {
         setSpinner(false);

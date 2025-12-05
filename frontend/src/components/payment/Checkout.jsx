@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import logo from "/footer/footer-logo.png";
 import { useNavigate } from "react-router-dom";
@@ -17,14 +17,14 @@ import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const carts = useSelector((state) => state.products.cart);
-  const [open, setOpen] = React.useState(false);
+  const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false);
   const dispatch = useDispatch();
-  const [data, setData] = React.useState({
-    // email: "",
+  const [details, setDetails] = useState({
     country: "",
     firstName: "",
     lastName: "",
@@ -40,6 +40,8 @@ const Checkout = () => {
   const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
   const decode = jwtDecode(token);
   const [spinner, setSpinner] = useState(false);
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef();
 
   const countryWithCurrency = [
     { label: "India", currency: "IN" },
@@ -57,6 +59,17 @@ const Checkout = () => {
     UK: ["England", "Scotland", "Wales", "Northern Ireland"],
   };
 
+  // close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsLoginDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     dispatch(get_all_carts());
   }, []);
@@ -64,24 +77,20 @@ const Checkout = () => {
   const validateForm = () => {
     let newErrors = {};
 
-    // if (!data.email) newErrors.email = "Email is required";
-    // else if (!/\S+@\S+\.\S+/.test(data.email))
-    //   newErrors.email = "Enter a valid email";
+    if (!details.country) newErrors.country = "Please select Country!";
+    if (!details.firstName) newErrors.firstName = "First name required";
+    if (!details.lastName) newErrors.lastName = "Last name required";
+    if (!details.address) newErrors.address = "Address is required";
 
-    if (!data.country) newErrors.country = "Please select Country!";
-    if (!data.firstName) newErrors.firstName = "First name required";
-    if (!data.lastName) newErrors.lastName = "Last name required";
-    if (!data.address) newErrors.address = "Address is required";
+    if (!details.city) newErrors.city = "City is required";
+    if (!details.state) newErrors.state = "Please select State!";
 
-    if (!data.city) newErrors.city = "City is required";
-    if (!data.state) newErrors.state = "Please select State!";
-
-    if (!data.zip) newErrors.zip = "ZIP code required";
-    else if (!/^\d{5}$/.test(data.zip))
+    if (!details.zip) newErrors.zip = "ZIP code required";
+    else if (!/^\d{5}$/.test(details.zip))
       newErrors.zip = "Enter a valid 5-digit ZIP";
 
-    if (!data.phone) newErrors.phone = "Phone number is required";
-    else if (!/^[0-9]{10}$/.test(data.phone))
+    if (!details.phone) newErrors.phone = "Phone number is required";
+    else if (!/^[0-9]{10}$/.test(details.phone))
       newErrors.phone = "Phone must be 10 digits";
 
     setErrorMsg(newErrors);
@@ -92,7 +101,7 @@ const Checkout = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     // update data
-    setData((prev) => ({
+    setDetails((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -165,55 +174,58 @@ const Checkout = () => {
     try {
       setSpinner(true);
       const selectedCurrency =
-        countryWithCurrency.find((c) => c.label === data.country)?.currency ||
-        "usd";
+        countryWithCurrency.find((c) => c.label === details.country)
+          ?.currency || "usd";
 
-      // 1) Create PaymentIntent from backend
-      const response = await fetch(
+      const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/checkout/create-payment-intent`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: decode.id,
-            email: decode.email,
-            amount: subtotal.toFixed(2),
-            currency: selectedCurrency,
-            deliveryDetails: data, // sending full user form data
-            cartProducts: carts, // Send Carts Products
-          }),
+          email: decode.email,
+          amount: subtotal.toFixed(2),
+          currency: selectedCurrency,
+          deliveryDetails: details,
+          cartProducts: carts,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!data.clientSecret) {
+        toast("Client Secret Not Found!");
+      }
+
+      const { clientSecret } = data;
+
+      // Confirm card payment
+      const cardElement = elements.getElement(CardNumberElement);
+
+      const { paymentIntent, error } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+
+            // Billing details shown in Stripe dashboard
+            billing_details: {
+              name: `${details.firstName} ${details.lastName}`,
+              email: details.email,
+              phone: details.phone,
+              address: {
+                line1: details.address,
+                city: details.city,
+                state: details.state,
+                postal_code: details.zip,
+                country: details.country,
+              },
+            },
+          },
         }
       );
 
-      const { clientSecret } = await response.json();
-
-      // 2) Confirm card payment
-      const cardElement = elements.getElement(CardNumberElement);
-
-      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-
-          // Billing details shown in Stripe dashboard
-          billing_details: {
-            name: `${data.firstName} ${data.lastName}`,
-            email: data.email,
-            phone: data.phone,
-            address: {
-              line1: data.address,
-              city: data.city,
-              state: data.state,
-              postal_code: data.zip,
-              country: data.country,
-            },
-          },
-        },
-      });
-
-      if (paymentResult.error) {
+      if (error) {
+        toast.error(error.message);
         setErrorMsg((prev) => ({
           ...prev,
-          stripe: paymentResult.error.message,
+          stripe: error.message,
         }));
 
         setSpinner(false);
@@ -221,7 +233,8 @@ const Checkout = () => {
         return;
       }
 
-      if (paymentResult.paymentIntent.status === "succeeded") {
+      if (paymentIntent.status === "succeeded") {
+        toast.success("Payment Success.");
         setSpinner(false);
         navigate("/order-success");
       }
@@ -369,27 +382,76 @@ const Checkout = () => {
             </div>
 
             {/* CONTACT SECTION */}
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Contact</h3>
-              <span
-                onClick={() => navigate("/account/login")}
-                className="underline cursor-pointer text-sm"
-              >
-                Sign in
-              </span>
-            </div>
-            <div className="border border-gray-300 rounded-md overflow-hidden">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                className="w-full px-4 py-3 outline-none"
-                // value={form.email}
-                onChange={handleChange}
-              />
-            </div>
-            {errorMsg.email && (
-              <p className="text-red-500 text-sm mt-1">{errorMsg.email}</p>
+            {!token ? (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold">Contact</h3>
+                  <span
+                    onClick={() => navigate("/account/login")}
+                    className="underline cursor-pointer text-sm"
+                  >
+                    Sign in
+                  </span>
+                </div>
+                <div className="border border-gray-300 rounded-md overflow-hidden">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    className="w-full px-4 py-3 outline-none"
+                    // value={form.email}
+                    onChange={handleChange}
+                  />
+                </div>
+                {errorMsg.email && (
+                  <p className="text-red-500 text-sm mt-1">{errorMsg.email}</p>
+                )}
+              </>
+            ) : (
+              <>
+                <div
+                  ref={menuRef}
+                  className="flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <p className="h-10 w-10 flex justify-center items-center bg-gray-200 rounded-full font-semibold">
+                      {`${decode.firstName[0].toUpperCase()}${decode.lastName[0].toUpperCase()}`}
+                    </p>
+                    <span>{decode.email}</span>
+                  </div>
+                  <div
+                    onClick={() => setIsLoginDropdownOpen(!isLoginDropdownOpen)}
+                    className="relative p-2 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer transition duration-200"
+                  >
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                    {/* Dropdown */}
+                    {isLoginDropdownOpen && (
+                      <div className="absolute top-10 right-0 bg-white shadow-lg border border-gray-300 rounded-md w-40 py-2 z-50">
+                        <p
+                          onClick={() => {
+                            localStorage.removeItem(
+                              import.meta.env.VITE_WINE_TOKEN
+                            );
+                            dispatch(get_all_carts());
+
+                            // GENERATE NEW GUEST ID
+                            localStorage.setItem(
+                              "guestId",
+                              crypto.randomUUID()
+                            );
+
+                            navigate("/account/login");
+                          }}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          Sign Out
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <hr className="my-3" />
+              </>
             )}
 
             <div className="flex items-center mt-2 gap-2">
@@ -495,15 +557,15 @@ const Checkout = () => {
                 /> */}
                 <select
                   name="state"
-                  value={data.state}
+                  value={details.state}
                   onChange={handleChange}
                   className="border border-gray-300 rounded-md px-3 py-3 text-gray-500"
-                  disabled={!data.country} // disable until country selected
+                  disabled={!details.country} // disable until country selected
                 >
                   <option value="">Select State</option>
 
-                  {data.country &&
-                    statesByCountry[data.country]?.map((st) => (
+                  {details.country &&
+                    statesByCountry[details.country]?.map((st) => (
                       <option key={st} value={st}>
                         {st}
                       </option>

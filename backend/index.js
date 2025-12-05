@@ -7,9 +7,10 @@ const products = require("./routes/productRoutes");
 const auth = require("./routes/authRoutes");
 const cart = require("./routes/cartRoutes");
 const blog = require("./routes/blogRoutes");
-const checkout = require("./routes/checkoutRoutes");
+const checkout = require("./controllers/checkoutController");
 const cors = require("cors");
-const stripeWebhook = require("./routes/stripeWebhook");
+const stripeWebhook = require("./controllers/stripeWebhookController");
+const authorize = require("./authorization/authorize");
 
 app.use("/api/payment/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 app.use(cors());
@@ -20,7 +21,7 @@ app.use("/product", products);
 app.use("/auth", auth);
 app.use("/cart", cart);
 app.use("/blog", blog);
-app.use("/checkout", checkout);
+app.use("/checkout", authorize, checkout);
 
 app.listen(port, () => {
   console.log("Server Started at PORT -", port);

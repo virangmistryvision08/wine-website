@@ -10,7 +10,7 @@ const Carts = require("../model/cartModel");
 // const cartId = uuidv4();
 const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, guestId } = req.body;
     if (
       [firstName, lastName, email, password].some(
         (item) => item === "" || item === undefined
@@ -37,12 +37,50 @@ const register = async (req, res) => {
       password: hashedPassword,
     });
 
+    // ---- CREATE OR LOAD USER CART ----
+    let userCart = await Carts.findOne({ userId: savedUser._id });
+
+    if (!userCart) {
+      userCart = await Carts.create({
+        userId: savedUser._id,
+        items: [],
+      });
+    }
+
+    // ---- MERGE GUEST CART ----
+    if (guestId) {
+      const guestCart = await Carts.findOne({ guestId });
+
+      if (guestCart) {
+        guestCart.items.forEach((gItem) => {
+          const existing = userCart.items.find(
+            (uItem) => uItem.productId.toString() === gItem.productId.toString()
+          );
+
+          if (existing) {
+            existing.quantity += gItem.quantity;
+          } else {
+            userCart.items.push({
+              productId: gItem.productId,
+              quantity: gItem.quantity,
+            });
+          }
+        });
+
+        await userCart.save();
+
+        // delete guest cart
+        await Carts.deleteOne({ guestId });
+      }
+    }
+
+    // ---- CREATE JWT TOKEN ----
     const token = jwt.sign(
       {
-        id: savedUser._id,
+        userId: savedUser._id,
+        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        email: savedUser.email,
       },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
@@ -62,23 +100,35 @@ const login = async (req, res) => {
   try {
     const { email, password, guestId } = req.body;
 
-    const user = await Users.findOne({ email });
-    if (!user)
-      return res.status(400).json({ status: false, message: "User not found" });
-
-    // Assume password check done already
-
-    // Load user cart or create new one
-    let userCart;
-    if (user.cartId) {
-      userCart = await Carts.findById(user.cartId);
-    } else {
-      userCart = await Carts.create({ user: user._id, items: [] });
-      user.cartId = userCart._id;
-      await user.save();
+    if ([email, password].some((item) => item === "" || item === undefined)) {
+      return res
+        .status(400)
+        .json({ status: false, message: "All field required!" });
     }
 
-    // MERGE GUEST CART
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ status: false, message: "Invalid Email!" });
+    }
+    const comparePassword = await bcrypt.compare(password, user.password);
+
+    if (!comparePassword) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid Password!" });
+    }
+
+    // ---- CREATE OR LOAD USER CART ----
+    let userCart = await Carts.findOne({ userId: user._id });
+
+    if (!userCart) {
+      userCart = await Carts.create({
+        userId: user._id,
+        items: [],
+      });
+    }
+
+    // ---- MERGE GUEST CART ----
     if (guestId) {
       const guestCart = await Carts.findOne({ guestId });
 
@@ -91,7 +141,10 @@ const login = async (req, res) => {
           if (existing) {
             existing.quantity += gItem.quantity;
           } else {
-            userCart.items.push(gItem);
+            userCart.items.push({
+              productId: gItem.productId,
+              quantity: gItem.quantity,
+            });
           }
         });
 
@@ -102,29 +155,26 @@ const login = async (req, res) => {
       }
     }
 
-    const generateToken = (user) => {
-      return jwt.sign(
-        {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "7d" } // token valid for 7 days
-      );
-    };
+    // ---- CREATE JWT TOKEN ----
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
 
-    const token = generateToken(user);
-
-    res.json({
+    return res.json({
       status: true,
       message: "Login successful",
       token,
-      userCartId: user.cartId,
     });
   } catch (error) {
-    res.status(500).json({ status: false, message: error.message });
+    console.log("Login error:", error);
+    return res.status(500).json({ status: false, message: "Server error" });
   }
 };
 

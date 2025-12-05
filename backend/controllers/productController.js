@@ -1,3 +1,4 @@
+const Orders = require("../model/orderModel");
 const Products = require("../model/productModel");
 
 const create_product = async (req, res) => {
@@ -203,6 +204,49 @@ const get_featured_products = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ status: false, message: error.message });
+  }
+};
+
+const getPopularProducts = async (req, res) => {
+  try {
+    const popular = await Orders.aggregate([
+      { $unwind: "$cartProducts" },
+
+      {
+        $group: {
+          _id: "$cartProducts.productId",
+          totalSold: { $sum: "$cartProducts.quantity" },
+          orderCount: { $sum: 1 }
+        }
+      },
+
+      { $sort: { totalSold: -1 } },
+
+      // optional – limit top results
+      { $limit: 3 },
+
+      // optional – lookup product details
+      {
+        $lookup: {
+          from: "products", // your products collection name
+          localField: "_id",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+
+      { $unwind: "$product" }
+    ]);
+
+    res.status(200).json({
+      status: true,
+      message: "Popular products fetched",
+      data: popular
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
 

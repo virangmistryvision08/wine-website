@@ -4,165 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const Products = require("../model/productModel");
 const Users = require("../model/userModel");
 
-// // 1) INIT GUEST CART
-// const initGuestCart = async (req, res) => {
-//   try {
-//     let { guestId } = req.body;
-//     const { productId, quantity } = req.body;
-
-//     // if guestId not present → create new guest cart
-//     if (!guestId) guestId = uuidv4();
-
-//     let cart = await Carts.findOne({ guestId });
-
-//     if (!cart) {
-//       cart = await Carts.create({
-//         guestId,
-//         items: [{ productId, quantity }],
-//       });
-//     } else {
-//       // Add or update item
-//       const index = cart.items.findIndex(
-//         (item) => item.productId.toString() === productId
-//       );
-//       if (index >= 0) cart.items[index].quantity += quantity;
-//       else cart.items.push({ productId, quantity });
-//       await cart.save();
-//     }
-
-//     return res.status(200).json({ status: true, guestId, cart });
-//   } catch (err) {
-//     return res.status(500).json({ status: false, message: err.message });
-//   }
-// };
-
-// // 2) ADD TO CART (User or Guest)
-// const add_to_cart = async (req, res) => {
-//   try {
-//     const tokenUser = req.user;
-//     const { guestId, productId, quantity } = req.body;
-
-//     let cart;
-
-//     // Logged-in user
-//     if (tokenUser) {
-//       cart = await Carts.findOne({ userId: tokenUser.id });
-
-//       // If user has no cart yet
-//       if (!cart) {
-//         cart = await Carts.create({
-//           userId: tokenUser.id,
-//           items: [{ productId, quantity }],
-//         });
-//         return res.status(200).json({ status: true, cart });
-//       }
-//     }
-
-//     // Guest user
-//     else if (guestId) {
-//       cart = await Carts.findOne({ guestId });
-
-//       if (!cart) {
-//         cart = await Carts.create({
-//           guestId,
-//           items: [{ productId, quantity }],
-//         });
-//         return res.status(200).json({ status: true, cart });
-//       }
-//     } else {
-//       return res.status(400).json({
-//         status: false,
-//         message: "guestId or token required",
-//       });
-//     }
-
-//     // Add or update item
-//     const index = cart.items.findIndex(
-//       (item) => item.productId.toString() === productId
-//     );
-
-//     if (index >= 0) cart.items[index].quantity += quantity;
-//     else cart.items.push({ productId, quantity });
-
-//     await cart.save();
-
-//     return res.status(200).json({ status: true, cart });
-//   } catch (err) {
-//     return res.status(500).json({ status: false, message: err.message });
-//   }
-// };
-
-// // 3) MERGE GUEST CART → USER CART
-// const mergeGuestCart = async (req, res) => {
-//   try {
-//     const userId = req.user.id;
-//     const { guestId } = req.body;
-
-//     let userCart = await Carts.findOne({ userId });
-//     let guestCart = guestId ? await Carts.findOne({ guestId }) : null;
-
-//     // CASE 1: Guest cart exists but user cart does NOT → convert guest cart
-//     if (!userCart && guestCart) {
-//       guestCart.userId = userId;
-//       guestCart.guestId = null;
-//       await guestCart.save();
-
-//       return res.status(200).json({
-//         status: true,
-//         message: "Guest cart converted to user cart",
-//         cart: guestCart,
-//         // userCartId: guestCart._id,
-//       });
-//     }
-
-//     // CASE 2: No guest cart → return user cart (or create empty)
-//     if (!guestCart) {
-//       if (!userCart) {
-//         userCart = await Carts.create({ userId, items: [] });
-//       }
-
-//       return res.status(200).json({
-//         status: true,
-//         message: "No guest cart. Using user's existing cart",
-//         cart: userCart,
-//         userCartId: userCart._id,
-//       });
-//     }
-
-//     // CASE 3: MERGE guestCart → userCart
-//     guestCart.items.forEach((gItem) => {
-//       const index = userCart.items.findIndex(
-//         (u) => u.productId.toString() === gItem.productId.toString()
-//       );
-
-//       if (index >= 0) {
-//         userCart.items[index].quantity += gItem.quantity;
-//       } else {
-//         userCart.items.push(gItem);
-//       }
-//     });
-
-//     await userCart.save();
-
-//     // delete old guest cart
-//     await Carts.deleteOne({ guestId });
-
-//     return res.status(200).json({
-//       status: true,
-//       message: "Guest cart merged with user cart",
-//       cart: userCart,
-//       userCartId: userCart._id, // <-- FIXED
-//     });
-//   } catch (err) {
-//     return res.status(500).json({
-//       status: false,
-//       message: err.message,
-//     });
-//   }
-// };
-
 // Commont Function for Checking Products Availability
-
 const checkProductAvailable = async (productId, quantity = 1) => {
   const product = await Products.findById(productId);
 
@@ -184,53 +26,84 @@ const checkProductAvailable = async (productId, quantity = 1) => {
 const add_to_cart = async (req, res) => {
   try {
     const { productId, quantity, guestId } = req.body;
-    const userId = req.user ? req.user.id : null;
-
-    let cart;
+    const userId = req.user ? req.user.userId : null;
 
     // ------------------------------------------
-    // CASE 1: USER LOGGED IN
+    // GET PRODUCT
     // ------------------------------------------
-    if (userId) {
-      const user = await Users.findById(userId);
+    const product = await Products.findById(productId);
 
-      // If user already has a cart → load it
-      if (user.cartId) {
-        cart = await Carts.findById(user.cartId);
-      } else {
-        // If no cart → create new cart & attach to user
-        cart = await Carts.create({ userId, items: [] });
-
-        user.cartId = cart._id;
-        await user.save();
-      }
+    if (!product) {
+      return res.status(404).json({
+        status: false,
+        message: "Product not found",
+      });
     }
 
     // ------------------------------------------
-    // CASE 2: GUEST USER
+    // CHECK STOCK AVAILABILITY
     // ------------------------------------------
-    if (!userId) {
+    if (product.availability === "out_of_stock" || product.stock <= 0) {
+      return res.status(400).json({
+        status: false,
+        message: "This product is out of stock",
+      });
+    }
+
+    // ------------------------------------------
+    // FIND / CREATE CART
+    // ------------------------------------------
+    let cart;
+
+    if (userId) {
+      const user = await Users.findById(userId);
+
+      if (user.cartId) {
+        cart = await Carts.findOne({ userId: user._id });
+      } else {
+        cart = await Carts.create({ userId, items: [] });
+        user.cartId = cart._id;
+        await user.save();
+      }
+    } else {
       if (guestId) {
         cart = await Carts.findOne({ guestId });
       }
 
       if (!cart) {
-        const newGuestId = guestId || Math.random().toString(36).substring(2, 12);
+        const newGuestId =
+          guestId || Math.random().toString(36).substring(2, 12);
         cart = await Carts.create({ guestId: newGuestId, items: [] });
       }
     }
 
     // ------------------------------------------
-    // UPDATE CART ITEMS
+    // CHECK CART ITEM STOCK LIMIT
     // ------------------------------------------
-
-    const existingItem = cart.items.find((item) =>
-      item.productId.toString() === productId
+    const existingItem = cart.items.find(
+      (item) => item.productId.toString() === productId
     );
 
     if (existingItem) {
+      const newQuantity = existingItem.quantity + quantity;
+
+      if (newQuantity > product.stock) {
+        return res.status(400).json({
+          status: false,
+          message: `Only ${product.stock} units available in stock`,
+        });
+      }
+
       existingItem.quantity += quantity;
+
     } else {
+      if (quantity > product.stock) {
+        return res.status(400).json({
+          status: false,
+          message: `Only ${product.stock} units available in stock`,
+        });
+      }
+
       cart.items.push({ productId, quantity });
     }
 
@@ -242,12 +115,13 @@ const add_to_cart = async (req, res) => {
       cart,
       assignedGuestId: cart.guestId || null,
     });
-
   } catch (error) {
-    res.status(500).json({ status: false, message: error.message });
+    res.status(500).json({
+      status: false,
+      message: error.message,
+    });
   }
 };
-
 
 const convertToGuestCart = async (req, res) => {
   try {
@@ -287,7 +161,9 @@ const updateQuantity = async (req, res) => {
 
     // USER CART
     if (tokenUser) {
-      cart = await Carts.findOne({ userId: new mongoose.Types.ObjectId(tokenUser.id) });
+      cart = await Carts.findOne({
+        userId: new mongoose.Types.ObjectId(tokenUser.userId),
+      });
     }
     // GUEST CART
     else if (guestId) {
@@ -362,14 +238,16 @@ const updateQuantity = async (req, res) => {
 
 const get_carts = async (req, res) => {
   try {
-    const userId = req.user ? req.user.id : null;
+    const userId = req.user ? req.user.userId : null;
     const guestId = req.query.guestId;
 
     let cart;
 
     if (userId) {
       const user = await Users.findById(userId);
-      cart = await Carts.findById(user.cartId).populate("items.productId");
+      cart = await Carts.findOne({ userId: user._id }).populate(
+        "items.productId"
+      );
     } else if (guestId) {
       cart = await Carts.findOne({ guestId }).populate("items.productId");
     }
@@ -378,7 +256,6 @@ const get_carts = async (req, res) => {
       status: true,
       cart: cart || [],
     });
-
   } catch (err) {
     res.status(500).json({ status: false, message: err.message });
   }
@@ -395,7 +272,7 @@ const remove_from_cart = async (req, res) => {
     // 1) FIND CART (USER OR GUEST)
     // ------------------------------------------
     if (tokenUser) {
-      cart = await Carts.findOne({ userId: tokenUser.id });
+      cart = await Carts.findOne({ userId: tokenUser.userId });
     } else if (guestId) {
       cart = await Carts.findOne({ guestId });
     } else {
@@ -462,9 +339,7 @@ const remove_from_cart = async (req, res) => {
 };
 
 module.exports = {
-  // initGuestCart,
   add_to_cart,
-  // mergeGuestCart,
   convertToGuestCart,
   updateQuantity,
   get_carts,

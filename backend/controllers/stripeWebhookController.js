@@ -45,9 +45,11 @@ router.post(
             : null;
 
           if (objectId) {
-            await Carts.findOneAndDelete({
-              userId: objectId,
-            });
+            await Carts.findOneAndUpdate(
+              { userId: objectId },
+              { $set: { items: [] } },
+              { new: true, upsert: true }
+            );
           } else {
             console.warn(`Invalid userId format: ${userId}`);
           }

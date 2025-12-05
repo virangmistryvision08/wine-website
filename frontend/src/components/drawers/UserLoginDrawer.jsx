@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import {
   get_all_carts,
-  getAllCarts,
+  // getAllCarts,
 } from "../../redux/reducers/productReducer";
 
 const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
@@ -104,8 +104,11 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
         if (guestId) localStorage.removeItem("guestId");
 
         toast.success(res.data.message);
+        setIsUserDrawer(false);
         navigate("/");
         setSpinner(false);
+
+        setUserLogin({ email: "", password: "" });
 
         // Fetch updated user cart
         dispatch(get_all_carts());
@@ -246,8 +249,7 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
                   setIsUserDrawer(false);
                   localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
 
-                  // REMOVE ALL USER DATA
-                  dispatch(getAllCarts([]));
+                  dispatch(get_all_carts());
 
                   // GENERATE NEW GUEST ID
                   localStorage.setItem("guestId", crypto.randomUUID());

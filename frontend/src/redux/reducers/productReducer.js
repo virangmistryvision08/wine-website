@@ -36,19 +36,13 @@ const allPostsSlice = createSlice({
     getFeaturedProducts: (state, action) => {
       state.featuredProducts = action.payload;
     },
-
-    // removeFromCart: (state, action) => {
-    //   toast.success("Product Removed!");
-    //   const id = action.payload;
-    //   state.cart = state.cart.filter((item) => item.id !== id);
-    // },
-
     toggleCartDrawer: (state) => {
       state.isCartOpen = !state.isCartOpen;
     },
   },
 });
 
+/* GET ALL Products */
 export const get_all_products = createAsyncThunk(
   "get_all_products",
   (data, { dispatch }) => {
@@ -60,8 +54,9 @@ export const get_all_products = createAsyncThunk(
   }
 );
 
+/* GET Featured Products */
 export const get_featured_products = createAsyncThunk(
-  "get_all_products",
+  "get_featured_products",
   (limit, { dispatch }) => {
     axios
       .get(
@@ -75,9 +70,9 @@ export const get_featured_products = createAsyncThunk(
   }
 );
 
-/* GET ALL CARTS                                */
+/* GET ALL CARTS */
 export const get_all_carts = createAsyncThunk(
-  "cart/get_all_carts",
+  "get_all_carts",
   async (_, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -91,6 +86,8 @@ export const get_all_carts = createAsyncThunk(
         }
       );
 
+      // console.log(res.data,'res.data')
+
       dispatch(getAllCarts(res.data.cart.items || []));
       return res.data.cart.items;
     } catch (err) {
@@ -99,11 +96,9 @@ export const get_all_carts = createAsyncThunk(
   }
 );
 
-/* -------------------------------------------- */
-/* ADD TO CART: USER + GUEST                    */
-/* -------------------------------------------- */
+/* ADD TO CART: USER + GUEST */
 export const add_to_cart = createAsyncThunk(
-  "cart/add",
+  "add_to_cart",
   async ({ productId, quantity }, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -134,11 +129,9 @@ export const add_to_cart = createAsyncThunk(
   }
 );
 
-/* -------------------------------------------- */
-/* REMOVE FROM CART                             */
-/* -------------------------------------------- */
+/* REMOVE FROM CART */
 export const remove_from_cart = createAsyncThunk(
-  "cart/remove",
+  "remove_from_cart",
   async ({ productId }, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -166,7 +159,7 @@ export const remove_from_cart = createAsyncThunk(
 
 /* INCREMENT QTY */
 export const increment_quantity = createAsyncThunk(
-  "cart/inc",
+  "increment_quantity",
   async ({ productId }, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -191,11 +184,9 @@ export const increment_quantity = createAsyncThunk(
   }
 );
 
-/* -------------------------------------------- */
-/* DECREMENT QTY                                */
-/* -------------------------------------------- */
+/* DECREMENT QTY */
 export const decrement_quantity = createAsyncThunk(
-  "cart/dec",
+  "decrement_quantity",
   async ({ productId }, { dispatch }) => {
     try {
       const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
@@ -216,24 +207,6 @@ export const decrement_quantity = createAsyncThunk(
     } catch (err) {
       console.log("Dec error:", err);
       throw err;
-    }
-  }
-);
-
-export const handleLogout = createAsyncThunk(
-  "handleLogout",
-  (_, { dispatch }) => {
-    const userCartId = localStorage.getItem("userCartId");
-
-    if (userCartId) {
-      axios.post(`${import.meta.env.VITE_BACKEND_URL}/cart/convert-to-guest`, {
-        userCartId,
-      });
-
-      // localStorage.setItem("guestId", userCartId);
-      localStorage.removeItem(import.meta.env.VITE_WINE_TOKEN);
-      localStorage.removeItem("userCartId");
-      dispatch(getAllCarts());
     }
   }
 );

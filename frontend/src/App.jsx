@@ -3,7 +3,6 @@ import {
   Route,
   Routes,
   useLocation,
-  useNavigate,
 } from "react-router-dom";
 import "./App.css";
 import BelowHeroSection from "./components/BelowHeroSection";
@@ -42,7 +41,6 @@ function App() {
   const { pathname } = useLocation();
   const carts = useSelector((state) => state.products.cart);
   const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-  const navigate = useNavigate();
 
   const hideLayout =
     pathname === "/checkout" ||
@@ -80,7 +78,7 @@ function App() {
         {!canAccessCheckout ? (
           <>
           {/* if Empty Cart, Navigate to the Home Page */}
-            <Route path="/checkout" element={<Navigate to="/" />} />
+            <Route path="/checkout" element={<Navigate to="/account/login" />} />
           </>
         ) : (
           <>

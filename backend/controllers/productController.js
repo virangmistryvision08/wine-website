@@ -207,8 +207,11 @@ const get_featured_products = async (req, res) => {
   }
 };
 
-const getPopularProducts = async (req, res) => {
+const get_popular_products = async (req, res) => {
   try {
+    let { limit } = req.query;
+    limit ? limit : 3;
+
     const popular = await Orders.aggregate([
       { $unwind: "$cartProducts" },
 
@@ -222,20 +225,7 @@ const getPopularProducts = async (req, res) => {
 
       { $sort: { totalSold: -1 } },
 
-      // optional – limit top results
-      { $limit: 3 },
-
-      // optional – lookup product details
-      {
-        $lookup: {
-          from: "products", // your products collection name
-          localField: "_id",
-          foreignField: "_id",
-          as: "product"
-        }
-      },
-
-      { $unwind: "$product" }
+      { $limit: +limit },
     ]);
 
     res.status(200).json({
@@ -256,4 +246,5 @@ module.exports = {
   get_filtered_products,
   get_single_product,
   get_featured_products,
+  get_popular_products,
 };

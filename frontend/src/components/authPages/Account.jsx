@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import RegisterForm from "./RegisterForm";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import axios from "axios";
-import { toast } from "react-toastify";
+import axios from "../../intercepter/axiosInstance";
+import ToastMessage from "../toastMessage/toastMessage";
 import { get_all_carts } from "../../redux/reducers/productReducer";
 import { useDispatch } from "react-redux";
 
@@ -83,10 +83,7 @@ const Account = () => {
     const guestId = localStorage.getItem("guestId");
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
-        ...data,
-        guestId: guestId || null,
-      })
+      .post(`/auth/login`, data)
       .then((res) => {
         // Save token
         localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
@@ -94,7 +91,7 @@ const Account = () => {
         // Remove guestId because backend merges it
         if (guestId) localStorage.removeItem("guestId");
 
-        toast.success(res.data.message);
+        ToastMessage.success(res.data.message);
         navigate("/");
         setSpinner(false);
 
@@ -103,7 +100,7 @@ const Account = () => {
       })
       .catch((error) => {
         setSpinner(false);
-        toast.error(
+        ToastMessage.error(
           error.response ? error.response.data.message : error.message
         );
       });
@@ -154,16 +151,15 @@ const Account = () => {
 
     // Verify Email API
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/verify-email`, email)
+      .post(`/auth/verify-email`, email)
       .then((res) => {
-        console.log(res.data, "response");
         setSuccessEmailMessage(res.data.message);
         navigate("/account/login");
         setSpinner(false);
       })
       .catch((error) => {
         setSpinner(false);
-        toast.error(
+        ToastMessage.error(
           error.response ? error.response.data.message : error.message
         );
       });
@@ -196,9 +192,8 @@ const Account = () => {
               <div className="w-full md:w-[40%] py-6 lg:py-10">
                 <h2 className="text-xl mb-3 font-[500]">Login</h2>
                 <p
-                  className={` font-[500] text-lg ${
-                    successEmailMessage ? "mb-0" : "mb-10"
-                  }`}
+                  className={` font-[500] text-lg ${successEmailMessage ? "mb-0" : "mb-10"
+                    }`}
                 >
                   Please enter your email and password below to access your
                   account

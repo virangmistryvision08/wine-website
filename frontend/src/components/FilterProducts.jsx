@@ -13,7 +13,7 @@ import { ChevronFirst, ChevronLast } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { get_all_products } from "../redux/reducers/productReducer";
-import axios from "axios";
+import axios from "../intercepter/axiosInstance";
 
 const FilterProducts = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -64,18 +64,18 @@ const FilterProducts = () => {
   };
 
   useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setOpenIndex(null); // Close any open dropdown
-    }
-  };
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenIndex(null);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -124,9 +124,6 @@ const FilterProducts = () => {
       selectedFilters["Product Type"].forEach((p) =>
         params.append("productType", p)
       );
-      // selectedFilters.Availability.forEach((a) =>
-      //   params.append("availability", a)
-      // );
       selectedFilters.Availability.forEach((a) =>
         params.append("availability", availabilityMap[a])
       );
@@ -138,9 +135,7 @@ const FilterProducts = () => {
       params.append("limit", itemsPerPage);
 
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/product/get-filtered-products?${params.toString()}`
+        `/product/get-filtered-products?${params.toString()}`
       );
       setTotalPages(res.data.pagination.totalPages);
       setTotalProducts(res.data.pagination.totalProducts);
@@ -167,9 +162,9 @@ const FilterProducts = () => {
 
   // Handle URL slug
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || uniqueProductTypes.length === 0) return;
 
-    const matchedType = filterOptions["Product Type"].find(
+    const matchedType = uniqueProductTypes.find(
       (type) => slugifyString(type) === slug
     );
 
@@ -178,10 +173,18 @@ const FilterProducts = () => {
         ...prev,
         "Product Type": [matchedType],
       }));
+
       updateBgImage(matchedType);
+      setProductType(matchedType);
       setCurrentPage(1);
+    } else {
+      // If slug does not match any type → reset
+      setSelectedFilters((prev) => ({
+        ...prev,
+        "Product Type": [],
+      }));
     }
-  }, [slug, filterOptions]);
+  }, [slug, products.allProducts]);
 
   const handleFilterChange = (label, option) => {
     setSelectedFilters((prev) => {
@@ -244,8 +247,8 @@ const FilterProducts = () => {
     return (
       <>
         {Object.values(selectedFilters).some((arr) => arr.length > 0) ||
-        appliedPriceRange[0] !== 0 ||
-        appliedPriceRange[1] !== 100 ? (
+          appliedPriceRange[0] !== 0 ||
+          appliedPriceRange[1] !== 100 ? (
           <div className="flex flex-wrap items-center gap-2 mt-4">
             {/* Clear All */}
             <div className="flex justify-between xl:justify-start gap-5 w-full items-center">
@@ -273,16 +276,16 @@ const FilterProducts = () => {
                 {/* Price Range Tag */}
                 {(appliedPriceRange[0] !== 0 ||
                   appliedPriceRange[1] !== 100) && (
-                  <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
-                    ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
-                    <button
-                      onClick={() => setAppliedPriceRange([0, 100])}
-                      className="font-bold cursor-pointer"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+                    <span className="bg-[#EED291] px-3 py-1 rounded text-sm flex items-center gap-2">
+                      ${appliedPriceRange[0]} – ${appliedPriceRange[1]}
+                      <button
+                        onClick={() => setAppliedPriceRange([0, 100])}
+                        className="font-bold cursor-pointer"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
 
                 {/* Loop through all selected filters */}
                 {Object.entries(selectedFilters).map(([label, values]) =>
@@ -473,18 +476,20 @@ const FilterProducts = () => {
                               </label>
                             );
                           })}
-                          <span
-                            onClick={() => {
-                              setSelectedFilters((prev) => ({
-                                ...prev,
-                                [f.label]: [],
-                              }));
-                              setOpenIndex(null);
-                            }}
-                            className="text-center text-[#6A0D23] mt-5 px-2 cursor-pointer underline"
-                          >
-                            Clear All
-                          </span>
+                          {selectedFilters[f.label]?.length > 0 && (
+                            <span
+                              onClick={() => {
+                                setSelectedFilters((prev) => ({
+                                  ...prev,
+                                  [f.label]: [],
+                                }));
+                                setOpenIndex(null);
+                              }}
+                              className="text-[#6A0D23] mt-3 px-2 cursor-pointer underline block"
+                            >
+                              Clear All
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
@@ -521,9 +526,8 @@ const FilterProducts = () => {
                           setSortOption(option);
                           setOpenIndex(null);
                         }}
-                        className={`px-2 py-2 hover:bg-gray-100 rounded cursor-pointer ${
-                          sortOption === option && "underline"
-                        }`}
+                        className={`px-2 py-2 hover:bg-gray-100 rounded cursor-pointer ${sortOption === option && "underline"
+                          }`}
                       >
                         {option}
                       </div>
@@ -548,11 +552,10 @@ const FilterProducts = () => {
           {/* Drawer Overlay */}
           <div
             className={`fixed inset-0 bg-black/40 z-40 transition-opacity xl:hidden
-            ${
-              drawerOpen
+            ${drawerOpen
                 ? "opacity-100 pointer-events-auto"
                 : "opacity-0 pointer-events-none"
-            }`}
+              }`}
             onClick={() => setDrawerOpen(false)}
           ></div>
 
@@ -597,30 +600,26 @@ const FilterProducts = () => {
 
                   {openAccordion === idx ? (
                     <i
-                      className={`fa-solid fa-minus transition-transform duration-300 ${
-                        openAccordion === idx ? "rotate-180" : ""
-                      }`}
+                      className={`fa-solid fa-minus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
+                        }`}
                     ></i>
                   ) : (
                     <i
-                      className={`fa-solid fa-plus transition-transform duration-300 ${
-                        openAccordion === idx ? "rotate-180" : ""
-                      }`}
+                      className={`fa-solid fa-plus transition-transform duration-300 ${openAccordion === idx ? "rotate-180" : ""
+                        }`}
                     ></i>
                   )}
                 </button>
 
                 {/* Accordion Body */}
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openAccordion === idx ? "h-auto mt-3" : "max-h-0"
-                  }`}
+                  className={`overflow-hidden transition-all duration-300 ${openAccordion === idx ? "h-auto mt-3" : "max-h-0"
+                    }`}
                 >
                   <div className="space-y-2">
                     <div
-                      className={` transition-all duration-300 ${
-                        openAccordion === idx ? "h-auto mt-3" : "max-h-0"
-                      }`}
+                      className={` transition-all duration-300 ${openAccordion === idx ? "h-auto mt-3" : "max-h-0"
+                        }`}
                     >
                       <div className="space-y-2">
                         {/* CHECK IF PRICE FILTER */}
@@ -772,9 +771,9 @@ const FilterProducts = () => {
                     {totalProducts === 0
                       ? "0–0 / 0"
                       : `${indexOfFirst + 1}–${Math.min(
-                          indexOfLast,
-                          totalProducts
-                        )} / ${totalProducts}`}
+                        indexOfLast,
+                        totalProducts
+                      )} / ${totalProducts}`}
                   </div>
 
                   {/* First Page */}
@@ -783,9 +782,8 @@ const FilterProducts = () => {
                     disabled={currentPage === 1}
                     className={`
       px-2 py-1 text-gray-500 disabled:opacity-30 flex items-center
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
-        currentPage !== 1 && "cursor-pointer"
-      }
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${currentPage !== 1 && "cursor-pointer"
+                      }
     `}
                   >
                     <ChevronFirst />
@@ -797,9 +795,8 @@ const FilterProducts = () => {
                     disabled={currentPage === 1}
                     className={`
       px-2 py-1 text-gray-500 disabled:opacity-30
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
-        currentPage !== 1 && "cursor-pointer"
-      }
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${currentPage !== 1 && "cursor-pointer"
+                      }
     `}
                   >
                     <i className="fa-solid fa-angle-left max-sm:text-xs"></i>
@@ -811,9 +808,8 @@ const FilterProducts = () => {
                     disabled={currentPage === totalPages}
                     className={`
       px-2 py-1 text-gray-500 disabled:opacity-30
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
-        currentPage !== totalPages && "cursor-pointer"
-      }
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${currentPage !== totalPages && "cursor-pointer"
+                      }
     `}
                   >
                     <i className="fa-solid fa-angle-right max-sm:text-xs"></i>
@@ -825,9 +821,8 @@ const FilterProducts = () => {
                     disabled={currentPage === totalPages}
                     className={`}
       px-2 py-1 text-gray-500 disabled:opacity-30 flex items-center
-      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${
-        currentPage !== totalPages && "cursor-pointer"
-      }
+      max-sm:px-1 max-sm:py-0.5 max-sm:text-xs ${currentPage !== totalPages && "cursor-pointer"
+                      }
     `}
                   >
                     <ChevronLast />

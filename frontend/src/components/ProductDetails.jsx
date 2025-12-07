@@ -22,7 +22,7 @@ import {
   decrement_quantity,
   increment_quantity,
 } from "../redux/reducers/productReducer";
-import axios from "axios";
+import axios from "../intercepter/axiosInstance";
 
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -55,7 +55,7 @@ const ProductDetails = () => {
   const get_single_product = async () => {
     await axios
       .get(
-        `${import.meta.env.VITE_BACKEND_URL}/product/get-single-product/${slug}`
+        `/product/get-single-product/${slug}`
       )
       .then((res) => {
         setProduct({ ...res.data.data.product });

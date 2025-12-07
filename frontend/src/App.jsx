@@ -47,7 +47,7 @@ function App() {
     pathname === "/order-success" ||
     pathname === "/order-failed";
 
-    const canAccessCheckout = token && carts?.length > 0;
+  const canAccessCheckout = token && carts?.length > 0;
 
   return (
     <>
@@ -75,16 +75,16 @@ function App() {
         <Route path="/order-success" element={<PaymentSuccess />} />
         <Route path="/order-failed" element={<PaymentFailed />} />
 
-        {!canAccessCheckout ? (
+        {!canAccessCheckout ?
           <>
-          {/* if Empty Cart, Navigate to the Home Page */}
+            {/* if Empty Cart, Navigate to the Login Page */}
             <Route path="/checkout" element={<Navigate to="/account/login" />} />
           </>
-        ) : (
+          :
           <>
             <Route path="/checkout" element={<Checkout />} />
           </>
-        )}
+        }
       </Routes>
       {!hideLayout && <Footer />}
     </>

@@ -10,11 +10,21 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation } from "swiper/modules";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { get_popular_products } from "../redux/reducers/productReducer";
 
 const PopularProducts = () => {
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
   const [showNav, setShowNav] = useState(true);
+  const dispatch = useDispatch();
+  const popularProducts = useSelector((state) => state.products.popularProducts);
+
+  useEffect(() => {
+    dispatch(get_popular_products(3));
+  }, []);
+
 
   const handleNavigationVisibility = (swiper) => {
     if (swiper.slides.length <= swiper.params.slidesPerView) {
@@ -33,114 +43,81 @@ const PopularProducts = () => {
     setIsEnd(swiper.isEnd);
   };
 
-  const productDetails = [
-    {
-      id: 1,
-      productImage: product1,
-      title: "Bergdolt, Reif & Nett Breakaway Merlot Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 29.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Merlot",
-    },
-    {
-      id: 2,
-      productImage: product2,
-      title: "Bergdolt, Reif & Nett Breakaway Pinot Noir Dealcoholized",
-      verity: "Grape Verity",
-      isGold: true,
-      price: 29.38,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Pinot Noir",
-    },
-    {
-      id: 3,
-      productImage: product3,
-      title:
-        "Bergdolt, Reif & Nett Reverse Sauvignon Blanc (vegan) Dealcoholized",
-      verity: "Grape Verity",
-      isGold: false,
-      price: 25.76,
-      productType: "Bergdolt, Reif & Nett",
-      wineType: "Sauvignon Blanc",
-    },
-  ];
-
   return (
-    <section className="w-full bg-[#F8F8F8] py-10 md:py-20">
-      <div className="w-[90%] xl:w-[80%] mx-auto">
-        {/* Title */}
-        <Title text="Popular products" />
+    popularProducts.length > 0 &&
+    <>
+      <section className="w-full bg-[#F8F8F8] py-10 md:py-20">
+        <div className="w-[90%] xl:w-[80%] mx-auto">
+          {/* Title */}
+          <Title text="Popular products" />
 
-        {/* Swiper Container */}
-        <div className="relative">
-          <Swiper
-            modules={[Navigation]}
-            spaceBetween={20}
-            navigation={{
-              nextEl: ".swiper-button-next-custom",
-              prevEl: ".swiper-button-prev-custom",
-            }}
-            breakpoints={{
-              320: { slidesPerView: 2 },
-              640: { slidesPerView: 3 },
-              1024: { slidesPerView: 3 },
-            }}
-            className="mySwiper pb-16"
-            onInit={(swiper) => {
-              handleNavigationVisibility(swiper);
-            }}
-            onResize={(swiper) => {
-              handleNavigationVisibility(swiper);
-            }}
-            onSlideChange={(swiper) => {
-              setIsBeginning(swiper.isBeginning);
-              setIsEnd(swiper.isEnd);
-            }}
-          >
-            {productDetails.map((product, index) => (
-              <SwiperSlide key={index}>
-                <Product
-                  id={product._id}
-                  productImage={product.productImage}
-                  title={product.title}
-                  verity={product.verity}
-                  isGold={product.isGold}
-                  price={product.price}
-                  wineType={product.wineType}
-                  slug={product.slug}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {/* Swiper Container */}
+          <div className="relative">
+            <Swiper
+              modules={[Navigation]}
+              spaceBetween={20}
+              navigation={{
+                nextEl: ".swiper-button-next-custom",
+                prevEl: ".swiper-button-prev-custom",
+              }}
+              breakpoints={{
+                320: { slidesPerView: 2 },
+                640: { slidesPerView: 3 },
+                1024: { slidesPerView: 3 },
+              }}
+              className="mySwiper pb-16"
+              onInit={(swiper) => {
+                handleNavigationVisibility(swiper);
+              }}
+              onResize={(swiper) => {
+                handleNavigationVisibility(swiper);
+              }}
+              onSlideChange={(swiper) => {
+                setIsBeginning(swiper.isBeginning);
+                setIsEnd(swiper.isEnd);
+              }}
+            >
+              {popularProducts.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <Product
+                    id={product._id._id}
+                    productImage={product._id.productImage}
+                    title={product._id.title}
+                    verity={product._id.verity}
+                    isGold={product._id.isGold}
+                    price={product._id.price}
+                    wineType={product._id.wineType}
+                    slug={product._id.slug}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
-          {/* Custom Navigation Buttons */}
-          {showNav && (
-            <div className="flex justify-center gap-2 mt-6">
-              <button
-                className={`swiper-button-prev-custom border border-black rounded-full w-10 h-10 flex items-center justify-center shadow-md transition ${
-                  isBeginning
+            {/* Custom Navigation Buttons */}
+            {showNav && (
+              <div className="flex justify-center gap-2 mt-6">
+                <button
+                  className={`swiper-button-prev-custom border border-black rounded-full w-10 h-10 flex items-center justify-center shadow-md transition ${isBeginning
                     ? "opacity-40 cursor-not-allowed"
                     : "hover:bg-gray-200"
-                }`}
-                disabled={isBeginning}
-              >
-                ❮
-              </button>
-              <button
-                className={`swiper-button-next-custom border border-black rounded-full w-10 h-10 flex items-center justify-center shadow-md transition ${
-                  isEnd ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-200"
-                }`}
-                disabled={isEnd}
-              >
-                ❯
-              </button>
-            </div>
-          )}
+                    }`}
+                  disabled={isBeginning}
+                >
+                  ❮
+                </button>
+                <button
+                  className={`swiper-button-next-custom border border-black rounded-full w-10 h-10 flex items-center justify-center shadow-md transition ${isEnd ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-200"
+                    }`}
+                  disabled={isEnd}
+                >
+                  ❯
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

@@ -1,9 +1,9 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
-import axios from "axios";
+import axios from "../../intercepter/axiosInstance";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import ToastMessage from "../toastMessage/toastMessage";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import {
@@ -92,10 +92,7 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
     const guestId = localStorage.getItem("guestId");
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
-        ...userLogin,
-        guestId: guestId || null,
-      })
+      .post(`/auth/login`, userLogin)
       .then((res) => {
         // Save token
         localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
@@ -103,7 +100,7 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
         // Remove guestId because backend merges it
         if (guestId) localStorage.removeItem("guestId");
 
-        toast.success(res.data.message);
+        ToastMessage.success(res.data.message);
         setIsUserDrawer(false);
         navigate("/");
         setSpinner(false);
@@ -115,7 +112,7 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
       })
       .catch((error) => {
         setSpinner(false);
-        toast.error(
+        ToastMessage.error(
           error.response ? error.response.data.message : error.message
         );
       });
@@ -125,9 +122,8 @@ const UserLoginDrawer = ({ isUserDrawer, setIsUserDrawer }) => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/70 z-50 transition-opacity duration-300 ${
-          isUserDrawer ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 bg-black/70 z-50 transition-opacity duration-300 ${isUserDrawer ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
         onClick={() => {
           setIsUserDrawer(false);
           setUserLogin({ email: "", password: "" });

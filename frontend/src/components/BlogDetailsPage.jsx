@@ -11,7 +11,7 @@ import Product from "./Product";
 import Title from "./Title";
 import Blog from "./Blog";
 import { get_all_blogs } from "../redux/reducers/blogReducer";
-import axios from "axios";
+import axios from "../intercepter/axiosInstance";
 import { format } from "date-fns";
 import { get_featured_products } from "../redux/reducers/productReducer";
 
@@ -40,7 +40,7 @@ const BlogDetailsPage = () => {
 
   const get_single_blog = () => {
     axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/blog/get-single-blog/${slug}`)
+      .get(`/blog/get-single-blog/${slug}`)
       .then((res) => {
         setRelatedBlogs([...res.data.relatedBlogs]);
         setBlog({ ...res.data.data });

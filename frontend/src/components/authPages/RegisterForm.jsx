@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from "../../intercepter/axiosInstance";
 import React, { useState } from "react";
 import Cookie from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import ToastMessage from "../toastMessage/toastMessage";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Flex, Spin } from "antd";
 import { get_all_carts } from "../../redux/reducers/productReducer";
@@ -99,10 +99,7 @@ const RegisterForm = ({ emailMarketing }) => {
 
     // Register API
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, {
-        ...data,
-        guestId: guestId || null,
-      })
+      .post(`/auth/register`, data)
       .then((res) => {
         localStorage.setItem(import.meta.env.VITE_WINE_TOKEN, res.data.token);
 
@@ -110,7 +107,7 @@ const RegisterForm = ({ emailMarketing }) => {
         if (guestId) localStorage.removeItem("guestId");
 
         navigate("/");
-        toast.success(res.data.message);
+        ToastMessage.success(res.data.message);
         setSpinner(false);
 
         // Fetch updated user cart
@@ -118,7 +115,7 @@ const RegisterForm = ({ emailMarketing }) => {
       })
       .catch((error) => {
         setSpinner(false);
-        toast.error(
+        ToastMessage.error(
           error.response ? error.response.data.message : error.message
         );
       });
@@ -134,9 +131,8 @@ const RegisterForm = ({ emailMarketing }) => {
             placeholder="First name"
             // value={data.firstName || ""}
             onChange={handleChange}
-            className={`w-full border-b py-3 px-1 outline-none ${
-              errorMsg.firstName ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full border-b py-3 px-1 outline-none ${errorMsg.firstName ? "border-red-500" : "border-gray-300"
+              }`}
           />
           {errorMsg.firstName && (
             <p className="text-red-500 text-sm mt-1">{errorMsg.firstName}</p>
@@ -151,9 +147,8 @@ const RegisterForm = ({ emailMarketing }) => {
             placeholder="Last name"
             // value={data.lastName || ""}
             onChange={handleChange}
-            className={`w-full border-b py-3 px-1 outline-none ${
-              errorMsg.lastName ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full border-b py-3 px-1 outline-none ${errorMsg.lastName ? "border-red-500" : "border-gray-300"
+              }`}
           />
           {errorMsg.lastName && (
             <p className="text-red-500 text-sm mt-1">{errorMsg.lastName}</p>
@@ -168,9 +163,8 @@ const RegisterForm = ({ emailMarketing }) => {
             placeholder="Your email address"
             // value={data.email || ""}
             onChange={handleChange}
-            className={`w-full border-b py-3 px-1 outline-none ${
-              errorMsg.email ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full border-b py-3 px-1 outline-none ${errorMsg.email ? "border-red-500" : "border-gray-300"
+              }`}
           />
           {errorMsg.email && (
             <p className="text-red-500 text-sm mt-1">{errorMsg.email}</p>
@@ -185,9 +179,8 @@ const RegisterForm = ({ emailMarketing }) => {
             placeholder="Your password"
             // value={data.password || ""}
             onChange={handleChange}
-            className={`w-full border-b py-3 px-1 outline-none ${
-              errorMsg.password ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full border-b py-3 px-1 outline-none ${errorMsg.password ? "border-red-500" : "border-gray-300"
+              }`}
           />
           {errorMsg.password && (
             <p className="text-red-500 text-sm mt-1">{errorMsg.password}</p>

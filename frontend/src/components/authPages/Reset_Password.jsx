@@ -1,10 +1,10 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
-import axios from "axios";
+import axios from "../../intercepter/axiosInstance";
 import React from "react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import ToastMessage from "../toastMessage/toastMessage";
 
 const Reset_Password = () => {
   const [passwords, setPasswords] = useState({});
@@ -69,17 +69,17 @@ const Reset_Password = () => {
     // Reset Password API
     axios
       .post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/reset-password/${email}`,
+        `/auth/reset-password/${email}`,
         passwords
       )
       .then((res) => {
         navigate("/account/login");
-        toast.success(res.data.message);
+        ToastMessage.success(res.data.message);
         setSpinner(false);
       })
       .catch((error) => {
         setSpinner(false);
-        toast.error(
+        ToastMessage.error(
           error.response ? error.response.data.message : error.message
         );
       });

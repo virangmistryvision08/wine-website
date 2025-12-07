@@ -13,11 +13,11 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { toast } from "react-toastify";
+import ToastMessage from "../toastMessage/toastMessage";
 import { jwtDecode } from "jwt-decode";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import axios from "axios";
+import axios from "../../intercepter/axiosInstance";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ const Checkout = () => {
   const [spinner, setSpinner] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef();
+  const [cardHolderName, setCardHolderName] = useState("");
 
   const countryWithCurrency = [
     { label: "India", currency: "IN" },
@@ -167,7 +168,7 @@ const Checkout = () => {
     if (!isValid) return;
 
     if (!stripe || !elements) {
-      toast.error("Stripe has not loaded yet");
+      ToastMessage.error("Stripe has not loaded yet");
       return;
     }
 
@@ -178,19 +179,18 @@ const Checkout = () => {
           ?.currency || "usd";
 
       const { data } = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/checkout/create-payment-intent`,
+        `/checkout/create-payment-intent`,
         {
           email: decode.email,
           amount: subtotal.toFixed(2),
           currency: selectedCurrency,
           deliveryDetails: details,
           cartProducts: carts,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       if (!data.clientSecret) {
-        toast("Client Secret Not Found!");
+        ToastMessage.error("Client Secret Not Found!");
       }
 
       const { clientSecret } = data;
@@ -206,23 +206,14 @@ const Checkout = () => {
 
             // Billing details shown in Stripe dashboard
             billing_details: {
-              name: `${details.firstName} ${details.lastName}`,
-              email: details.email,
-              phone: details.phone,
-              address: {
-                line1: details.address,
-                city: details.city,
-                state: details.state,
-                postal_code: details.zip,
-                country: details.country,
-              },
+              name: cardHolderName,
             },
           },
-        }
+        },
       );
 
       if (error) {
-        toast.error(error.message);
+        ToastMessage.error(error.message);
         setErrorMsg((prev) => ({
           ...prev,
           stripe: error.message,
@@ -234,14 +225,14 @@ const Checkout = () => {
       }
 
       if (paymentIntent.status === "succeeded") {
-        toast.success("Payment Success.");
+        ToastMessage.success("Payment Success.");
         setSpinner(false);
         navigate("/order-success");
       }
     } catch (err) {
       setSpinner(false);
       navigate("/order-failed");
-      toast.error(err.response ? err.response.data.message : err.message);
+      ToastMessage.error(err.response ? err.response.data.message : err.message);
     }
   };
 
@@ -251,7 +242,7 @@ const Checkout = () => {
       <nav className="w-full font-[Urbanist]">
         <div className="w-full md:w-[70%] mx-auto lg:w-full xl:w-[60%] flex items-center justify-between px-6 lg:px-10 py-6">
           {/* LOGO + TAGLINE */}
-          <div className="flex flex-col items-center text-center">
+          <div onClick={() => navigate("/")} className="flex flex-col items-center text-center cursor-pointer">
             <img src={logo} alt="logo" className="w-24 mb-2" />
             <p className="text-sm text-gray-700 font-semibold">
               Pure terroir. Zero compromise.
@@ -279,9 +270,8 @@ const Checkout = () => {
             <span className="text-base font-semibold">
               Order summary{" "}
               <i
-                className={`fa-solid fa-chevron-${
-                  open ? "up" : "down"
-                } text-xs`}
+                className={`fa-solid fa-chevron-${open ? "up" : "down"
+                  } text-xs`}
               ></i>
             </span>
             <span className="text-lg font-semibold">
@@ -291,9 +281,8 @@ const Checkout = () => {
 
           {/* Accordion content */}
           <div
-            className={`transition-all duration-700 overflow-hidden ${
-              open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-            }`}
+            className={`transition-all duration-700 overflow-hidden ${open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+              }`}
           >
             <div className="bg-[#F8F8F8] py-4 rounded-lg mt-2">
               {carts.map((cart) => (
@@ -456,7 +445,7 @@ const Checkout = () => {
 
             <div className="flex items-center mt-2 gap-2">
               <input className="accent-black" type="checkbox" id="news" />
-              <label htmlFor="news" className="text-sm text-gray-700">
+              <label htmlFor="news" className="text-sm text-gray-700 cursor-pointer">
                 Email me with news and offers
               </label>
             </div>
@@ -630,7 +619,7 @@ const Checkout = () => {
                     name="payment"
                     defaultChecked
                   />
-                  <label htmlFor="creditCard">Credit card</label>
+                  <label className="cursor-pointer" htmlFor="creditCard">Credit card</label>
                   <div className="ml-auto text-sm flex gap-1">
                     <img src={visa_card} alt="visa-card" />
                     <img src={master_card} alt="master-card" />
@@ -666,7 +655,7 @@ const Checkout = () => {
                     />
                     <label
                       htmlFor="useShippingAddress"
-                      className="text-sm text-gray-700"
+                      className="text-sm text-gray-700 cursor-pointer"
                     >
                       Use shipping address as billing address
                     </label>
@@ -687,7 +676,7 @@ const Checkout = () => {
                   type="radio"
                   name="payment"
                 />
-                <label className="text-xs md:text-base" htmlFor="paypal">
+                <label className="text-xs md:text-base cursor-pointer" htmlFor="paypal">
                   PayPal
                 </label>
               </div>
@@ -700,7 +689,7 @@ const Checkout = () => {
                   name="payment"
                 />
                 <label
-                  className="flex items-center gap-8 text-xs md:text-base whitespace-nowrap"
+                  className="flex items-center gap-8 text-xs md:text-base whitespace-nowrap cursor-pointer"
                   htmlFor="shopPay"
                 >
                   Shop Pay{" "}
@@ -719,7 +708,7 @@ const Checkout = () => {
                   />
                   <label
                     htmlFor="checkboxRememberMe"
-                    className="text-xs md:text-base"
+                    className="text-xs md:text-base cursor-pointer"
                   >
                     Save my information for faster checkout
                   </label>

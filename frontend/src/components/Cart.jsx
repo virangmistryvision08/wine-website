@@ -6,6 +6,7 @@ import {
   decrement_quantity,
   increment_quantity,
   remove_from_cart,
+  get_popular_products,
 } from "../redux/reducers/productReducer";
 import Title from "./Title";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -34,10 +35,12 @@ const Cart = () => {
   const subtotal = products.cart?.reduce(
     (acc, item) => acc + item.productId.price * item.quantity,
     0
-  ); 
-
+  );
+  const popularProducts = useSelector((state) => state.products.popularProducts);
+  
   useEffect(() => {
     dispatch(get_all_carts());
+    dispatch(get_popular_products(3));
   }, []);
 
   const handleSwiperInit = (swiper) => {
@@ -50,13 +53,13 @@ const Cart = () => {
   };
 
   // Get Random Three Products
-  const allProducts = products.allProducts;
+  // const allProducts = products.allProducts;
 
-  const getRandomThree = (arr) => {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
-  };
-  const productDetails = getRandomThree(allProducts);
+  // const getRandomThree = (arr) => {
+  //   const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  //   return shuffled.slice(0, 3);
+  // };
+  // const productDetails = getRandomThree(allProducts);
 
   return (
     <>
@@ -163,7 +166,7 @@ const Cart = () => {
                                     <TableCell size="small" className="">
                                       <i
                                         onClick={() =>
-                                          dispatch(remove_from_cart({productId: cart.productId._id}))
+                                          dispatch(remove_from_cart({ productId: cart.productId._id }))
                                         }
                                         className="fa-solid fa-xmark text-black text-[18px] cursor-pointer !flex !justify-center !items-center !h-8 !w-8 !border-2 !border-black !rounded-full hover:!bg-gray-200"
                                       ></i>
@@ -186,7 +189,7 @@ const Cart = () => {
                                           onClick={() => {
                                             navigate(`/products/${cart.productId._id}`);
                                           }}
-                                         className="font-bold whitespace-nowrap cursor-pointer hover:underline">
+                                          className="font-bold whitespace-nowrap cursor-pointer hover:underline">
                                           {cart.productId.title}
                                         </div>
                                       </div>
@@ -203,7 +206,7 @@ const Cart = () => {
                                         <button
                                           className="cursor-pointer"
                                           onClick={() =>
-                                            dispatch(decrement_quantity({productId: cart.productId._id}))
+                                            dispatch(decrement_quantity({ productId: cart.productId._id }))
                                           }
                                         >
                                           –
@@ -212,7 +215,7 @@ const Cart = () => {
                                         <button
                                           className="cursor-pointer"
                                           onClick={() =>
-                                            dispatch(increment_quantity({productId: cart.productId._id}))
+                                            dispatch(increment_quantity({ productId: cart.productId._id }))
                                           }
                                         >
                                           +
@@ -372,18 +375,19 @@ const Cart = () => {
               },
             }}
           >
-            {productDetails.map((product, index) => {
+            {popularProducts.map((product) => {
               return (
-                <SwiperSlide key={index}>
+                <SwiperSlide key={product._id._id}>
                   <Product
-                    key={index}
-                    productImage={product.productImage}
-                    title={product.title}
-                    verity={product.verity}
-                    isGold={product.isGold}
-                    price={product.price}
-                    wineType={product.wineType}
-                    id={product.id}
+                    key={product._id._id}
+                    productImage={product._id.productImage}
+                    title={product._id.title}
+                    verity={product._id.verity}
+                    isGold={product._id.isGold}
+                    price={product._id.price}
+                    wineType={product._id.wineType}
+                    id={product._id._id}
+                    slug={product._id.slug}
                   />
                 </SwiperSlide>
               );

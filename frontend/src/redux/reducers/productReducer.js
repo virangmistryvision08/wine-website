@@ -14,8 +14,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 // import product13 from "/products/product13.png";
 // import product14 from "/products/product14.png";
 // import product15 from "/products/product15.png";
-import { toast } from "react-toastify";
-import axios from "axios";
+import ToastMessage from "../../components/toastMessage/toastMessage";
+import axios from "../../intercepter/axiosInstance";
 
 const allPostsSlice = createSlice({
   name: "allCourses",
@@ -24,6 +24,7 @@ const allPostsSlice = createSlice({
     cart: [],
     isCartOpen: false,
     featuredProducts: [],
+    popularProducts: [],
   },
 
   reducers: {
@@ -36,6 +37,9 @@ const allPostsSlice = createSlice({
     getFeaturedProducts: (state, action) => {
       state.featuredProducts = action.payload;
     },
+    getPopularProducts: (state, action) => {
+      state.popularProducts = action.payload;
+    },
     toggleCartDrawer: (state) => {
       state.isCartOpen = !state.isCartOpen;
     },
@@ -47,7 +51,7 @@ export const get_all_products = createAsyncThunk(
   "get_all_products",
   (data, { dispatch }) => {
     axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/product/get-all-products`)
+      .get(`/product/get-all-products`)
       .then((res) => {
         dispatch(getAllproducts(res.data.data));
       });
@@ -60,12 +64,26 @@ export const get_featured_products = createAsyncThunk(
   (limit, { dispatch }) => {
     axios
       .get(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/product/get-featured-products?limit=${limit}`
+        `/product/get-featured-products?limit=${limit}`
       )
       .then((res) => {
         dispatch(getFeaturedProducts(res.data.data));
+      });
+  }
+);
+
+/* GET Popular Products */
+export const get_popular_products = createAsyncThunk(
+  "get_popular_products",
+  (limit, { dispatch }) => {
+    axios
+      .get(
+        `/product/get-popular-products?limit=${limit}`
+      )
+      .then((res) => {
+        dispatch(getPopularProducts(res.data.data));
+      }).catch((error) => {
+        console.log(error,'error');
       });
   }
 );
@@ -75,18 +93,10 @@ export const get_all_carts = createAsyncThunk(
   "get_all_carts",
   async (_, { dispatch }) => {
     try {
-      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-      const guestId = localStorage.getItem("guestId");
 
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/cart/get-carts`,
-        {
-          params: token ? {} : { guestId },
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
+        `/cart/get-carts`
       );
-
-      // console.log(res.data,'res.data')
 
       dispatch(getAllCarts(res.data.cart.items || []));
       return res.data.cart.items;
@@ -101,19 +111,8 @@ export const add_to_cart = createAsyncThunk(
   "add_to_cart",
   async ({ productId, quantity }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-      let guestId = localStorage.getItem("guestId");
-
-      const payload = { productId, quantity };
-      if (!token && guestId) payload.guestId = guestId;
-
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/cart/add`,
-        payload,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+        `/cart/add`,{ productId, quantity });
 
       // If backend assigns new guestId
       if (res.data.assignedGuestId) {
@@ -123,7 +122,7 @@ export const add_to_cart = createAsyncThunk(
       dispatch(toggleCartDrawer());
       dispatch(get_all_carts());
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
+      ToastMessage.error(err.response?.data?.message || err.message);
       throw err;
     }
   }
@@ -134,22 +133,12 @@ export const remove_from_cart = createAsyncThunk(
   "remove_from_cart",
   async ({ productId }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-      const guestId = localStorage.getItem("guestId");
-
-      const payload = { productId };
-      if (!token && guestId) payload.guestId = guestId;
-
-      await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/cart/remove-cart`,
-        {
-          data: payload,
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      await axios.delete(`/cart/remove-cart`, {
+        data: { productId },
+      });
 
       dispatch(get_all_carts());
-      toast.success("Product removed!");
+      ToastMessage.success("Product removed!");
     } catch (err) {
       console.log("Remove error:", err);
       throw err;
@@ -157,51 +146,35 @@ export const remove_from_cart = createAsyncThunk(
   }
 );
 
+
 /* INCREMENT QTY */
 export const increment_quantity = createAsyncThunk(
   "increment_quantity",
   async ({ productId }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-      const guestId = localStorage.getItem("guestId");
-
-      const payload = { productId, type: "inc" };
-      if (!token && guestId) payload.guestId = guestId;
-
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
-        payload,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      await axios.post(`/cart/update-quantity`, {
+        productId,
+        type: "inc",
+      });
 
       dispatch(get_all_carts());
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
+      ToastMessage.error(err.response?.data?.message || err.message);
       throw err;
     }
   }
 );
+
 
 /* DECREMENT QTY */
 export const decrement_quantity = createAsyncThunk(
   "decrement_quantity",
   async ({ productId }, { dispatch }) => {
     try {
-      const token = localStorage.getItem(import.meta.env.VITE_WINE_TOKEN);
-      const guestId = localStorage.getItem("guestId");
-
-      const payload = { productId, type: "dec" };
-      if (!token && guestId) payload.guestId = guestId;
-
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/cart/update-quantity`,
-        payload,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+      await axios.post(`/cart/update-quantity`, {
+        productId,
+        type: "dec",
+      });
 
       dispatch(get_all_carts());
     } catch (err) {
@@ -211,9 +184,11 @@ export const decrement_quantity = createAsyncThunk(
   }
 );
 
+
 export const {
   getAllproducts,
   getFeaturedProducts,
+  getPopularProducts,
   getAllCarts,
   toggleCartDrawer,
 } = allPostsSlice.actions;
